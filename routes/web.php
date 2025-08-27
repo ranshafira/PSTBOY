@@ -1,18 +1,13 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AntrianController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ProfileController;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
+// Route untuk halaman utama
+Route::get('/', [AntrianController::class, 'index'])->name('antrian.index');
+Route::post('/antrian', [AntrianController::class, 'store'])->name('antrian.store');
 
-Route::get('/', function () {
-    return view('welcome');
-});
+
+
