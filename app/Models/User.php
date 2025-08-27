@@ -2,13 +2,15 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+// 1. Tambahkan baris 'use' ini
+use JeroenNoten\LaravelAdminLte\Contracts\AdminLteUser;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable
+// 2. Tambahkan 'implements AdminLteUser' setelah 'Authenticatable'
+class User extends Authenticatable implements AdminLteUser
 {
     use HasApiTokens, HasFactory, Notifiable;
 
@@ -18,9 +20,11 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
-        'email',
+        'nama_lengkap',
+        'nip',
+        'username',
         'password',
+        'role_id',
     ];
 
     /**
@@ -39,7 +43,7 @@ class User extends Authenticatable
      * @var array<string, string>
      */
     protected $casts = [
-        'email_verified_at' => 'datetime',
+        // 3. Baris 'email_verified_at' dihapus karena tidak ada di database Anda
         'password' => 'hashed',
     ];
 }
