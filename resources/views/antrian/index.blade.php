@@ -32,39 +32,82 @@
 
 <body class="bg-bps-primary text-white min-h-screen flex flex-col">
 
-    <header class="bg-bps-dark shadow-md sticky top-0 z-20">
-        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+    <header 
+    x-data="{ shown: false }" 
+    x-init="setTimeout(() => shown = true, 200)"
+    class="bg-gradient-to-r from-bps-dark to-bps-primary shadow-lg sticky top-0 z-20 border-b border-white/10">
+    
+    <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+        
+        <a href="https://boyolalikab.bps.go.id/" target="_blank" rel="noopener noreferrer"
+           x-show="shown" 
+           x-transition:enter="transition ease-out duration-500"
+           x-transition:enter-start="opacity-0 -translate-x-4"
+           x-transition:enter-end="opacity-100 translate-x-0"
+           class="flex items-center group">
             
-            <div class="flex items-center">
-                <img src="https://4.bp.blogspot.com/-w45pPrU450Q/WitcqmIyloI/AAAAAAAAF3Q/k4pgHadbWvslcDQNTxLOezOK2cOaypPSACLcBGAs/s1600/BPS.png" alt="BPS Logo" class="h-9 mr-3">
-                <strong class="text-lg text-white hidden sm:block">BPS Kabupaten Boyolali</strong>
-            </div>
+            <img src="https://4.bp.blogspot.com/-w45pPrU450Q/WitcqmIyloI/AAAAAAAAF3Q/k4pgHadbWvslcDQNTxLOezOK2cOaypPSACLcBGAs/s1600/BPS.png" alt="BPS Logo" class="h-10 mr-4 group-hover:opacity-80 transition-opacity">
+            <strong class="text-xl text-white hidden sm:block font-semibold group-hover:text-gray-300 transition-colors">
+                BPS Kabupaten Boyolali
+            </strong>
+        </a>
+        <nav 
+            x-show="shown"
+            x-transition:enter="transition ease-out duration-500"
+            x-transition:enter-start="opacity-0 translate-x-4"
+            x-transition:enter-end="opacity-100 translate-x-0"
+            class="flex items-center gap-3">
+            
+            @if (Route::has('login'))
+                @auth
+                    <a href="{{ url('/dashboard') }}" 
+                       class="text-sm text-white font-bold rounded-full px-5 py-2.5 border-2 border-white/50 
+                              hover:bg-white hover:text-bps-dark hover:border-white transform hover:scale-105 
+                              transition-all duration-300 ease-in-out shadow-md hover:shadow-lg">
+                       Dashboard
+                    </a>
+                @else
+                    <a href="{{ route('login') }}" 
+                       class="text-sm bg-bps-orange text-white font-bold rounded-full px-5 py-2.5 
+                              hover:bg-orange-500 transform hover:scale-105 
+                              transition-all duration-300 ease-in-out shadow-lg hover:shadow-orange-400/50">
+                       Log in
+                    </a>
 
-            <nav class="flex items-center gap-2 sm:gap-4">
-                @if (Route::has('login'))
-                    @auth
-                        <a href="{{ url('/dashboard') }}" 
-                           class="text-sm text-white font-semibold rounded-md px-3 py-2 hover:bg-white/10 transition-colors duration-200">
-                           Dashboard
+                    @if (Route::has('register'))
+                        <a href="{{ route('register') }}" 
+                           class="text-sm text-white font-semibold rounded-full px-5 py-2.5 
+                                  hover:bg-white/20 transform hover:scale-105 
+                                  transition-all duration-300 ease-in-out">
+                           Register
                         </a>
-                    @else
-                        <a href="{{ route('login') }}" 
-                           class="text-sm text-white font-semibold rounded-md px-3 py-2 hover:bg-white/10 transition-colors duration-200">
-                           Log in
-                        </a>
+                    @endif
+                @endauth
+            @endif
+        </nav>
 
-                        @if (Route::has('register'))
-                            <a href="{{ route('register') }}" 
-                               class="text-sm bg-white text-bps-dark font-semibold rounded-md px-3 py-2 hover:bg-gray-200 transition-colors duration-200">
-                               Register
-                            </a>
-                        @endif
-                    @endauth
-                @endif
-            </nav>
+        <nav 
+    x-show="shown"
+    x-transition:enter="transition ease-out duration-500"
+    x-transition:enter-start="opacity-0 translate-x-4"
+    x-transition:enter-end="opacity-100 translate-x-0"
+    class="flex items-center gap-3">
 
-        </div>
-    </header>
+    <a href="{{ route('bukutamu.create') }}" 
+       class="text-sm text-white font-semibold rounded-full px-5 py-2.5 
+              hover:bg-white/20 transform hover:scale-105 
+              transition-all duration-300 ease-in-out">
+       Buku Tamu
+    </a>
+
+    @if (Route::has('login'))
+        @auth
+            @else
+            @endauth
+    @endif
+</nav>
+    </div>
+</header>
 
     <main class="flex-grow container mx-auto px-6 pt-12 md:pt-20 pb-16">
         <div class="text-center">
