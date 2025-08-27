@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pelayanan Statistik Terpadu</title>
+    <title>Pelayanan Statistik Terpadu - BPS Kab. Boyolali</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -29,44 +29,63 @@
         }
     </style>
 </head>
+
 <body class="bg-bps-primary text-white min-h-screen flex flex-col">
 
-   <header class="bg-bps-dark shadow-md">
-    <div class="container mx-auto px-6 py-4 flex justify-between items-center">
-        
-        <div class="flex items-center">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/3/3a/BPS_Logo.png" alt="BPS Logo" class="h-9 mr-3">
-            <strong class="text-lg text-white hidden sm:block">BPS Kabupaten Boyolali</strong>
-        </div>
-
-        <nav class="flex items-center gap-4">
+    <header class="bg-bps-dark shadow-md sticky top-0 z-20">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
             
-           
+            <div class="flex items-center">
+                <img src="https://4.bp.blogspot.com/-w45pPrU450Q/WitcqmIyloI/AAAAAAAAF3Q/k4pgHadbWvslcDQNTxLOezOK2cOaypPSACLcBGAs/s1600/BPS.png" alt="BPS Logo" class="h-9 mr-3">
+                <strong class="text-lg text-white hidden sm:block">BPS Kabupaten Boyolali</strong>
+            </div>
 
-        </nav>
-    </div>
-</header>
+            <nav class="flex items-center gap-2 sm:gap-4">
+                @if (Route::has('login'))
+                    @auth
+                        <a href="{{ url('/dashboard') }}" 
+                           class="text-sm text-white font-semibold rounded-md px-3 py-2 hover:bg-white/10 transition-colors duration-200">
+                           Dashboard
+                        </a>
+                    @else
+                        <a href="{{ route('login') }}" 
+                           class="text-sm text-white font-semibold rounded-md px-3 py-2 hover:bg-white/10 transition-colors duration-200">
+                           Log in
+                        </a>
 
-    <!-- Main Content -->
-    <main class="flex-grow container mx-auto px-6 pt-20 pb-16 text-center">
-        <h1 class="text-3xl md:text-4xl font-bold mb-2">Selamat Datang di Pelayanan PST</h1>
-        <p class="text-gray-200 mb-4">Sistem antrian digital untuk pelayanan yang lebih efisien</p>
+                        @if (Route::has('register'))
+                            <a href="{{ route('register') }}" 
+                               class="text-sm bg-white text-bps-dark font-semibold rounded-md px-3 py-2 hover:bg-gray-200 transition-colors duration-200">
+                               Register
+                            </a>
+                        @endif
+                    @endauth
+                @endif
+            </nav>
 
-        <!-- Tanggal & Waktu -->
-        <div class="text-sm text-gray-300 mb-8">
-            <span id="jam"></span> • <span id="tanggal"></span>
         </div>
+    </header>
 
-        <h2 class="text-xl font-semibold mb-6">Pilih Layanan yang Anda Butuhkan</h2>
+    <main class="flex-grow container mx-auto px-6 pt-12 md:pt-20 pb-16">
+        <div class="text-center">
+            <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-2">
+                Sistem Antrian Digital PST
+            </h1>
+            <p class="text-lg text-gray-300 leading-relaxed mb-6">
+                Selamat datang di Pelayanan Statistik Terpadu. Silakan pilih jenis layanan di bawah.
+            </p>
 
-        <!-- Grid Layanan -->
-        <div class="grid grid-cols-1 sm:grid-cols-4 gap-6 justify-center mb-10">
+            <div class="text-base text-gray-300 mb-12">
+                <span id="jam">--:--</span> &bull; <span id="tanggal">-- ---- ----</span>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-center mb-10">
             @foreach ($jenisLayanan as $layanan)
             <form method="POST" action="{{ route('antrian.store') }}">
                 @csrf
                 <input type="hidden" name="jenis_layanan_id" value="{{ $layanan->id }}">
-                <div class="bg-white text-bps-dark rounded-xl shadow-lg p-4 flex flex-col items-center hover:shadow-xl transition">
-                    <!-- Icon -->
+                <button type="submit" class="w-full h-full bg-white text-bps-dark rounded-xl shadow-lg p-6 flex flex-col items-center hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 text-left">
                     <div class="text-5xl mb-4">
                         @php
                             $iconMap = [
@@ -76,17 +95,16 @@
                                 'Rekomendasi Statistik' => '📌',
                                 'Pengaduan Layanan' => '📣',
                             ];
-                            $icon = $iconMap[$layanan->nama_layanan] ?? '📌';
+                            $icon = $iconMap[$layanan->nama_layanan] ?? '⭐️';
                         @endphp
                         {{ $icon }}
                     </div>
-                    <!-- Nama Layanan -->
-                    <h3 class="text-lg font-bold mb-1 text-center">{{ $layanan->nama_layanan }}</h3>
-                    <p class="text-sm text-gray-600 mb-4 text-center">{{ $layanan->deskripsi ?? 'Layanan ' . $layanan->nama_layanan }}</p>
-                    <button type="submit" class="bg-bps-orange text-white px-4 py-2 rounded-md font-bold hover:bg-orange-600 transition">
-                        Ambil Nomor Antrian
-                    </button>
-                </div>
+                    <h3 class="text-lg font-bold mb-2 text-center">{{ $layanan->nama_layanan }}</h3>
+                    <p class="text-sm text-gray-600 mb-4 text-center flex-grow">{{ $layanan->deskripsi ?? 'Layanan ' . $layanan->nama_layanan }}</p>
+                    <span class="mt-auto w-full bg-bps-orange text-white px-4 py-2 rounded-md font-bold group-hover:bg-orange-600 transition text-center">
+                        Ambil Nomor
+                    </span>
+                </button>
             </form>
             @endforeach
         </div>
@@ -113,7 +131,6 @@
         </div>
     </main>
 
-    <!-- Modal Jika Ada Antrian -->
     @if (session('success'))
     <div x-data="{ showModal: true }"
          x-show="showModal"
@@ -148,7 +165,6 @@
     </div>
     @endif
 
-    <!-- Script Tanggal & Jam -->
     <script>
         function updateWaktu() {
             const hari = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
@@ -168,7 +184,7 @@
         }
 
         updateWaktu();
-        setInterval(updateWaktu, 1000);
+        setInterval(updateWaktu, 60000); // Update setiap menit
     </script>
 
 </body>
