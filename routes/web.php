@@ -5,6 +5,8 @@ use App\Models\JenisLayanan; // PENTING: Untuk memperbaiki error di dashboard
 use App\Http\Controllers\AntrianController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AbsensiController;
+use App\Http\Controllers\BukuTamuController;
+use App\Http\Controllers\PresensiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -39,6 +41,19 @@ Route::middleware('auth')->group(function () {
     Route::get('/absensi', [AbsensiController::class, 'index'])->name('absensi.index');
     Route::post('/absensi/check-in', [AbsensiController::class, 'checkIn'])->name('absensi.checkin');
     Route::post('/absensi/check-out', [AbsensiController::class, 'checkOut'])->name('absensi.checkout');
+});
+
+// == Route untuk Buku Tamu ==
+Route::get('/buku-tamu', [BukuTamuController::class, 'create'])->name('bukutamu.create');
+Route::post('/buku-tamu', [BukuTamuController::class, 'store'])->name('bukutamu.store');
+
+Route::middleware('auth')->group(function () {
+    // ... (route profile, dll.)
+
+    // Ganti route absensi menjadi presensi
+    Route::get('/presensi', [PresensiController::class, 'index'])->name('presensi.index');
+    Route::post('/presensi/check-in', [PresensiController::class, 'checkIn'])->name('presensi.checkin');
+    Route::post('/presensi/check-out', [PresensiController::class, 'checkOut'])->name('presensi.checkout');
 });
 
 // Route untuk otentikasi (login, register, dll)
