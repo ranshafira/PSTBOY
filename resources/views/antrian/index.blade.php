@@ -33,74 +33,49 @@
 <body class="bg-bps-primary text-white min-h-screen flex flex-col">
 
     <header 
-    x-data="{ shown: false }" 
-    x-init="setTimeout(() => shown = true, 200)"
-    class="bg-gradient-to-r from-bps-dark to-bps-primary shadow-lg sticky top-0 z-20 border-b border-white/10">
-    
-    <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+        x-data="{ shown: false }" 
+        x-init="setTimeout(() => shown = true, 200)"
+        class="bg-gradient-to-r from-bps-dark to-bps-primary shadow-lg sticky top-0 z-20 border-b border-white/10">
         
-        <a href="https://boyolalikab.bps.go.id/" target="_blank" rel="noopener noreferrer"
-           x-show="shown" 
-           x-transition:enter="transition ease-out duration-500"
-           x-transition:enter-start="opacity-0 -translate-x-4"
-           x-transition:enter-end="opacity-100 translate-x-0"
-           class="flex items-center group">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
             
-            <img src="https://4.bp.blogspot.com/-w45pPrU450Q/WitcqmIyloI/AAAAAAAAF3Q/k4pgHadbWvslcDQNTxLOezOK2cOaypPSACLcBGAs/s1600/BPS.png" alt="BPS Logo" class="h-10 mr-4 group-hover:opacity-80 transition-opacity">
-            <strong class="text-xl text-white hidden sm:block font-semibold group-hover:text-gray-300 transition-colors">
-                BPS Kabupaten Boyolali
-            </strong>
-        </a>
-
-        <nav class="flex items-center gap-3">
-    @if (Route::has('login'))
-        @auth
-            {{-- Jika user sudah login, jangan tampilkan tombol login/register --}}
-            <a href="{{ route('presensi.index') }}" 
-               class="text-sm text-white font-semibold rounded-full px-5 py-2.5 
-                      hover:bg-white/20 transform hover:scale-105 
-                      transition-all duration-300 ease-in-out">
-               Presensi
-            </a>
-        @else
-            <a href="{{ route('login') }}" 
-               class="text-sm bg-bps-orange text-white font-bold rounded-full px-5 py-2.5 
-                      hover:bg-orange-500 transform hover:scale-105 
-                      transition-all duration-300 ease-in-out shadow-lg hover:shadow-orange-400/50">
-               Login
+            <a href="https://boyolalikab.bps.go.id/" target="_blank" rel="noopener noreferrer"
+               x-show="shown" 
+               x-transition:enter="transition ease-out duration-500"
+               x-transition:enter-start="opacity-0 -translate-x-4"
+               x-transition:enter-end="opacity-100 translate-x-0"
+               class="flex items-center group">
+                
+                <img src="https://4.bp.blogspot.com/-w45pPrU450Q/WitcqmIyloI/AAAAAAAAF3Q/k4pgHadbWvslcDQNTxLOezOK2cOaypPSACLcBGAs/s1600/BPS.png" alt="BPS Logo" class="h-10 mr-4 group-hover:opacity-80 transition-opacity">
+                <strong class="text-xl text-white hidden sm:block font-semibold group-hover:text-gray-300 transition-colors">
+                    BPS Kabupaten Boyolali
+                </strong>
             </a>
 
-            @if (Route::has('register'))
-                <a href="{{ route('register') }}" 
-                   class="text-sm text-white font-semibold rounded-full px-5 py-2.5 
-                          hover:bg-white/20 transform hover:scale-105 
-                          transition-all duration-300 ease-in-out">
-                   Register
-                </a>
-            @endif
-        @endauth
-    @endif
-</nav>
+            <nav class="flex items-center gap-3">
+                @if (Route::has('login'))
+                    @auth
+                        <a href="{{ route('presensi.index') }}" 
+                           class="text-sm text-white font-semibold rounded-full px-5 py-2.5 hover:bg-white/20 transform hover:scale-105 transition-all duration-300 ease-in-out">
+                           Presensi
+                        </a>
+                    @else
+                        <a href="{{ route('login') }}" 
+                           class="text-sm bg-bps-orange text-white font-bold rounded-full px-5 py-2.5 hover:bg-orange-500 transform hover:scale-105 transition-all duration-300 ease-in-out shadow-lg hover:shadow-orange-400/50">
+                           Login
+                        </a>
 
-
-        <nav 
-            x-show="shown"
-            x-transition:enter="transition ease-out duration-500"
-            x-transition:enter-start="opacity-0 translate-x-4"
-            x-transition:enter-end="opacity-100 translate-x-0"
-            class="flex items-center gap-3">
-
-            <a href="{{ route('bukutamu.create') }}" 
-               class="text-sm text-white font-semibold rounded-full px-5 py-2.5 
-                      hover:bg-white/20 transform hover:scale-105 
-                      transition-all duration-300 ease-in-out">
-               Buku Tamu
-            </a>
-
-        </nav>
-    </div>
-</header>
-
+                        @if (Route::has('register'))
+                            <a href="{{ route('register') }}" 
+                               class="text-sm text-white font-semibold rounded-full px-5 py-2.5 hover:bg-white/20 transform hover:scale-105 transition-all duration-300 ease-in-out">
+                               Register
+                            </a>
+                        @endif
+                    @endauth
+                @endif
+            </nav>
+        </div>
+    </header>
 
     <main class="flex-grow container mx-auto px-6 pt-12 md:pt-20 pb-16">
         <div class="text-center">
@@ -115,7 +90,8 @@
                 <span id="jam">--:--</span> &bull; <span id="tanggal">-- ---- ----</span>
             </div>
         </div>
-        
+
+        <!-- Layanan -->
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-center mb-10">
             @foreach ($jenisLayanan as $layanan)
             <form method="POST" action="{{ route('antrian.store') }}">
@@ -143,6 +119,14 @@
                 </button>
             </form>
             @endforeach
+        </div>
+
+        <!-- Tombol Buku Tamu -->
+        <div class="flex justify-center mt-8 mb-10">
+            <a href="{{ route('bukutamu.create') }}"
+               class="inline-block bg-white text-bps-dark font-bold text-lg px-6 py-3 rounded-full shadow-lg hover:bg-bps-orange hover:text-white transform hover:-translate-y-1 hover:shadow-orange-300 transition duration-300 ease-in-out">
+                📖 Buku Tamu
+            </a>
         </div>
 
         <!-- Informasi Pelayanan -->
