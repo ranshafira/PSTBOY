@@ -7,6 +7,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AbsensiController;
 use App\Http\Controllers\BukuTamuController;
 use App\Http\Controllers\PresensiController;
+use App\Http\Controllers\DashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,10 +28,9 @@ Route::post('/antrian', [AntrianController::class, 'store'])->name('antrian.stor
 // == Route untuk Halaman yang Membutuhkan Login (dari Teman Anda) ==
 
 // Dashboard (Sudah diperbaiki untuk mengirim data $jenisLayanan)
-Route::get('/dashboard', function () {
-    $jenisLayanan = JenisLayanan::all();
-    return view('dashboard', compact('jenisLayanan'));
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
 // Grup route yang memerlukan login
 Route::middleware('auth')->group(function () {
