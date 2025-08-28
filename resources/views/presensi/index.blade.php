@@ -1,84 +1,60 @@
 <x-app-layout>
 
    <!-- Navbar -->
-<nav class="bg-white shadow-md sticky top-0 z-50" x-data="{ mobileOpen: false }">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex justify-between items-center h-16">
+<!-- Navbar -->
+<nav class="bg-white shadow-sm sticky top-0 z-10" x-data="{ open: false }">
+  <div class="container mx-auto px-4 py-3 flex items-center justify-between">
 
-      <!-- Logo + Title -->
-      <div class="flex items-center space-x-3">
-        <div class="bg-orange-500 text-white font-bold rounded-md w-9 h-9 flex items-center justify-center text-lg shadow-sm">P</div>
-        <span class="font-semibold text-lg text-gray-800">Pelayanan PST</span>
-      </div>
-
-      <!-- Desktop Menu -->
-      <div class="hidden md:flex items-center space-x-6 text-sm font-medium">
-        <a href="{{ route('dashboard') }}" class="text-gray-700 hover:text-orange-500 transition">Dashboard Pegawai</a>
-        <a href="{{ route('presensi.index') }}" class="text-orange-500 font-semibold">Presensi</a>
-        <a href="#" class="text-gray-700 hover:text-orange-500 transition">Riwayat</a>
-
-        <!-- Profil Dropdown -->
-        <div class="relative" x-data="{ open: false }">
-          <button @click="open = !open"
-                  class="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center focus:outline-none"
-                  aria-label="User menu">
-            <svg class="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
-              <path fill-rule="evenodd"
-                    d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-3.33 0-6 2.24-6 5v1h12v-1c0-2.76-2.67-5-6-5z"
-                    clip-rule="evenodd" />
-            </svg>
-          </button>
-
-          <!-- Dropdown -->
-          <div x-show="open"
-               @click.away="open = false"
-               x-transition
-               class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2 z-20"
-               style="display: none;">
-            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profil Saya</a>
-            <form method="POST" action="{{ route('logout') }}">
-              @csrf
-              <button type="submit" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                Logout
-              </button>
-            </form>
-          </div>
-        </div>
-      </div>
-
-      <!-- Hamburger button (Mobile) -->
-      <div class="md:hidden">
-        <button @click="mobileOpen = !mobileOpen" class="focus:outline-none">
-          <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-               xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M4 6h16M4 12h16M4 18h16"></path>
-          </svg>
-        </button>
-      </div>
+    <!-- Logo + Title -->
+    <div class="flex items-center space-x-3">
+      <div class="bg-orange-500 text-white font-bold rounded-md w-8 h-8 flex items-center justify-center">P</div>
+      <span class="font-semibold text-lg">Pelayanan PST</span>
     </div>
+
+    <!-- Hamburger button -->
+    <button @click="open = !open" class="md:hidden focus:outline-none">
+      <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+           xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16"></path>
+      </svg>
+    </button>
+
+    <!-- Menu Desktop -->
+    <ul class="hidden md:flex space-x-6 text-sm font-medium text-gray-700">
+      <li><a href="{{ route('dashboard') }}" class="hover:text-orange-500 transition">Dashboard</a></li>
+      <li><a href="{{ route('presensi.index') }}" class="text-orange-500 font-semibold">Presensi</a></li>
+      <li><a href="#" class="hover:text-orange-500 transition">Riwayat</a></li>
+      <li><a href="#" class="hover:text-orange-500 transition">Profil</a></li>
+      <li>
+        <form method="POST" action="{{ route('logout') }}">
+          @csrf
+          <button type="submit" class="hover:text-orange-500 transition">
+            Logout
+          </button>
+        </form>
+      </li>
+    </ul>
   </div>
 
-  <!-- Mobile Menu -->
-<div class="md:hidden bg-white shadow-md" 
-     x-show="mobileOpen" 
-     x-transition 
-     @click.away="mobileOpen = false">
-  <ul class="px-4 py-4 space-y-3 text-sm font-medium text-gray-700 border-t">
-    <li><a href="{{ route('dashboard') }}" @click="mobileOpen = false" class="block hover:text-orange-500 transition">Dashboard Pegawai</a></li>
-    <li><a href="{{ route('presensi.index') }}" @click="mobileOpen = false" class="block text-orange-500 font-semibold">Presensi</a></li>
-    <li><a href="#" @click="mobileOpen = false" class="block hover:text-orange-500 transition">Riwayat</a></li>
-    <li><a href="#" @click="mobileOpen = false" class="block hover:text-orange-500 transition">Profil Saya</a></li>
-    <li>
-      <form method="POST" action="{{ route('logout') }}">
-        @csrf
-        <button @click="mobileOpen = false" type="submit" class="block w-full text-left hover:text-orange-500 transition">
-          Logout
-        </button>
-      </form>
-    </li>
-  </ul>
-</div>
+  <!-- Menu Mobile -->
+  <div class="md:hidden" x-show="open" x-transition>
+    <ul class="px-4 pb-4 space-y-3 text-sm font-medium text-gray-700">
+      <li><a href="{{ route('dashboard') }}" class="block text-orange-500 font-semibold">Dashboard</a></li>
+      <li><a href="{{ route('presensi.index') }}" class="block hover:text-orange-500 transition">Presensi</a></li>
+      <li><a href="#" class="block hover:text-orange-500 transition">Riwayat</a></li>
+      <li><a href="#" class="block hover:text-orange-500 transition">Profil</a></li>
+      <li>
+        <form method="POST" action="{{ route('logout') }}">
+          @csrf
+          <button type="submit" class="block w-full text-left hover:text-orange-500 transition">
+            Logout
+          </button>
+        </form>
+      </li>
+    </ul>
+  </div>
+</nav>
 
 
     <div class="py-12">

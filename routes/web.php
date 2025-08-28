@@ -43,6 +43,17 @@ Route::middleware('auth')->group(function () {
     Route::post('/absensi/check-out', [AbsensiController::class, 'checkOut'])->name('absensi.checkout');
 });
 
+
+Route::post('/antrian/{nomor}/panggil', [\App\Http\Controllers\AntrianController::class, 'panggil'])
+    ->middleware(['auth'])
+    ->name('antrian.panggil');
+
+Route::get('/pelayanan/{nomor}', [\App\Http\Controllers\PelayananController::class, 'show'])
+    ->middleware(['auth'])
+    ->name('pelayanan.show');
+
+
+
 // == Route untuk Buku Tamu ==
 Route::get('/buku-tamu', [BukuTamuController::class, 'create'])->name('bukutamu.create');
 Route::post('/buku-tamu', [BukuTamuController::class, 'store'])->name('bukutamu.store');

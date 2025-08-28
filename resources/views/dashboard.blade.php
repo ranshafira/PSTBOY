@@ -182,8 +182,8 @@
 
   </div>
 
-  <!-- Riwayat Layanan Hari Ini -->
-  <div class="bg-white rounded-lg shadow-sm border border-gray-100">
+
+  <!-- <div class="bg-white rounded-lg shadow-sm border border-gray-100">
     <div class="p-6 border-b border-gray-100">
       <h3 class="text-lg font-semibold text-gray-800">Riwayat Layanan Hari Ini</h3>
     </div>
@@ -245,7 +245,113 @@
       </table>
     </div>
     
+  </div> -->
+<div class="bg-white rounded-lg shadow-sm border border-gray-100">
+  <div class="p-6 border-b border-gray-100">
+    <h3 class="text-lg font-semibold text-gray-800">Riwayat Layanan Hari Ini</h3>
   </div>
+
+  <div class="overflow-x-auto">
+    <table class="min-w-full table-fixed border-collapse">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">No. Antrian</th>
+          <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
+          <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Layanan</th>
+          <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+          <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Waktu</th>
+          <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+        </tr>
+      </thead>
+
+      <tbody class="bg-white divide-y divide-gray-200">
+        @forelse($riwayatGabungan as $item)
+          @php
+            // normalisasi status & deteksi baris Buku Tamu (tidak ada aksi)
+            $rawStatus    = is_string($item->status) ? strtolower($item->status) : $item->status;
+            $isBukuTamu   = ($item->nomor_antrian === '-' || strtolower($item->nama_layanan) === 'buku tamu');
+
+            $statusColors = [
+  'pending'   => 'bg-yellow-100 text-yellow-800',
+  'menunggu'  => 'bg-yellow-100 text-yellow-800', // 👈 tambahin ini
+  'dipanggil' => 'bg-blue-100 text-blue-800',
+  'selesai'   => 'bg-green-100 text-green-800',
+  'batal'     => 'bg-red-100 text-red-800',
+];
+$statusText = [
+  'pending'   => 'Menunggu',
+  'menunggu'  => 'Menunggu', // 👈 tambahin ini
+  'dipanggil' => 'Dipanggil',
+  'selesai'   => 'Selesai',
+  'batal'     => 'Batal',
+];
+
+          @endphp
+
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap text-center">
+              <span class="text-sm font-medium text-gray-900">{{ $item->nomor_antrian }}</span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-center">
+              <span class="text-sm text-gray-900">{{ $item->nama }}</span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-center">
+              <span class="text-sm text-gray-900">{{ $item->nama_layanan }}</span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-center">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $statusColors[$rawStatus] ?? 'bg-gray-100 text-gray-800' }}">
+                {{ $statusText[$rawStatus] ?? ucfirst((string) $item->status) }}
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+              {{ \Carbon\Carbon::parse($item->waktu)->format('H:i') }}
+            </td>
+
+            {{-- AKSI --}}
+<td class="px-6 py-4 whitespace-nowrap text-sm text-center">
+  @if ($isBukuTamu)
+    <span class="text-gray-400 text-xs">-</span>
+  
+  @elseif (in_array($rawStatus, ['pending', 'menunggu']))
+    {{-- PANGGIL: ubah status -> dipanggil --}}
+    <form action="{{ route('antrian.panggil', ['nomor' => $item->nomor_antrian]) }}" method="POST" class="inline">
+      @csrf
+      <button type="submit"
+              class="inline-flex items-center px-3 py-1 rounded bg-blue-100 hover:bg-blue-300 text-blue-800 text-xs font-medium">
+        Panggil
+      </button>
+    </form>
+
+  @elseif ($rawStatus === 'dipanggil')
+    {{-- PANGGIL ULANG --}}
+    <form action="{{ route('antrian.panggil', ['nomor' => $item->nomor_antrian]) }}" method="POST" class="inline">
+      @csrf
+      <button type="submit"
+              class="inline-flex items-center px-3 py-1 rounded bg-blue-100 hover:bg-blue-300 text-blue-800 text-xs font-medium mr-2">
+        Panggil
+      </button>
+    </form>
+    {{-- MULAI: arahkan ke halaman pelayanan/timestamp --}}
+    <a href="{{ route('pelayanan.show', ['nomor' => $item->nomor_antrian]) }}"
+       class="inline-flex items-center px-3 py-1 rounded bg-green-100 hover:bg-green-300 text-green-800 text-xs font-medium">
+      Mulai
+    </a>
+
+  @else
+    <span class="text-gray-400 text-xs">-</span>
+  @endif
+</td>
+
+          </tr>
+        @empty
+          <tr>
+            <td colspan="6" class="px-6 py-8 text-center text-gray-500">Belum ada antrian hari ini</td>
+          </tr>
+        @endforelse
+      </tbody>
+    </table>
+  </div>
+</div>
 
 </div>
 
