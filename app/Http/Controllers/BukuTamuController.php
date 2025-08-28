@@ -34,5 +34,6 @@ class BukuTamuController extends Controller
         // 3. Redirect kembali ke halaman form dengan pesan sukses
         return redirect()->route('bukutamu.create')
                          ->with('success', 'Terima kasih! Data Anda telah berhasil disimpan.');
+
     }
 }

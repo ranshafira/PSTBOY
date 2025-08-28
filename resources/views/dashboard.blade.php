@@ -3,8 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Absensi Admin PST</title>
+  <title>Dashboard Antrian PST</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/alpinejs" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-gray-50 min-h-screen font-sans text-gray-800">
 
@@ -29,7 +31,7 @@
 
     <!-- Menu Desktop -->
     <ul class="hidden md:flex space-x-6 text-sm font-medium text-gray-700">
-      <li><a href="{{ route('dashboard') }}" class="text-orange-500 font-semibold">Dashboard Pegawai</a></li>
+      <li><a href="{{ route('dashboard') }}" class="text-orange-500 font-semibold">Dashboard</a></li>
       <li><a href="{{ route('presensi.index') }}" class="hover:text-orange-500 transition">Presensi</a></li>
       <li><a href="#" class="hover:text-orange-500 transition">Riwayat</a></li>
       <li><a href="#" class="hover:text-orange-500 transition">Profil</a></li>
@@ -47,7 +49,7 @@
   <!-- Menu Mobile -->
   <div class="md:hidden" x-show="open" x-transition>
     <ul class="px-4 pb-4 space-y-3 text-sm font-medium text-gray-700">
-      <li><a href="{{ route('dashboard') }}" class="block text-orange-500 font-semibold">Dashboard Pegawai</a></li>
+      <li><a href="{{ route('dashboard') }}" class="block text-orange-500 font-semibold">Dashboard</a></li>
       <li><a href="{{ route('presensi.index') }}" class="block hover:text-orange-500 transition">Presensi</a></li>
       <li><a href="#" class="block hover:text-orange-500 transition">Riwayat</a></li>
       <li><a href="#" class="block hover:text-orange-500 transition">Profil</a></li>
@@ -63,36 +65,242 @@
   </div>
 </nav>
 
-
-  <main class="container mx-auto px-4 py-8 max-w-7xl">
-
-    <h1 class="text-3xl font-bold mb-1">Dashboard Pegawai</h1>
-    <p class="text-gray-600 mb-8">apaya</p>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-
-      <!-- Status Hari Ini -->
-      <section class="bg-white rounded-lg shadow p-6 space-y-4">
-
-      </section>
-
-      <!-- Statistik Kehadiran -->
-      <section class="bg-white rounded-lg shadow p-6">
+<!-- Konten Dashboard -->
+<div class="container mx-auto px-4 py-6">
   
-      </section>
+  <!-- Header -->
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-800 mb-2">Dashboard Antrian</h1>
+    <p class="text-gray-600">Monitoring sistem antrian hari ini - {{ now()->format('d F Y') }}</p>
+  </div>
 
-      <!-- Informasi -->
-      <section class="bg-white rounded-lg shadow p-6">
-      
-      </section>
+  <!-- Cards Statistik -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    
+    <!-- Total Antrian Hari Ini -->
+    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-gray-600 mb-1">Total Antrian</p>
+          <p class="text-3xl font-bold text-gray-800">{{ $totalAntrianHariIni }}</p>
+        </div>
+        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+          <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+          </svg>
+        </div>
+      </div>
     </div>
 
-    <!-- Riwayat Absensi -->
-    <section class="bg-white rounded-lg shadow mt-10 p-6">
-   
-    </section>
+    <!-- Sudah Dilayani -->
+    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-gray-600 mb-1">Sudah Dilayani</p>
+          <p class="text-3xl font-bold text-green-600">{{ $sudahDilayani }}</p>
+        </div>
+        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+          <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+      </div>
+    </div>
 
-  </main>
+    <!-- Antrian Berjalan -->
+    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-gray-600 mb-1">Sedang Dilayani</p>
+          @if($antrianBerjalan)
+            <p class="text-3xl font-bold text-red-600">{{ $antrianBerjalan->nomor_antrian }}</p>
+            <p class="text-xs text-gray-500 mt-1">{{ $antrianBerjalan->jenisLayanan->nama ?? 'Layanan' }}</p>
+          @else
+            <p class="text-lg font-medium text-gray-400">Tidak Ada</p>
+          @endif
+        </div>
+        <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+          <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 12.714l-4.95-2.475a1 1 0 00-1.414.95v4.95a1 1 0 001.414.95l4.95-2.475a1 1 0 000-1.9z"></path>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Kunjungan Buku Tamu -->
+    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-gray-600 mb-1">Kunjungan Buku Tamu Hari Ini</p>
+          <p class="text-3xl font-bold text-blue-600">
+            {{ $bukuTamuCount }}
+          </p>
+        </div>
+        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+          <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row untuk Chart dan Antrian per Layanan -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+    
+    <!-- Chart Trend Harian -->
+    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+      <h3 class="text-lg font-semibold text-gray-800 mb-4">Trend Antrian Bulan Ini</h3>
+      <div class="relative h-64">
+        <canvas id="trendChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Antrian Per Layanan -->
+    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+      <h3 class="text-lg font-semibold text-gray-800 mb-4">Antrian Per Layanan Hari Ini</h3>
+      
+      <div class="space-y-3">
+        @forelse($antrianPerLayanan as $layanan)
+        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+          <div>
+            <h4 class="font-medium text-gray-800">{{ $layanan->nama_layanan }}</h4>
+          </div>
+          <div class="flex items-center space-x-1">
+            <span class="text-2xl font-bold text-orange-600">{{ $layanan->antrian_count }}</span>
+            <span class="text-sm text-gray-500">antrian</span>
+          </div>
+        </div>
+        @empty
+        <div class="text-center py-8 text-gray-500">
+          <p>Belum ada data layanan</p>
+        </div>
+        @endforelse
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Riwayat Layanan Hari Ini -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-100">
+    <div class="p-6 border-b border-gray-100">
+      <h3 class="text-lg font-semibold text-gray-800">Riwayat Layanan Hari Ini</h3>
+    </div>
+    
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No. Antrian</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Layanan</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Waktu</th>
+          </tr>
+        </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+          @forelse($riwayatGabungan as $item)
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span class="text-sm font-medium text-gray-900">{{ $item->nomor_antrian }}</span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span class="text-sm text-gray-900">{{ $item->nama }}</span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span class="text-sm text-gray-900">{{ $item->nama_layanan }}</span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              @php
+                $statusColors = [
+                  'pending' => 'bg-yellow-100 text-yellow-800',
+                  'dipanggil' => 'bg-blue-100 text-blue-800',
+                  'selesai' => 'bg-green-100 text-green-800',
+                  'batal' => 'bg-red-100 text-red-800'
+                ];
+                $statusText = [
+                  'pending' => 'Menunggu',
+                  'dipanggil' => 'Dipanggil',
+                  'selesai' => 'Selesai',
+                  'batal' => 'Batal'
+                ];
+              @endphp
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $statusColors[$item->status] ?? 'bg-gray-100 text-gray-800' }}">
+                {{ $statusText[$item->status] ?? ucfirst($item->status) }}
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              {{ \Carbon\Carbon::parse($item->waktu)->format('H:i') }}
+            </td>
+          </tr>
+          @empty
+          <tr>
+            <td colspan="5" class="px-6 py-8 text-center text-gray-500">
+              Belum ada antrian hari ini
+            </td>
+          </tr>
+          @endforelse
+        </tbody>
+      </table>
+    </div>
+    
+  </div>
+
+</div>
+
+<!-- Script untuk Chart -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Data untuk trend chart
+  const trendData = @json($trendHarian);
+  const dates = Object.keys(trendData);
+  const totals = Object.values(trendData);
   
+  // Buat chart
+  const ctx = document.getElementById('trendChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: dates.map(date => {
+        const d = new Date(date);
+        return d.getDate() + '/' + (d.getMonth() + 1);
+      }),
+      datasets: [{
+        label: 'Jumlah Antrian',
+        data: totals,
+        borderColor: '#f97316',
+        backgroundColor: 'rgba(249, 115, 22, 0.1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            stepSize: 1
+          }
+        }
+      }
+    }
+  });
+});
+
+// Auto refresh setiap 30 detik
+setInterval(function() {
+  location.reload();
+}, 30000);
+</script>
+
 </body>
 </html>
