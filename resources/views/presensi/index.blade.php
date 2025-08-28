@@ -1,9 +1,29 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Presensi Pegawai') }}
-        </h2>
-    </x-slot>
+
+    <!-- Navbar -->
+  <nav class="bg-white shadow-sm sticky top-0 z-10">
+    <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="bg-orange-500 text-white font-bold rounded-md w-8 h-8 flex items-center justify-center">P</div>
+        <span class="font-semibold text-lg">Pelayanan PST</span>
+      </div>
+      <ul class="flex space-x-6 text-sm font-medium text-gray-700">
+        <li><a href="{{ route('dashboard') }}" class="hover:text-orange-500 transition">Dashboard Pegawai</a></li>
+        <li><a href="{{ route('presensi.index') }}" class="text-orange-500 font-semibold">Presensi</a></li>
+        <li><a href="#" class="hover:text-orange-500 transition">Riwayat</a></li>
+        <li><a href="#" class="hover:text-orange-500 transition">Profil</a></li>
+        <li>
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="hover:text-orange-500 transition">
+                Logout
+                </button>
+            </form>
+        </li>
+
+      </ul>
+    </div>
+  </nav>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -11,7 +31,7 @@
                 <div class="p-6 text-gray-900">
 
                     <div class="mb-8">
-                        <h1 class="text-3xl font-bold">Absensi Admin PST</h1>
+                        <h1 class="text-3xl font-bold">Presensi Admin PST</h1>
                         <p class="text-gray-500">Sistem pencatatan kehadiran dan kepulangan harian</p>
                     </div>
 
@@ -37,11 +57,11 @@
 
                                 <div class="flex items-center space-x-8 mb-4">
                                     <div>
-                                        <p class="text-sm text-gray-500">→ Waktu Masuk</p>
+                                        <p class="text-sm text-gray-500"> Waktu Masuk</p>
                                         <p class="font-bold text-xl">{{ $presensiHariIni ? $presensiHariIni->waktu_datang : '-' }}</p>
                                     </div>
                                     <div>
-                                        <p class="text-sm text-gray-500">← Waktu Keluar</p>
+                                        <p class="text-sm text-gray-500"> Waktu Keluar</p>
                                         <p class="font-bold text-xl">{{ $presensiHariIni ? $presensiHariIni->waktu_pulang : '-' }}</p>
                                     </div>
                                 </div>
@@ -50,18 +70,18 @@
                                     <form action="{{ route('presensi.checkout') }}" method="POST">
                                         @csrf
                                         <button type="submit" class="bg-red-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-600 transition">
-                                            🚪 Check out
+                                             Check out
                                         </button>
                                     </form>
                                 @elseif(is_null($presensiHariIni))
                                     <form action="{{ route('presensi.checkin') }}" method="POST">
                                         @csrf
                                         <button type="submit" class="bg-orange-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-orange-600 transition">
-                                            ➡️ Check in
+                                             Check in
                                         </button>
                                     </form>
                                 @else
-                                    <p class="text-sm font-semibold text-green-600 bg-green-100 px-4 py-2 rounded-lg inline-block">Presensi hari ini sudah selesai. ✔️</p>
+                                    <p class="text-sm font-semibold text-green-600 bg-green-100 px-4 py-2 rounded-lg inline-block">Presensi hari ini sudah selesai</p>
                                 @endif
                             </div>
 

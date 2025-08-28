@@ -3,14 +3,14 @@
 namespace App\Models;
 
 // 1. Tambahkan baris 'use' ini
-use JeroenNoten\LaravelAdminLte\Contracts\AdminLteUser;
+// use JeroenNoten\LaravelAdminLte\Contracts\AdminLteUser;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
 // 2. Tambahkan 'implements AdminLteUser' setelah 'Authenticatable'
-class User extends Authenticatable implements AdminLteUser
+class User extends Authenticatable 
 {
     use HasApiTokens, HasFactory, Notifiable;
 
