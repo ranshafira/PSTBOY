@@ -51,63 +51,56 @@
                 BPS Kabupaten Boyolali
             </strong>
         </a>
+
+        <nav class="flex items-center gap-3">
+    @if (Route::has('login'))
+        @auth
+            {{-- Jika user sudah login, jangan tampilkan tombol login/register --}}
+            <a href="{{ route('presensi.index') }}" 
+               class="text-sm text-white font-semibold rounded-full px-5 py-2.5 
+                      hover:bg-white/20 transform hover:scale-105 
+                      transition-all duration-300 ease-in-out">
+               Presensi
+            </a>
+        @else
+            <a href="{{ route('login') }}" 
+               class="text-sm bg-bps-orange text-white font-bold rounded-full px-5 py-2.5 
+                      hover:bg-orange-500 transform hover:scale-105 
+                      transition-all duration-300 ease-in-out shadow-lg hover:shadow-orange-400/50">
+               Login
+            </a>
+
+            @if (Route::has('register'))
+                <a href="{{ route('register') }}" 
+                   class="text-sm text-white font-semibold rounded-full px-5 py-2.5 
+                          hover:bg-white/20 transform hover:scale-105 
+                          transition-all duration-300 ease-in-out">
+                   Register
+                </a>
+            @endif
+        @endauth
+    @endif
+</nav>
+
+
         <nav 
             x-show="shown"
             x-transition:enter="transition ease-out duration-500"
             x-transition:enter-start="opacity-0 translate-x-4"
             x-transition:enter-end="opacity-100 translate-x-0"
             class="flex items-center gap-3">
-            
-            @if (Route::has('login'))
-                @auth
-                    <a href="{{ url('/dashboard') }}" 
-                       class="text-sm text-white font-bold rounded-full px-5 py-2.5 border-2 border-white/50 
-                              hover:bg-white hover:text-bps-dark hover:border-white transform hover:scale-105 
-                              transition-all duration-300 ease-in-out shadow-md hover:shadow-lg">
-                       Dashboard
-                    </a>
-                @else
-                    <a href="{{ route('login') }}" 
-                       class="text-sm bg-bps-orange text-white font-bold rounded-full px-5 py-2.5 
-                              hover:bg-orange-500 transform hover:scale-105 
-                              transition-all duration-300 ease-in-out shadow-lg hover:shadow-orange-400/50">
-                       Log in
-                    </a>
 
-                    @if (Route::has('register'))
-                        <a href="{{ route('register') }}" 
-                           class="text-sm text-white font-semibold rounded-full px-5 py-2.5 
-                                  hover:bg-white/20 transform hover:scale-105 
-                                  transition-all duration-300 ease-in-out">
-                           Register
-                        </a>
-                    @endif
-                @endauth
-            @endif
+            <a href="{{ route('bukutamu.create') }}" 
+               class="text-sm text-white font-semibold rounded-full px-5 py-2.5 
+                      hover:bg-white/20 transform hover:scale-105 
+                      transition-all duration-300 ease-in-out">
+               Buku Tamu
+            </a>
+
         </nav>
-
-        <nav 
-    x-show="shown"
-    x-transition:enter="transition ease-out duration-500"
-    x-transition:enter-start="opacity-0 translate-x-4"
-    x-transition:enter-end="opacity-100 translate-x-0"
-    class="flex items-center gap-3">
-
-    <a href="{{ route('bukutamu.create') }}" 
-       class="text-sm text-white font-semibold rounded-full px-5 py-2.5 
-              hover:bg-white/20 transform hover:scale-105 
-              transition-all duration-300 ease-in-out">
-       Buku Tamu
-    </a>
-
-    @if (Route::has('login'))
-        @auth
-            @else
-            @endauth
-    @endif
-</nav>
     </div>
 </header>
+
 
     <main class="flex-grow container mx-auto px-6 pt-12 md:pt-20 pb-16">
         <div class="text-center">
