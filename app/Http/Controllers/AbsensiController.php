@@ -25,8 +25,8 @@ class AbsensiController extends Controller
                                   ->take(10)
                                   ->get();
         
-        // 3. Data untuk "Statistik Kehadiran" (contoh: 30 hari terakhir)
-        $totalHariKerja = 30; // Anda bisa kembangkan logika ini nanti
+        // 3. Data untuk "Statistik Kehadiran" (30 hari terakhir)
+        $totalHariKerja = 30; 
         $jumlahHadir = Presensi::where('petugas_id', $user->id)
                                ->where('tanggal', '>=', Carbon::now()->subDays(30))
                                ->count();

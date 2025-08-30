@@ -1,73 +1,8 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Dashboard Antrian PST</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/alpinejs" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body class="bg-gray-50 min-h-screen font-sans text-gray-800">
+@extends('layouts.app')
 
-<!-- Navbar -->
-<nav class="bg-white shadow-sm sticky top-0 z-10" x-data="{ open: false }">
-  <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+@section('title', 'Dashboard Antrian PST')
 
-    <!-- Logo + Title -->
-    <div class="flex items-center space-x-3">
-      <div class="bg-orange-500 text-white font-bold rounded-md w-8 h-8 flex items-center justify-center">P</div>
-      <span class="font-semibold text-lg">Pelayanan PST</span>
-    </div>
-
-    <!-- Hamburger button -->
-    <button @click="open = !open" class="md:hidden focus:outline-none">
-      <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-           xmlns="http://www.w3.org/2000/svg">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M4 6h16M4 12h16M4 18h16"></path>
-      </svg>
-    </button>
-
-    <!-- Menu Desktop -->
-    <ul class="hidden md:flex space-x-6 text-sm font-medium text-gray-700">
-      <li><a href="{{ route('dashboard') }}" class="text-orange-500 font-semibold">Dashboard</a></li>
-      <li><a href="{{ route('presensi.index') }}" class="hover:text-orange-500 transition">Presensi</a></li>
-      <li><a href="#" class="hover:text-orange-500 transition">Riwayat</a></li>
-      <li><a href="#" class="hover:text-orange-500 transition">Profil</a></li>
-      <li>
-        <form method="POST" action="{{ route('logout') }}">
-          @csrf
-          <button type="submit" class="hover:text-orange-500 transition">
-            Logout
-          </button>
-        </form>
-      </li>
-    </ul>
-  </div>
-
-  <!-- Menu Mobile -->
-  <div class="md:hidden" x-show="open" x-transition>
-    <ul class="px-4 pb-4 space-y-3 text-sm font-medium text-gray-700">
-      <li><a href="{{ route('dashboard') }}" class="block text-orange-500 font-semibold">Dashboard</a></li>
-      <li><a href="{{ route('presensi.index') }}" class="block hover:text-orange-500 transition">Presensi</a></li>
-      <li><a href="#" class="block hover:text-orange-500 transition">Riwayat</a></li>
-      <li><a href="#" class="block hover:text-orange-500 transition">Profil</a></li>
-      <li>
-        <form method="POST" action="{{ route('logout') }}">
-          @csrf
-          <button type="submit" class="block w-full text-left hover:text-orange-500 transition">
-            Logout
-          </button>
-        </form>
-      </li>
-    </ul>
-  </div>
-</nav>
-
-<!-- Konten Dashboard -->
-<div class="container mx-auto px-4 py-6">
-  
+@section('content')
   <!-- Header -->
   <div class="mb-8">
     <h1 class="text-3xl font-bold text-gray-800 mb-2">Dashboard Antrian</h1>
@@ -76,7 +11,6 @@
 
   <!-- Cards Statistik -->
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-    
     <!-- Total Antrian Hari Ini -->
     <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
       <div class="flex items-center justify-between">
@@ -86,7 +20,8 @@
         </div>
         <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
           <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
           </svg>
         </div>
       </div>
@@ -132,14 +67,11 @@
       <div class="flex items-center justify-between">
         <div>
           <p class="text-sm font-medium text-gray-600 mb-1">Kunjungan Buku Tamu Hari Ini</p>
-          <p class="text-3xl font-bold text-blue-600">
-            {{ $bukuTamuCount }}
-          </p>
+          <p class="text-3xl font-bold text-blue-600">{{ $bukuTamuCount }}</p>
         </div>
         <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
           <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                  d="M5 13l4 4L19 7" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
           </svg>
         </div>
       </div>
@@ -148,7 +80,6 @@
 
   <!-- Row untuk Chart dan Antrian per Layanan -->
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-    
     <!-- Chart Trend Harian -->
     <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
       <h3 class="text-lg font-semibold text-gray-800 mb-4">Trend Antrian Bulan Ini</h3>
@@ -160,210 +91,116 @@
     <!-- Antrian Per Layanan -->
     <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
       <h3 class="text-lg font-semibold text-gray-800 mb-4">Antrian Per Layanan Hari Ini</h3>
-      
       <div class="space-y-3">
         @forelse($antrianPerLayanan as $layanan)
-        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-          <div>
+          <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
             <h4 class="font-medium text-gray-800">{{ $layanan->nama_layanan }}</h4>
+            <div class="flex items-center space-x-1">
+              <span class="text-2xl font-bold text-orange-600">{{ $layanan->antrian_count }}</span>
+              <span class="text-sm text-gray-500">antrian</span>
+            </div>
           </div>
-          <div class="flex items-center space-x-1">
-            <span class="text-2xl font-bold text-orange-600">{{ $layanan->antrian_count }}</span>
-            <span class="text-sm text-gray-500">antrian</span>
-          </div>
-        </div>
         @empty
-        <div class="text-center py-8 text-gray-500">
-          <p>Belum ada data layanan</p>
-        </div>
+          <div class="text-center py-8 text-gray-500">Belum ada data layanan</div>
         @endforelse
       </div>
     </div>
-
   </div>
 
-
-  <!-- <div class="bg-white rounded-lg shadow-sm border border-gray-100">
+  <!-- Riwayat Layanan -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-100">
     <div class="p-6 border-b border-gray-100">
       <h3 class="text-lg font-semibold text-gray-800">Riwayat Layanan Hari Ini</h3>
     </div>
-    
     <div class="overflow-x-auto">
-      <table class="w-full">
+      <table class="min-w-full table-fixed border-collapse">
         <thead class="bg-gray-50">
           <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No. Antrian</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Layanan</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Waktu</th>
+            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">No. Antrian</th>
+            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
+            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Layanan</th>
+            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Waktu</th>
+            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
           </tr>
         </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
+        <tbody class="bg-white divide-y divide-gray-200">
           @forelse($riwayatGabungan as $item)
-          <tr class="hover:bg-gray-50">
-            <td class="px-6 py-4 whitespace-nowrap">
-              <span class="text-sm font-medium text-gray-900">{{ $item->nomor_antrian }}</span>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <span class="text-sm text-gray-900">{{ $item->nama }}</span>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <span class="text-sm text-gray-900">{{ $item->nama_layanan }}</span>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              @php
-                $statusColors = [
-                  'pending' => 'bg-yellow-100 text-yellow-800',
-                  'dipanggil' => 'bg-blue-100 text-blue-800',
-                  'selesai' => 'bg-green-100 text-green-800',
-                  'batal' => 'bg-red-100 text-red-800'
-                ];
-                $statusText = [
-                  'pending' => 'Menunggu',
-                  'dipanggil' => 'Dipanggil',
-                  'selesai' => 'Selesai',
-                  'batal' => 'Batal'
-                ];
-              @endphp
-              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $statusColors[$item->status] ?? 'bg-gray-100 text-gray-800' }}">
-                {{ $statusText[$item->status] ?? ucfirst($item->status) }}
-              </span>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-              {{ \Carbon\Carbon::parse($item->waktu)->format('H:i') }}
-            </td>
-          </tr>
+            @php
+              $rawStatus  = is_string($item->status) ? strtolower($item->status) : $item->status;
+              $isBukuTamu = ($item->nomor_antrian === '-' || strtolower($item->nama_layanan) === 'buku tamu');
+              $statusColors = [
+                'pending'   => 'bg-yellow-100 text-yellow-800',
+                'menunggu'  => 'bg-yellow-100 text-yellow-800',
+                'dipanggil' => 'bg-blue-100 text-blue-800',
+                'selesai'   => 'bg-green-100 text-green-800',
+                'batal'     => 'bg-red-100 text-red-800',
+              ];
+              $statusText = [
+                'pending'   => 'Menunggu',
+                'menunggu'  => 'Menunggu',
+                'dipanggil' => 'Dipanggil',
+                'selesai'   => 'Selesai',
+                'batal'     => 'Batal',
+              ];
+            @endphp
+
+            <tr class="hover:bg-gray-50">
+              <td class="px-6 py-4 text-center">{{ $item->nomor_antrian }}</td>
+              <td class="px-6 py-4 text-center">{{ $item->nama }}</td>
+              <td class="px-6 py-4 text-center">{{ $item->nama_layanan }}</td>
+              <td class="px-6 py-4 text-center">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $statusColors[$rawStatus] ?? 'bg-gray-100 text-gray-800' }}">
+                  {{ $statusText[$rawStatus] ?? ucfirst((string) $item->status) }}
+                </span>
+              </td>
+              <td class="px-6 py-4 text-center text-sm text-gray-500">
+                {{ \Carbon\Carbon::parse($item->waktu)->format('H:i') }}
+              </td>
+              <td class="px-6 py-4 text-center">
+                @if ($isBukuTamu)
+                  <span class="text-gray-400 text-xs">-</span>
+                @elseif (in_array($rawStatus, ['pending', 'menunggu']))
+                  <form action="{{ route('antrian.panggil', ['nomor' => $item->nomor_antrian]) }}" method="POST" class="inline">
+                    @csrf
+                    <button type="submit" class="px-3 py-1 rounded bg-blue-100 hover:bg-blue-300 text-blue-800 text-xs font-medium">
+                      Panggil
+                    </button>
+                  </form>
+                @elseif ($rawStatus === 'dipanggil')
+                  <form action="{{ route('antrian.panggil', ['nomor' => $item->nomor_antrian]) }}" method="POST" class="inline">
+                    @csrf
+                    <button type="submit" class="px-3 py-1 rounded bg-blue-100 hover:bg-blue-300 text-blue-800 text-xs font-medium mr-2">
+                      Panggil
+                    </button>
+                  </form>
+                  <a href="{{ route('pelayanan.show', ['nomor' => $item->nomor_antrian]) }}"
+                     class="px-3 py-1 rounded bg-green-100 hover:bg-green-300 text-green-800 text-xs font-medium">
+                    Mulai
+                  </a>
+                @else
+                  <span class="text-gray-400 text-xs">-</span>
+                @endif
+              </td>
+            </tr>
           @empty
-          <tr>
-            <td colspan="5" class="px-6 py-8 text-center text-gray-500">
-              Belum ada antrian hari ini
-            </td>
-          </tr>
+            <tr>
+              <td colspan="6" class="px-6 py-8 text-center text-gray-500">Belum ada antrian hari ini</td>
+            </tr>
           @endforelse
         </tbody>
       </table>
     </div>
-    
-  </div> -->
-<div class="bg-white rounded-lg shadow-sm border border-gray-100">
-  <div class="p-6 border-b border-gray-100">
-    <h3 class="text-lg font-semibold text-gray-800">Riwayat Layanan Hari Ini</h3>
   </div>
+@endsection
 
-  <div class="overflow-x-auto">
-    <table class="min-w-full table-fixed border-collapse">
-      <thead class="bg-gray-50">
-        <tr>
-          <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">No. Antrian</th>
-          <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
-          <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Layanan</th>
-          <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-          <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Waktu</th>
-          <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
-        </tr>
-      </thead>
-
-      <tbody class="bg-white divide-y divide-gray-200">
-        @forelse($riwayatGabungan as $item)
-          @php
-            // normalisasi status & deteksi baris Buku Tamu (tidak ada aksi)
-            $rawStatus    = is_string($item->status) ? strtolower($item->status) : $item->status;
-            $isBukuTamu   = ($item->nomor_antrian === '-' || strtolower($item->nama_layanan) === 'buku tamu');
-
-            $statusColors = [
-  'pending'   => 'bg-yellow-100 text-yellow-800',
-  'menunggu'  => 'bg-yellow-100 text-yellow-800', // 👈 tambahin ini
-  'dipanggil' => 'bg-blue-100 text-blue-800',
-  'selesai'   => 'bg-green-100 text-green-800',
-  'batal'     => 'bg-red-100 text-red-800',
-];
-$statusText = [
-  'pending'   => 'Menunggu',
-  'menunggu'  => 'Menunggu', // 👈 tambahin ini
-  'dipanggil' => 'Dipanggil',
-  'selesai'   => 'Selesai',
-  'batal'     => 'Batal',
-];
-
-          @endphp
-
-          <tr class="hover:bg-gray-50">
-            <td class="px-6 py-4 whitespace-nowrap text-center">
-              <span class="text-sm font-medium text-gray-900">{{ $item->nomor_antrian }}</span>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-center">
-              <span class="text-sm text-gray-900">{{ $item->nama }}</span>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-center">
-              <span class="text-sm text-gray-900">{{ $item->nama_layanan }}</span>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-center">
-              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $statusColors[$rawStatus] ?? 'bg-gray-100 text-gray-800' }}">
-                {{ $statusText[$rawStatus] ?? ucfirst((string) $item->status) }}
-              </span>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-              {{ \Carbon\Carbon::parse($item->waktu)->format('H:i') }}
-            </td>
-
-            {{-- AKSI --}}
-<td class="px-6 py-4 whitespace-nowrap text-sm text-center">
-  @if ($isBukuTamu)
-    <span class="text-gray-400 text-xs">-</span>
-  
-  @elseif (in_array($rawStatus, ['pending', 'menunggu']))
-    {{-- PANGGIL: ubah status -> dipanggil --}}
-    <form action="{{ route('antrian.panggil', ['nomor' => $item->nomor_antrian]) }}" method="POST" class="inline">
-      @csrf
-      <button type="submit"
-              class="inline-flex items-center px-3 py-1 rounded bg-blue-100 hover:bg-blue-300 text-blue-800 text-xs font-medium">
-        Panggil
-      </button>
-    </form>
-
-  @elseif ($rawStatus === 'dipanggil')
-    {{-- PANGGIL ULANG --}}
-    <form action="{{ route('antrian.panggil', ['nomor' => $item->nomor_antrian]) }}" method="POST" class="inline">
-      @csrf
-      <button type="submit"
-              class="inline-flex items-center px-3 py-1 rounded bg-blue-100 hover:bg-blue-300 text-blue-800 text-xs font-medium mr-2">
-        Panggil
-      </button>
-    </form>
-    {{-- MULAI: arahkan ke halaman pelayanan/timestamp --}}
-    <a href="{{ route('pelayanan.show', ['nomor' => $item->nomor_antrian]) }}"
-       class="inline-flex items-center px-3 py-1 rounded bg-green-100 hover:bg-green-300 text-green-800 text-xs font-medium">
-      Mulai
-    </a>
-
-  @else
-    <span class="text-gray-400 text-xs">-</span>
-  @endif
-</td>
-
-          </tr>
-        @empty
-          <tr>
-            <td colspan="6" class="px-6 py-8 text-center text-gray-500">Belum ada antrian hari ini</td>
-          </tr>
-        @endforelse
-      </tbody>
-    </table>
-  </div>
-</div>
-
-</div>
-
-<!-- Script untuk Chart -->
+@push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  // Data untuk trend chart
   const trendData = @json($trendHarian);
   const dates = Object.keys(trendData);
   const totals = Object.values(trendData);
-  
-  // Buat chart
+
   const ctx = document.getElementById('trendChart').getContext('2d');
   new Chart(ctx, {
     type: 'line',
@@ -385,28 +222,13 @@ document.addEventListener('DOMContentLoaded', function() {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          display: false
-        }
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-          ticks: {
-            stepSize: 1
-          }
-        }
-      }
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
     }
   });
 });
 
 // Auto refresh setiap 30 detik
-setInterval(function() {
-  location.reload();
-}, 30000);
+setInterval(() => location.reload(), 30000);
 </script>
-
-</body>
-</html>
+@endpush

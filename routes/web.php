@@ -1,24 +1,13 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Models\JenisLayanan; // PENTING: Untuk memperbaiki error di dashboard
+use App\Models\JenisLayanan; 
 use App\Http\Controllers\AntrianController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AbsensiController;
 use App\Http\Controllers\BukuTamuController;
 use App\Http\Controllers\PresensiController;
 use App\Http\Controllers\DashboardController;
-
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
 
 // == Route untuk Halaman Publik (Sistem Antrian - dari Anda) ==
 Route::get('/', [AntrianController::class, 'index'])->name('antrian.index');
@@ -59,12 +48,25 @@ Route::get('/buku-tamu', [BukuTamuController::class, 'create'])->name('bukutamu.
 Route::post('/buku-tamu', [BukuTamuController::class, 'store'])->name('bukutamu.store');
 
 Route::middleware('auth')->group(function () {
-    // ... (route profile, dll.)
-
-    // Ganti route absensi menjadi presensi
     Route::get('/presensi', [PresensiController::class, 'index'])->name('presensi.index');
     Route::post('/presensi/check-in', [PresensiController::class, 'checkIn'])->name('presensi.checkin');
     Route::post('/presensi/check-out', [PresensiController::class, 'checkOut'])->name('presensi.checkout');
+});
+
+Route::get('/riwayat', function () {
+    return view('riwayat.index');
+})->name('riwayat.index');
+
+Route::get('/profile', function () {
+    return view('profile.index');
+})->name('profile.index');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit'); // form
+    Route::get('/profile/password', [ProfileController::class, 'editPassword'])->name('profile.password'); // form
+    Route::patch('/profile/edit', [ProfileController::class, 'update'])->name('profile.update'); // submit form
+    Route::patch('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.updatePassword'); // submit form
 });
 
 // Route untuk otentikasi (login, register, dll)
