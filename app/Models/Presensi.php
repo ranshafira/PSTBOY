@@ -11,9 +11,9 @@ class Presensi extends Model
 
     protected $table = 'presensi';
     public $timestamps = false;
-    public $incrementing = false; // <-- Tambahkan ini karena tidak ada kolom auto-increment
-    protected $primaryKey = null; // <-- Tambahkan ini untuk menonaktifkan 'id' sebagai primary key
-    protected $keyType = 'string'; // <-- Tambahkan ini, bisa 'int' atau 'string' (tidak terlalu penting di sini)
+    public $incrementing = false; // tidak ada kolom auto-increment
+    protected $primaryKey = null; // menonaktifkan 'id' sebagai primary key
+    protected $keyType = 'string'; // bisa 'int' atau 'string' (tidak terlalu penting di sini)
 
     protected $fillable = [
         'petugas_id',
