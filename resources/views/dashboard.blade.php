@@ -182,12 +182,19 @@
                       Panggil Ulang
                     </button>
                   </form>
+
                   <a href="{{ route('pelayanan.show', ['nomor' => $item->nomor_antrian]) }}"
-                     class="px-3 py-1 rounded bg-green-100 hover:bg-green-300 text-green-800 text-xs font-medium">
+                    class="px-3 py-1 rounded bg-green-100 hover:bg-green-300 text-green-800 text-xs font-medium mr-2">
                     Mulai
                   </a>
-                @else
-                  <span class="text-gray-400 text-xs">-</span>
+
+                  <!-- Tombol Batal -->
+                  <form action="{{ route('antrian.batal', ['nomor' => $item->nomor_antrian]) }}" method="POST" class="inline">
+                    @csrf
+                    <button type="submit" class="px-3 py-1 rounded bg-red-100 hover:bg-red-300 text-red-800 text-xs font-medium">
+                      Batal
+                    </button>
+                  </form>
                 @endif
               </td>
             </tr>
