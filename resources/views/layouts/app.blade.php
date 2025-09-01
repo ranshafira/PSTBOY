@@ -17,7 +17,7 @@
         <div class="container mx-auto px-4 py-6">
             @yield('content')
         </div>
-
+        @include('layouts.footer')
         @stack('scripts')
     </body>
 </html>

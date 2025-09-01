@@ -36,12 +36,29 @@ Route::middleware('auth')->group(function () {
 Route::post('/antrian/{nomor}/panggil', [\App\Http\Controllers\AntrianController::class, 'panggil'])
     ->middleware(['auth'])
     ->name('antrian.panggil');
-
-Route::get('/pelayanan/{nomor}', [\App\Http\Controllers\PelayananController::class, 'show'])
-    ->middleware(['auth'])
-    ->name('pelayanan.show');
     
 Route::post('/antrian/{nomor}/batal', [AntrianController::class, 'batal'])->name('antrian.batal');
+
+// Route Pelayanan
+Route::middleware('auth')->group(function () {
+    Route::get('/pelayanan/{nomor}', [\App\Http\Controllers\PelayananController::class, 'show'])
+        ->name('pelayanan.show');
+
+    Route::post('/pelayanan/{nomor}/mulai', [\App\Http\Controllers\PelayananController::class, 'start'])
+        ->name('pelayanan.start');
+
+    Route::get('/pelayanan/{id}/detail', [\App\Http\Controllers\PelayananController::class, 'detail'])
+        ->name('pelayanan.detail');
+
+// identitas
+    Route::get('/pelayanan/{id}/identitas', [\App\Http\Controllers\PelayananController::class, 'identitas'])
+        ->name('pelayanan.identitas');
+
+    Route::post('/pelayanan/{id}/identitas', [\App\Http\Controllers\PelayananController::class, 'storeIdentitas'])
+        ->name('pelayanan.storeIdentitas');
+
+});
+
 
 
 
@@ -73,3 +90,5 @@ Route::middleware('auth')->group(function () {
 
 // Route untuk otentikasi (login, register, dll)
 require __DIR__.'/auth.php';
+
+
