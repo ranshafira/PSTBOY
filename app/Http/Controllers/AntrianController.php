@@ -71,18 +71,29 @@ class AntrianController extends Controller
         // 5. Gabungkan KODE LAYANAN YANG SEKARANG DIAMBIL dengan NOMOR URUT BARU
         return $kodeAntrian . str_pad($nomorUrut, 3, '0', STR_PAD_LEFT);
     }
-    
-  public function panggil(string $nomor)
-{
-    $antrian = \App\Models\Antrian::where('nomor_antrian', $nomor)->firstOrFail();
 
-    if (!in_array($antrian->status, ['selesai','batal'])) {
-        $antrian->status = 'dipanggil';
-        $antrian->save();
+    public function panggil($nomor)
+    {
+        // pastikan hanya ada 1 yang dipanggil
+        \App\Models\Antrian::where('status', 'dipanggil')
+            ->update(['status' => 'menunggu']);
+
+        // set antrian yang dipilih jadi dipanggil
+        \App\Models\Antrian::where('nomor_antrian', $nomor)
+            ->update(['status' => 'dipanggil']);
+
+        return back()->with('success', "Antrian $nomor sedang dipanggil.");
     }
 
-    return back()->with('success', "Antrian {$nomor} dipanggil.");
-}
+    public function mulai($nomor)
+    {
+        // ubah jadi sedang dilayani
+        \App\Models\Antrian::where('nomor_antrian', $nomor)
+            ->where('status', 'dipanggil')
+            ->update(['status' => 'sedang_dilayani']);
+
+        return back()->with('success', "Antrian $nomor sudah mulai dilayani.");
+    }
 
 
 }

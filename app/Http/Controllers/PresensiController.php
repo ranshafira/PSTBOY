@@ -63,15 +63,18 @@ class PresensiController extends Controller
         $user = Auth::user();
         $today = Carbon::today();
 
-        $presensi = Presensi::where('petugas_id', $user->id)->where('tanggal', $today)->first();
-
-        if ($presensi && is_null($presensi->waktu_pulang)) {
-            $presensi->update([
-                'waktu_pulang' => now() // DB akan otomatis mengambil bagian Waktu (time) saja
+        $updated = Presensi::where('petugas_id', $user->id)
+            ->whereDate('tanggal', $today)
+            ->whereNull('waktu_pulang')
+            ->update([
+                'waktu_pulang' => now()
             ]);
+
+        if ($updated) {
             return redirect()->route('presensi.index')->with('success', 'Berhasil Check Out. Terima kasih!');
         }
 
         return redirect()->route('presensi.index')->with('error', 'Gagal melakukan check-out.');
     }
+
 }

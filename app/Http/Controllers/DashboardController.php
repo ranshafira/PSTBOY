@@ -8,7 +8,7 @@ use App\Models\BukuTamu;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $totalAntrianHariIni = \App\Models\Antrian::whereDate('created_at', today())->count();
         $antrianPerLayanan = \App\Models\JenisLayanan::withCount(['antrian' => function($q) {
@@ -58,8 +58,34 @@ class DashboardController extends Controller
             ->whereMonth('created_at', now()->month)
             ->groupBy('tanggal')
             ->pluck('total', 'tanggal');
-
+        
         $bukuTamuCount = BukuTamu::whereDate('waktu_kunjungan', today())->count();
+        
+        // pie chart
+        $bulan = $request->query('bulan') ?? now()->month;
+
+        // Ambil semua layanan
+        $layananSemua = \App\Models\JenisLayanan::all();
+
+        // Ambil jumlah antrian per layanan bulan ini
+        $antrianPerLayananBulan = \App\Models\Antrian::whereMonth('created_at', $bulan)
+            ->get()
+            ->groupBy(fn($item) => $item->jenisLayanan->nama_layanan ?? 'Layanan Lain')
+            ->map(fn($group) => $group->count());
+
+        // Siapkan array final untuk pie chart
+        $pieLayanan = $layananSemua->pluck('nama_layanan')->mapWithKeys(function($nama) use ($antrianPerLayananBulan) {
+            return [$nama => $antrianPerLayananBulan[$nama] ?? 0];
+        });
+
+        // Tambahkan Buku Tamu
+        $bukuTamuCountBulan = \App\Models\BukuTamu::whereMonth('waktu_kunjungan', $bulan)->count();
+        $pieLayanan->put('Buku Tamu', $bukuTamuCountBulan);
+
+        // Hitung persentase
+        $total = $pieLayanan->sum();
+        $pieLayananPersen = $pieLayanan->map(fn($count) => $total ? round($count / $total * 100, 1) : 0);
+
 
         return view('dashboard', compact(
             'totalAntrianHariIni',
@@ -70,7 +96,8 @@ class DashboardController extends Controller
             'riwayatAntrian',
             'trendHarian',
             'bukuTamuCount',
-            'riwayatGabungan'
+            'riwayatGabungan',
+            'pieLayananPersen',
         ));
     }
 }
