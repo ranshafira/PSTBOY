@@ -95,5 +95,19 @@ class AntrianController extends Controller
         return back()->with('success', "Antrian $nomor sudah mulai dilayani.");
     }
 
+    public function batal($nomor)
+    {
+        // Pastikan semua antrian yg status "dipanggil" dikembalikan ke "menunggu"
+        \App\Models\Antrian::where('status', 'dipanggil')
+            ->update(['status' => 'menunggu']);
+
+        // Atau kalau kamu mau spesifik ke nomor tertentu aja:
+        \App\Models\Antrian::where('nomor_antrian', $nomor)
+            ->update(['status' => 'menunggu']);
+
+        return redirect()->route('dashboard')
+            ->with('success', "Antrian $nomor dikembalikan ke menunggu.");
+    }
+
 
 }

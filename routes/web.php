@@ -40,6 +40,8 @@ Route::post('/antrian/{nomor}/panggil', [\App\Http\Controllers\AntrianController
 Route::get('/pelayanan/{nomor}', [\App\Http\Controllers\PelayananController::class, 'show'])
     ->middleware(['auth'])
     ->name('pelayanan.show');
+    
+Route::post('/antrian/{nomor}/batal', [AntrianController::class, 'batal'])->name('antrian.batal');
 
 
 
