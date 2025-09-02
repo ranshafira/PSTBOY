@@ -8,6 +8,7 @@ use App\Http\Controllers\AbsensiController;
 use App\Http\Controllers\BukuTamuController;
 use App\Http\Controllers\PresensiController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\RiwayatController;
 
 // == Route untuk Halaman Publik (Sistem Antrian - dari Anda) ==
 Route::get('/', [AntrianController::class, 'index'])->name('antrian.index');
@@ -72,9 +73,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/presensi/check-out', [PresensiController::class, 'checkOut'])->name('presensi.checkout');
 });
 
-Route::get('/riwayat', function () {
-    return view('riwayat.index');
-})->name('riwayat.index');
+Route::get('/riwayat', [RiwayatController::class, 'index'])->name('riwayat.index');
+Route::get('/riwayat/export', [RiwayatController::class, 'exportCsv'])->name('riwayat.export');
 
 Route::get('/profile', function () {
     return view('profile.index');
