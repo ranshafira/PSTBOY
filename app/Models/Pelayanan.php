@@ -27,6 +27,17 @@ class Pelayanan extends Model
 
     public function jenisLayanan()
     {
-        return $this->belongsTo(JenisLayanan::class, 'jenis_layanan_id');
+        return $this->belongsTo(JenisLayanan::class, 'jenis_layanan_id'); 
     }
+
+    public function antrian()
+    {
+        return $this->belongsTo(Antrian::class, 'antrian_id'); 
+    }
+
+    public function petugas()
+    {
+        return $this->belongsTo(User::class, 'petugas_id');
+    }
+
 }
