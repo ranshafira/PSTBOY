@@ -11,8 +11,12 @@
 
     <body class="bg-gray-50 min-h-screen font-sans text-gray-800">
         {{-- Navbar --}}
-        @include('layouts.navigation')
-
+        @if(Auth::user()->role_id == 1)
+            @include('layouts.navbar-admin')
+        @else
+            @include('layouts.navigation')
+        @endif
+        
         {{-- Konten Halaman --}}
         <div class="container mx-auto px-4 py-6">
             @yield('content')
