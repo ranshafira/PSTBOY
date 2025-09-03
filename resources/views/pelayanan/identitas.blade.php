@@ -34,51 +34,50 @@
         {{-- Kartu Form 1: Data Identitas Klien --}}
         <div class="bg-white border border-gray-200 rounded-xl p-6">
             <div class="flex items-start space-x-3 mb-6">
-                <svg class="w-6 h-6 text-gray-500 mt-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20ZM12 11C10.8954 11 10 10.1046 10 9C10 7.89543 10.8954 7 12 7C13.1046 7 14 7.89543 14 9C14 10.1046 13.1046 11 12 11ZM12 13C14.2091 13 16 14.7909 16 17H8C8 14.7909 9.79086 13 12 13Z"></path></svg>
-                <div>
-                    <h3 class="text-lg font-semibold text-gray-800">Data Identitas Klien</h3>
-                    <p class="text-sm text-gray-500">Lengkapi informasi identitas klien yang akan dilayani</p>
-                </div>
+                {{-- ... (Icon dan Judul tetap sama) ... --}}
             </div>
 
             <div class="space-y-5 pl-9">
                 {{-- Nama Pelanggan (Full-width) --}}
                 <div>
                     <label for="nama_pelanggan" class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap <span class="text-red-500">*</span></label>
-                    <input type="text" name="nama_pelanggan" id="nama_pelanggan" 
-                           value="{{ old('nama_pelanggan', $pelayanan->nama_pelanggan) }}"
-                           class="w-full rounded-lg border-gray-300 focus:ring focus:ring-orange-200 focus:border-orange-400 transition" required placeholder="Masukkan nama lengkap">
+                    <input type="text" name="nama_pelanggan" id="nama_pelanggan" value="{{ old('nama_pelanggan', $pelayanan->nama_pelanggan) }}" class="w-full rounded-lg border-gray-300 focus:ring focus:ring-orange-200 focus:border-orange-400 transition" required placeholder="Masukkan nama lengkap">
                 </div>
 
                 {{-- Grid 2 Kolom untuk Instansi & Kontak --}}
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
                         <label for="instansi_pelanggan" class="block text-sm font-medium text-gray-700 mb-1">Instansi/Organisasi</label>
-                        <input type="text" name="instansi_pelanggan" id="instansi_pelanggan" 
-                               value="{{ old('instansi_pelanggan', $pelayanan->instansi_pelanggan) }}"
-                               class="w-full rounded-lg border-gray-300 focus:ring focus:ring-orange-200 focus:border-orange-400 transition" placeholder="Nama instansi atau organisasi">
+                        <input type="text" name="instansi_pelanggan" id="instansi_pelanggan" value="{{ old('instansi_pelanggan', $pelayanan->instansi_pelanggan) }}" class="w-full rounded-lg border-gray-300 focus:ring focus:ring-orange-200 focus:border-orange-400 transition" placeholder="Nama instansi atau organisasi">
                     </div>
                     <div>
                         <label for="kontak_pelanggan" class="block text-sm font-medium text-gray-700 mb-1">Kontak (HP / Email)</label>
-                        <input type="text" name="kontak_pelanggan" id="kontak_pelanggan" 
-                               value="{{ old('kontak_pelanggan', $pelayanan->kontak_pelanggan) }}"
-                               class="w-full rounded-lg border-gray-300 focus:ring focus:ring-orange-200 focus:border-orange-400 transition" placeholder="08xxx atau email@example.com">
+                        <input type="text" name="kontak_pelanggan" id="kontak_pelanggan" value="{{ old('kontak_pelanggan', $pelayanan->kontak_pelanggan) }}" class="w-full rounded-lg border-gray-300 focus:ring focus:ring-orange-200 focus:border-orange-400 transition" placeholder="08xxx atau email@example.com">
                     </div>
-                </div>
-                
-                {{-- Kebutuhan Pelanggan (Full-width) --}}
-                <div>
-                    <label for="kebutuhan_pelanggan" class="block text-sm font-medium text-gray-700 mb-1">Kebutuhan Pelanggan</label>
-                    <textarea name="kebutuhan_pelanggan" id="kebutuhan_pelanggan" rows="3"
-                              class="w-full rounded-lg border-gray-300 focus:ring focus:ring-orange-200 focus:border-orange-400 transition" placeholder="Jelaskan kebutuhan data atau layanan yang diperlukan">{{ old('kebutuhan_pelanggan', $pelayanan->kebutuhan_pelanggan) }}</textarea>
                 </div>
             </div>
         </div>
 
-        {{-- Kartu Form 2: Upload Dokumen --}}
+        {{-- PERUBAHAN: Kartu Form 2: Kebutuhan Pelanggan --}}
+        <div class="bg-white border border-gray-200 rounded-xl p-6">
+            <div class="flex items-start space-x-3 mb-6">
+                <svg class="w-6 h-6 text-gray-500 mt-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V8L14 2ZM18 20H6V4H13V9H18V20ZM8 12V14H16V12H8ZM8 16V18H13V16H8Z"></path></svg>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800">Detail Kebutuhan Layanan</h3>
+                    <p class="text-sm text-gray-500">Jelaskan kebutuhan data atau layanan yang diperlukan oleh klien</p>
+                </div>
+            </div>
+
+            <div class="pl-9">
+                <textarea name="kebutuhan_pelanggan" id="kebutuhan_pelanggan" rows="4" class="w-full rounded-lg border-gray-300 focus:ring focus:ring-orange-200 focus:border-orange-400 transition" placeholder="Contoh: Membutuhkan data PDRB Kabupaten X menurut lapangan usaha tahun 2020-2023 dalam bentuk excel.">{{ old('kebutuhan_pelanggan', $pelayanan->kebutuhan_pelanggan) }}</textarea>
+            </div>
+        </div>
+
+
+        {{-- Kartu Form 3: Upload Dokumen --}}
         <div class="bg-white border border-gray-200 rounded-xl p-6">
              <div class="flex items-start space-x-3 mb-6">
-                <svg class="w-6 h-6 text-gray-500 mt-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M13 10H11V4H13V10ZM13 12H11V14H13V12ZM19.35 10.04C18.67 6.59 15.64 4 12 4C9.11 4 6.6 5.64 5.35 8.04C2.34 8.36 0 10.91 0 14C0 17.31 2.69 20 6 20H19C21.76 20 24 17.76 24 15C24 12.36 21.95 10.22 19.35 10.04ZM19 18H6C3.79 18 2 16.21 2 14C2 11.95 3.53 10.24 5.56 10.03L6.63 9.92L7.13 8.97C8.08 7.14 9.94 6 12 6C14.62 6 16.88 7.86 17.39 10.43L17.69 11.93L19.22 12.04C20.78 12.14 22 13.45 22 15C22 16.65 20.65 18 19 18Z"></path></svg>
+                <svg class="w-6 h-6 text-gray-500 mt-1" xmlns="http://www.w.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4C9.11 4 6.6 5.64 5.35 8.04C2.34 8.36 0 10.91 0 14C0 17.31 2.69 20 6 20H19C21.76 20 24 17.76 24 15C24 12.36 21.95 10.22 19.35 10.04ZM19 18H6C3.79 18 2 16.21 2 14C2 11.95 3.53 10.24 5.56 10.03L6.63 9.92L7.13 8.97C8.08 7.14 9.94 6 12 6C14.62 6 16.88 7.86 17.39 10.43L17.69 11.93L19.22 12.04C20.78 12.14 22 13.45 22 15C22 16.65 20.65 18 19 18Z"></path></svg>
                 <div>
                     <h3 class="text-lg font-semibold text-gray-800">Upload Dokumen Pendukung</h3>
                     <p class="text-sm text-gray-500">Upload surat atau dokumen yang diperlukan untuk pelayanan (opsional)</p>
@@ -86,15 +85,22 @@
             </div>
             <div class="pl-9">
                  <div>
-                    <label for="path_surat_pengantar" class="block text-sm font-medium text-gray-700 mb-1">Dokumen/Surat</label>
+                    <label for="path_surat_pengantar" class="block text-sm font-medium text-gray-700 mb-1">Dokumen/Surat Pendukung</label>
                     <input type="file" name="path_surat_pengantar" id="path_surat_pengantar" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
-                    <p class="text-xs text-gray-500 mt-1">Format yang didukung: PDF, DOC, DOCX, JPG, PNG. Maksimal 5MB per file.</p>
+                    <p class="text-xs text-gray-500 mt-1">Format: PDF, DOC, DOCX, JPG, PNG. Maksimal 5MB.</p>
+                     
+                     {{-- PERUBAHAN: Menampilkan link ke file yang sudah diupload --}}
                      @if($pelayanan->path_surat_pengantar)
-                        <p class="mt-2 text-xs text-green-600">File sudah terunggah: {{ basename($pelayanan->path_surat_pengantar) }}</p>
+                        <div class="mt-2 text-sm">
+                            <a href="{{ Storage::url($pelayanan->path_surat_pengantar) }}" target="_blank" class="text-green-600 hover:text-green-800 hover:underline">
+                                File sudah terunggah: {{ basename($pelayanan->path_surat_pengantar) }} (Lihat)
+                            </a>
+                        </div>
                     @endif
                 </div>
             </div>
         </div>
+
 
         {{-- Alert Info --}}
         <div class="p-4 bg-blue-50 border border-blue-200 text-blue-800 rounded-lg flex items-center space-x-3 text-sm">

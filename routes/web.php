@@ -12,6 +12,8 @@ use App\Http\Controllers\DashboardAdminController;
 use App\Http\Controllers\RiwayatController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\PelayananController;
+use App\Http\Controllers\SurveyController;
 
 // == Route untuk Halaman Publik (Sistem Antrian) ==
 Route::get('/', [AntrianController::class, 'index'])->name('antrian.index');
@@ -61,6 +63,16 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/pelayanan/{id}/identitas', [\App\Http\Controllers\PelayananController::class, 'identitas'])->name('pelayanan.identitas');
     Route::post('/pelayanan/{id}/identitas', [\App\Http\Controllers\PelayananController::class, 'storeIdentitas'])->name('pelayanan.storeIdentitas');
 
+    // Hasil pelayanan
+    Route::get('/pelayanan/{id}/hasil', [PelayananController::class, 'hasil'])->name('pelayanan.hasil');
+    Route::post('/pelayanan/{id}/hasil', [PelayananController::class, 'storeHasil'])->name('pelayanan.storeHasil');
+
+    // Menampilkan halaman Selesai Pelayanan
+    Route::get('/pelayanan/{id}/selesai', [PelayananController::class, 'selesai'])->name('pelayanan.selesai');
+    // Mencatat waktu selesai saat tombol ditekan
+    Route::post('/pelayanan/{id}/selesaikan', [PelayananController::class, 'finish'])->name('pelayanan.finish');
+
+
     // Dashboard Umum - arahkan berdasarkan role
     Route::get('/dashboard', function () {
         $user = auth()->user();
@@ -94,3 +106,10 @@ Route::middleware(['auth', 'isAdmin'])->group(function () {
 Route::middleware(['auth'])->group(function () {
     Route::get('/petugas/dashboard', [DashboardController::class, 'index'])->name('petugas.dashboard');
 });
+
+// ROUTE BARU UNTUK SURVEI (Tidak perlu login)
+Route::get('/survei', [SurveyController::class, 'entry'])->name('survei.entry');
+Route::post('/survei/cari', [SurveyController::class, 'find'])->name('survei.find');
+Route::get('/survei/{token}', [SurveyController::class, 'show'])->name('survei.show');
+Route::post('/survei/{token}', [SurveyController::class, 'store'])->name('survei.store');
+
