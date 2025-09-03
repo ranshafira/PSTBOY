@@ -15,7 +15,7 @@
                 <div class="flex items-center space-x-4">
                     <a href="{{ route('admin.dashboard') }}" class="text-gray-700 hover:text-red-600 px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
                     <a href="{{ route('admin.petugas.index') }}" class="text-gray-700 hover:text-red-600 px-3 py-2 rounded-md text-sm font-medium">Petugas PST</a>
-                    <a href="#" class="text-gray-700 hover:text-red-600 px-3 py-2 rounded-md text-sm font-medium">Laporan</a>
+                    <a href="{{ route('admin.jadwal.index') }}" class="text-gray-700 hover:text-red-600 px-3 py-2 rounded-md text-sm font-medium">Jadwal</a>
                     <a href="{{ route('profile.index') }}" class="text-gray-700 hover:text-red-600 px-3 py-2 rounded-md text-sm font-medium">Profil</a>
 
                     {{-- Logout --}}

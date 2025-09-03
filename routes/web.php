@@ -14,6 +14,8 @@ use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\PelayananController;
 use App\Http\Controllers\SurveyController;
+use App\Http\Controllers\JadwalController;
+
 
 // == Route untuk Halaman Publik (Sistem Antrian) ==
 Route::get('/', [AntrianController::class, 'index'])->name('antrian.index');
@@ -100,7 +102,26 @@ Route::middleware(['auth', 'isAdmin'])->group(function () {
     // Register user baru khusus admin
     Route::get('/admin/register', [RegisteredUserController::class, 'create'])->name('admin.register');
     Route::post('/admin/register', [RegisteredUserController::class, 'store'])->name('admin.register.store');
+
+    // Jadwal routes - Updated with proper middleware and structure
+Route::middleware(['auth', 'isAdmin'])->prefix('admin')->group(function () {
+    // Main jadwal routes
+    Route::get('/jadwal', [JadwalController::class, 'index'])->name('admin.jadwal.index');
+    Route::get('/jadwal/generate', [JadwalController::class, 'generateForm'])->name('admin.jadwal.generate.form');
+    Route::post('/jadwal/generate', [JadwalController::class, 'generateJadwal'])->name('admin.jadwal.generate');
+    
+    // CRUD operations for individual jadwal
+    Route::get('/jadwal/{id}/edit', [JadwalController::class, 'edit'])->name('admin.jadwal.edit');
+    Route::put('/jadwal/{id}', [JadwalController::class, 'update'])->name('admin.jadwal.update');
+    Route::delete('/jadwal/{id}', [JadwalController::class, 'destroy'])->name('admin.jadwal.destroy');
+    
+    // API endpoint for calendar events
+    Route::get('/jadwal/events', [JadwalController::class, 'getEvents'])->name('admin.jadwal.events');
 });
+
+
+
+}); // <== Ini penutup untuk group middleware(['auth', 'isAdmin'])
 
 // Dashboard Petugas PST (hanya perlu login)
 Route::middleware(['auth'])->group(function () {
