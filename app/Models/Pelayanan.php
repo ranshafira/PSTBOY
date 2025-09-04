@@ -43,6 +43,10 @@ class Pelayanan extends Model
         return $this->belongsTo(User::class, 'petugas_id');
     }
 
+    public function surveyKepuasan()
+    {
+        return $this->hasOne(SurveyKepuasan::class, 'pelayanan_id');
+    }
     
 
 }

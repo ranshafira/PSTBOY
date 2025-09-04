@@ -53,13 +53,14 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/presensi/check-out', [PresensiController::class, 'checkOut'])->name('presensi.checkout');
 
     // Antrian
-    Route::post('/antrian/{nomor}/panggil', [AntrianController::class, 'panggil'])->name('antrian.panggil');
-    Route::post('/antrian/{nomor}/batal', [AntrianController::class, 'batal'])->name('antrian.batal');
+    Route::post('/antrian/{id}/panggil', [AntrianController::class, 'panggil'])->name('antrian.panggil');
+    Route::post('/antrian/{id}/batal', [AntrianController::class, 'batal'])->name('antrian.batal');
 
     // Pelayanan
-    Route::get('/pelayanan/{nomor}', [\App\Http\Controllers\PelayananController::class, 'show'])->name('pelayanan.show');
-    Route::post('/pelayanan/{nomor}/mulai', [\App\Http\Controllers\PelayananController::class, 'start'])->name('pelayanan.start');
+    Route::get('/pelayanan/{id}', [\App\Http\Controllers\PelayananController::class, 'show'])->name('pelayanan.show');
+    Route::post('/pelayanan/{id}/mulai', [\App\Http\Controllers\PelayananController::class, 'start'])->name('pelayanan.start');
     Route::get('/pelayanan/{id}/detail', [\App\Http\Controllers\PelayananController::class, 'detail'])->name('pelayanan.detail');
+    Route::get('/pelayanan/{id}/lanjut', [PelayananController::class, 'lanjutkan'])->name('pelayanan.lanjut');
 
     // Identitas dalam Pelayanan
     Route::get('/pelayanan/{id}/identitas', [\App\Http\Controllers\PelayananController::class, 'identitas'])->name('pelayanan.identitas');

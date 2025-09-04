@@ -72,42 +72,37 @@ class AntrianController extends Controller
         return $kodeAntrian . str_pad($nomorUrut, 3, '0', STR_PAD_LEFT);
     }
 
-    public function panggil($nomor)
+    public function panggil($id, Request $request)
     {
-        // pastikan hanya ada 1 yang dipanggil
-        \App\Models\Antrian::where('status', 'dipanggil')
-            ->update(['status' => 'menunggu']);
+        $antrian = Antrian::findOrFail($id);
 
-        // set antrian yang dipilih jadi dipanggil
-        \App\Models\Antrian::where('nomor_antrian', $nomor)
-            ->update(['status' => 'dipanggil']);
+        if ($request->has('ulang')) {
+            // Panggil ulang: tetap status dipanggil, tidak reset antrian lain
+            $message = "Antrian {$antrian->nomor_antrian} dipanggil ulang.";
+        } else {
+            // Panggil baru: reset semua dipanggil ke menunggu
+            Antrian::where('status', 'dipanggil')->update(['status' => 'menunggu']);
+            $antrian->status = 'dipanggil';
+            $antrian->save();
+            $message = "Antrian {$antrian->nomor_antrian} sedang dipanggil.";
+        }
 
-        return back()->with('success', "Antrian $nomor sedang dipanggil.");
+        return back()->with('success', $message);
     }
 
-    public function mulai($nomor)
-    {
-        // ubah jadi sedang dilayani
-        \App\Models\Antrian::where('nomor_antrian', $nomor)
-            ->where('status', 'dipanggil')
-            ->update(['status' => 'sedang_dilayani']);
 
-        return back()->with('success', "Antrian $nomor sudah mulai dilayani.");
+    public function batal($id)
+    {
+        $antrian = \App\Models\Antrian::find($id);
+        if ($antrian) {
+            $antrian->status = 'menunggu';
+            $antrian->save();
+        }
+
+        return back()->with('success', "Antrian {$antrian->nomor_antrian} dikembalikan ke menunggu.");
     }
 
-    public function batal($nomor)
-    {
-        // Pastikan semua antrian yg status "dipanggil" dikembalikan ke "menunggu"
-        \App\Models\Antrian::where('status', 'dipanggil')
-            ->update(['status' => 'menunggu']);
 
-        // Atau kalau kamu mau spesifik ke nomor tertentu aja:
-        \App\Models\Antrian::where('nomor_antrian', $nomor)
-            ->update(['status' => 'menunggu']);
-
-        return redirect()->route('dashboard')
-            ->with('success', "Antrian $nomor dikembalikan ke menunggu.");
-    }
 
 
 }

@@ -12,21 +12,65 @@ use Illuminate\Support\Str;
 
 class PelayananController extends Controller
 {
-    public function show($nomor)
+    public function show($id)
     {
-        $antrian = Antrian::where('nomor_antrian', $nomor)->firstOrFail();
+        $antrian = Antrian::findOrFail($id);
         $jenisLayanan = JenisLayanan::all();
-        return view('pelayanan.show', compact('nomor', 'antrian', 'jenisLayanan'));
+
+        // Ambil data pelayanan terakhir yang terkait dengan antrian ini
+        $dataTerisi = Pelayanan::where('antrian_id', $antrian->id)
+                                ->latest('waktu_mulai_sesi') // ambil session terakhir
+                                ->first();
+
+        return view('pelayanan.show', compact('antrian', 'jenisLayanan', 'dataTerisi'));
     }
 
-    public function start(Request $request, $nomor)
+
+    public function start(Request $request, $id)
     {
-        $request->validate(['jenis_layanan_id' => 'required|exists:jenis_layanan,id', 'waktu_mulai' => 'required|string',]);
-        $antrian = Antrian::where('nomor_antrian', $nomor)->firstOrFail();
+        $request->validate([
+            'jenis_layanan_id' => 'required|exists:jenis_layanan,id',
+            'waktu_mulai' => 'required|string',
+        ]);
+
+        $antrian = Antrian::findOrFail($id);
+
+        // Update status antrian
+        $antrian->status = 'sedang_dilayani';
+        $antrian->save();
+
+        // Pastikan format waktu_mulai aman
         $waktu_mulai_string = str_replace('.', ':', $request->waktu_mulai);
-        $waktu_mulai_datetime = Carbon::today()->format('Y-m-d') . ' ' . $waktu_mulai_string;
-        $pelayanan = Pelayanan::create(['petugas_id' => auth()->id(),'antrian_id' => $antrian->id,'jenis_layanan_id' => $request->jenis_layanan_id,'waktu_mulai_sesi' => $waktu_mulai_datetime,]);
-        return redirect()->route('pelayanan.identitas', $pelayanan->id);
+        $waktu_mulai_datetime = now()->format('Y-m-d') . ' ' . $waktu_mulai_string;
+
+        // Simpan data pelayanan
+        $pelayanan = Pelayanan::create([
+            'petugas_id' => auth()->id(),
+            'antrian_id' => $antrian->id,
+            'jenis_layanan_id' => $request->jenis_layanan_id,
+            'waktu_mulai_sesi' => $waktu_mulai_datetime,
+        ]);
+
+        return redirect()->route('pelayanan.identitas', $pelayanan->id)
+            ->with('success', "Pelayanan untuk antrian {$antrian->nomor_antrian} sudah dimulai.");
+    }
+
+    public function lanjutkan($id)
+    {
+        $pelayanan = Pelayanan::findOrFail($id);
+
+        // Jika belum ada nama pelanggan -> ke identitas
+        if (!$pelayanan->nama_pelanggan) {
+            return redirect()->route('pelayanan.identitas', $pelayanan->id);
+        }
+
+        // Jika belum ada hasil -> ke hasil
+        if (!$pelayanan->deskripsi_hasil) {
+            return redirect()->route('pelayanan.hasil', $pelayanan->id);
+        }
+
+        // Sudah selesai semua -> ke halaman selesai
+        return redirect()->route('pelayanan.selesai', $pelayanan->id);
     }
 
     public function identitas($id)
@@ -125,8 +169,14 @@ class PelayananController extends Controller
 
         $pelayanan->survey_token = $token;
         // --- SELESAI ---
-
+        
         $pelayanan->save();
+
+        // --- UPDATE STATUS ANTRIAN ---
+        if ($pelayanan->antrian) {
+            $pelayanan->antrian->status = 'selesai';
+            $pelayanan->antrian->save();
+        }
     }
 
     return redirect()->route('pelayanan.selesai', $pelayanan->id)

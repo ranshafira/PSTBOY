@@ -10,7 +10,7 @@ class RiwayatController extends Controller
     public function index()
     {
         // Ambil semua riwayat pelayanan terbaru
-        $riwayat = Pelayanan::with(['petugas', 'jenisLayanan', 'antrian'])
+        $riwayat = Pelayanan::with(['petugas', 'jenisLayanan', 'antrian', 'surveyKepuasan'])
                     ->orderBy('waktu_mulai_sesi', 'desc')
                     ->paginate(10);
 
@@ -33,7 +33,7 @@ class RiwayatController extends Controller
             "Expires"             => "0"
         ];
 
-        $columns = ['No. Antrian', 'Klien', 'Jenis Layanan', 'Tanggal', 'Durasi', 'Status', 'Kepuasan'];
+        $columns = ['No. Antrian', 'Klien','Kontak', 'Jenis Layanan', 'Tanggal', 'Durasi', 'Status', 'Token Survei','Kepuasan'];
 
         $callback = function() use ($riwayat, $columns) {
             $file = fopen('php://output', 'w');
@@ -47,13 +47,15 @@ class RiwayatController extends Controller
                 $status = $p->waktu_selesai_sesi ? 'Selesai' : 'Proses';
 
                 fputcsv($file, [
-                    $p->antrian->nomor ?? '-',
+                    $p->antrian->nomor_antrian ?? '-',
                     $p->nama_pelanggan,
-                    $p->jenisLayanan->nama ?? '-',
+                    $p->kontak_pelanggan,
+                    $p->jenisLayanan->nama_layanan ?? '-',
                     $p->waktu_mulai_sesi->format('d-m-Y'),
                     $durasi,
-                    $status,
-                    $p->kepuasan ?? 'N/A'
+                    $p->status_penyelesaian,
+                    $p->survey_token,
+                    $p->survei_kepuasan->skor_kepuasan ?? 'Belum Mengisi'
                 ]);
             }
 

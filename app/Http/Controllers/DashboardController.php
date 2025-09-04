@@ -10,7 +10,10 @@ class DashboardController extends Controller
 {
     public function index(Request $request)
     {
-        $totalAntrianHariIni = \App\Models\Antrian::whereDate('created_at', today())->count();
+        $totalAntrianHariIni = \App\Models\Antrian::whereDate('created_at', today())
+            ->whereIn('status', ['menunggu', 'lewati', 'dipanggil', 'sedang_dilayani'])
+            ->count();
+
         $antrianPerLayanan = \App\Models\JenisLayanan::withCount(['antrian' => function($q) {
             $q->whereDate('created_at', today());
         }])->get();
@@ -29,6 +32,7 @@ class DashboardController extends Controller
             ->get()
             ->map(function($item){
                 return (object)[
+                    'id' => $item->id,
                     'nomor_antrian' => $item->nomor_antrian,
                     'nama' => $item->nama,
                     'nama_layanan' => $item->jenisLayanan->nama_layanan,
@@ -42,6 +46,7 @@ class DashboardController extends Controller
             ->get()
             ->map(function($tamu){
                 return (object)[
+                    'id' => $tamu->id,
                     'nomor_antrian' => '-',
                     'nama' => $tamu->nama_tamu,
                     'nama_layanan' => 'Buku Tamu',

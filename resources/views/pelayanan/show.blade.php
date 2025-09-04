@@ -65,7 +65,7 @@
 
         {{-- Kartu Form Inisialisasi --}}
         <div class="bg-white border border-gray-200 rounded-xl p-6">
-            <form action="{{ route('pelayanan.start', $nomor) }}" method="POST" 
+            <form action="{{ route('pelayanan.start', $antrian->id) }}" method="POST" 
                   x-data="{ waktuMulai: '' }">
                 @csrf
                 
@@ -91,7 +91,7 @@
                     </div>
                     <div>
                         <label for="nomor_antrian" class="block text-sm font-medium text-gray-700 mb-1">Nomor Antrian</label>
-                        <input type="text" id="nomor_antrian" value="{{ $nomor }}" readonly
+                        <input type="text" id="nomor_antrian" value="{{ $antrian->nomor_antrian }}" readonly
                             class="w-full border-gray-300 rounded-lg bg-gray-100 px-3 py-2 text-gray-700 font-mono focus:outline-none">
                     </div>
                     <div>

@@ -92,10 +92,12 @@
           <tr>
             <th class="px-4 py-2 text-left">No. Antrian</th>
             <th class="px-4 py-2 text-left">Klien</th>
+            <th class="px-4 py-2 text-left">Kontak</th>
             <th class="px-4 py-2 text-left">Jenis Layanan</th>
             <th class="px-4 py-2 text-left">Tanggal</th>
             <th class="px-4 py-2 text-left">Durasi</th>
             <th class="px-4 py-2 text-left">Status</th>
+            <th class="px-4 py-2 text-left">Token Survei</th>
             <th class="px-4 py-2 text-left">Kepuasan</th>
             <th class="px-4 py-2 text-left">Aksi</th>
           </tr>
@@ -103,9 +105,10 @@
         <tbody class="divide-y divide-gray-100">
           @foreach($riwayat as $p)
           <tr>
-            <td class="px-4 py-2">{{ $p->antrian->nomor ?? '-' }}</td>
+            <td class="px-4 py-2">{{ $p->antrian->nomor_antrian ?? '-' }}</td>
             <td class="px-4 py-2">{{ $p->nama_pelanggan }}</td>
-            <td class="px-4 py-2">{{ $p->jenisLayanan->nama ?? '-' }}</td>
+            <td class="px-4 py-2">{{ $p->kontak_pelanggan }}</td>
+            <td class="px-4 py-2">{{ $p->jenisLayanan->nama_layanan ?? '-' }}</td>
             <td class="px-4 py-2 text-gray-500">{{ \Carbon\Carbon::parse($p->waktu_mulai_sesi)->format('d-m-Y') }}</td>
             <td class="px-4 py-2">
               @if($p->waktu_selesai_sesi)
@@ -117,10 +120,17 @@
             </td>
             <td class="px-4 py-2">
               <span class="px-2 py-1 text-xs rounded-full {{ $p->waktu_selesai_sesi ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500' }}">
-                {{ $p->waktu_selesai_sesi ? 'Selesai' : 'Proses' }}
+                {{ $p->status_penyelesaian }}
               </span>
             </td>
-            <td class="px-4 py-2">{{ $p->kepuasan ?? 'N/A' }}</td>
+            <td class="px-4 py-2">{{ $p->survey_token }}</td>
+            @php
+                $skor = $p->surveyKepuasan->skor_kepuasan ?? null;
+                $rataRata = $skor ? round(array_sum($skor) / count($skor), 1) : null;
+            @endphp
+            <td class="px-4 py-2">
+                {{ $rataRata ?? 'Belum Mengisi' }}
+            </td>
             <td class="px-4 py-2">
               <a href=# class="px-2 py-1 text-xs rounded-full bg-blue-100 text-gray-500 hover:text-indigo-600">Lihat</a>
             </td>
