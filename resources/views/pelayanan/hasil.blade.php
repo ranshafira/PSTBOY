@@ -50,9 +50,9 @@
                     <select name="status_penyelesaian" id="status_penyelesaian" class="w-full rounded-lg border-gray-300 focus:ring focus:ring-orange-200 focus:border-orange-400 transition" required>
                         <option value="">Pilih status penyelesaian</option>
                         <option value="Selesai">Selesai</option>
-                        <option value="Selesai dengan tindak lanjut">Selesai dengan tindak lanjut</option>
-                        <option value="Tidak dapat dipenuhi">Tidak dapat dipenuhi</option>
-                        <option value="Dibatalkan klien">Dibatalkan klien</option>
+                        <option value="Selesai_dengan_tindak_lanjut">Selesai dengan tindak lanjut</option>
+                        <option value="Tidak_dapat_dipenuhi">Tidak dapat dipenuhi</option>
+                        <option value="Dibatalkan_klien">Dibatalkan klien</option>
                     </select>
                 </div>
                 <div>
