@@ -19,7 +19,7 @@
     <!-- Menu Desktop -->
     <ul class="hidden md:flex space-x-6 text-sm font-medium text-gray-700">
       <li>
-        <a href="{{ route('dashboard') }}"
+        <a href="{{ route('petugas.dashboard') }}"
            class="{{ request()->routeIs('dashboard') ? 'text-orange-500 font-semibold' : 'hover:text-orange-500 transition' }}">
           Dashboard
         </a>
@@ -57,7 +57,7 @@
   <div class="md:hidden" x-show="open" x-transition>
     <ul class="px-4 pb-4 space-y-3 text-sm font-medium text-gray-700">
       <li>
-        <a href="{{ route('dashboard') }}"
+        <a href="{{ route('petugas.dashboard') }}"
            class="block {{ request()->routeIs('dashboard') ? 'text-orange-500 font-semibold' : 'hover:text-orange-500 transition' }}">
           Dashboard
         </a>

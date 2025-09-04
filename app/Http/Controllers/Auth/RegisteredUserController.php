@@ -20,7 +20,7 @@ class RegisteredUserController extends Controller
      */
     public function create(): View
     {
-        return view('auth.register');
+        return view('admin.register');
     }
 
     /**
@@ -35,20 +35,24 @@ class RegisteredUserController extends Controller
         'nip' => ['required', 'string', 'max:18', 'unique:'.User::class],
         'username' => ['required', 'string', 'max:255', 'unique:'.User::class],
         'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        'email' => ['nullable', 'email'], // Validasi email
+        'no_hp' => ['nullable', 'string'], // Validasi No HP
     ]);
 
     $user = User::create([
         'nama_lengkap' => $request->nama_lengkap,
         'nip' => $request->nip,
         'username' => $request->username,
+        'email' => $request->email,   // Simpan email
+        'no_hp' => $request->no_hp,   // Simpan No HP
         'password' => Hash::make($request->password),
         'role_id' => 2, // Asumsi: Semua yang register adalah Petugas (role_id = 2)
     ]);
 
-    event(new Registered($user));
+    // event(new Registered($user));
 
-    Auth::login($user);
+    // Auth::login($user);
 
-    return redirect(RouteServiceProvider::HOME);
+    return redirect()->route('admin.petugas.index')->with('success', 'User berhasil didaftarkan.');
 }
 }
