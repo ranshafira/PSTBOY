@@ -9,9 +9,64 @@ use App\Models\Antrian;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage; 
 use Illuminate\Support\Str;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 
 class PelayananController extends Controller
 {
+    public function index(Request $request)
+    {
+        $riwayatAntrian = \App\Models\Antrian::with('jenisLayanan')
+            ->whereDate('created_at', today())
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function($item){
+                return (object)[
+                    'id' => $item->id,
+                    'nomor_antrian' => $item->nomor_antrian,
+                    'nama' => $item->nama,
+                    'nama_layanan' => $item->jenisLayanan->nama_layanan,
+                    'status' => $item->status,
+                    'waktu' => $item->created_at,
+                ];
+            });
+
+        $riwayatBukuTamu = \App\Models\BukuTamu::whereDate('waktu_kunjungan', today())
+            ->orderBy('waktu_kunjungan', 'desc')
+            ->get()
+            ->map(function($tamu){
+                return (object)[
+                    'id' => $tamu->id,
+                    'nomor_antrian' => '-',
+                    'nama' => $tamu->nama_tamu,
+                    'nama_layanan' => 'Buku Tamu',
+                    'status' => 'selesai',
+                    'waktu' => $tamu->waktu_kunjungan,
+                ];
+            });
+
+        $riwayatGabungan = $riwayatAntrian->concat($riwayatBukuTamu)
+            ->sortByDesc('waktu');
+
+         // Pagination manual
+        $perPage = 10;
+        $currentPage = Paginator::resolveCurrentPage();
+        $currentItems = $riwayatGabungan->slice(($currentPage - 1) * $perPage, $perPage)->all();
+
+        $riwayatGabunganPaginator = new LengthAwarePaginator(
+            $currentItems,
+            $riwayatGabungan->count(),
+            $perPage,
+            $currentPage,
+            ['path' => Paginator::resolveCurrentPath()]
+        );
+
+        // Kembalikan ke view
+        return view('pelayanan.index', [
+            'riwayatGabungan' => $riwayatGabunganPaginator
+        ]);
+    }
+
     public function show($id)
     {
         $antrian = Antrian::findOrFail($id);

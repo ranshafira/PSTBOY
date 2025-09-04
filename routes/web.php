@@ -57,6 +57,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/antrian/{id}/batal', [AntrianController::class, 'batal'])->name('antrian.batal');
 
     // Pelayanan
+    Route::get('/pelayanan', [\App\Http\Controllers\PelayananController::class, 'index'])->name('pelayanan.index');
     Route::get('/pelayanan/{id}', [\App\Http\Controllers\PelayananController::class, 'show'])->name('pelayanan.show');
     Route::post('/pelayanan/{id}/mulai', [\App\Http\Controllers\PelayananController::class, 'start'])->name('pelayanan.start');
     Route::get('/pelayanan/{id}/detail', [\App\Http\Controllers\PelayananController::class, 'detail'])->name('pelayanan.detail');
