@@ -22,9 +22,9 @@ class Pelayanan extends Model
 
     protected $casts = [
         'jenis_output' => 'array',
-        'waktu_mulai_sesi' => 'datetime',      // <-- TAMBAHKAN INI
-        'waktu_selesai_sesi' => 'datetime',    // <-- TAMBAHKAN INI
-        'tanggal_tindak_lanjut' => 'date',     // <-- (Opsional) Sebaiknya ini juga
+        'waktu_mulai_sesi' => 'datetime',     
+        'waktu_selesai_sesi' => 'datetime',    
+        'tanggal_tindak_lanjut' => 'date',     
         'survey_completed_at' => 'datetime', 
     ];
 
