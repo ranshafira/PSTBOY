@@ -31,6 +31,12 @@
         </a>
       </li>
       <li>
+        <a href="{{ route('pelayanan.index') }}"
+           class="{{ request()->routeIs('pelayanan.*') ? 'text-orange-500 font-semibold' : 'hover:text-orange-500 transition' }}">
+          Pelayanan
+        </a>
+      </li>
+      <li>
         <a href="{{ route('riwayat.index') }}"
            class="{{ request()->routeIs('riwayat.*') ? 'text-orange-500 font-semibold' : 'hover:text-orange-500 transition' }}">
           Riwayat
@@ -66,6 +72,12 @@
         <a href="{{ route('presensi.index') }}"
            class="block {{ request()->routeIs('presensi.*') ? 'text-orange-500 font-semibold' : 'hover:text-orange-500 transition' }}">
           Presensi
+        </a>
+      </li>
+        <li>
+        <a href="{{ route('pelayanan.index') }}"
+           class="{{ request()->routeIs('pelayanan.*') ? 'text-orange-500 font-semibold' : 'hover:text-orange-500 transition' }}">
+          Pelayanan
         </a>
       </li>
       <li>
