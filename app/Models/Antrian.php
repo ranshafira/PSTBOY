@@ -19,5 +19,10 @@ class Antrian extends Model
     public function jenisLayanan() {
         return $this->belongsTo(JenisLayanan::class, 'jenis_layanan_id');
     }
+    
+    public function pelayanan()
+    {
+        return $this->hasOne(Pelayanan::class, 'antrian_id');
+    }
 
 }

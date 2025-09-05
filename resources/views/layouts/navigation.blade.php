@@ -20,7 +20,7 @@
     <ul class="hidden md:flex space-x-6 text-sm font-medium text-gray-700">
       <li>
         <a href="{{ route('petugas.dashboard') }}"
-           class="{{ request()->routeIs('dashboard') ? 'text-orange-500 font-semibold' : 'hover:text-orange-500 transition' }}">
+           class="{{ request()->routeIs('petugas.dashboard') ? 'text-orange-500 font-semibold' : 'hover:text-orange-500 transition' }}">
           Dashboard
         </a>
       </li>
@@ -64,7 +64,7 @@
     <ul class="px-4 pb-4 space-y-3 text-sm font-medium text-gray-700">
       <li>
         <a href="{{ route('petugas.dashboard') }}"
-           class="block {{ request()->routeIs('dashboard') ? 'text-orange-500 font-semibold' : 'hover:text-orange-500 transition' }}">
+           class="block {{ request()->routeIs('petugas.dashboard') ? 'text-orange-500 font-semibold' : 'hover:text-orange-500 transition' }}">
           Dashboard
         </a>
       </li>
