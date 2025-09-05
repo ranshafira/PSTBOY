@@ -55,6 +55,7 @@
         <label class="block text-sm text-gray-600 mb-1">Status</label>
         <select name="status" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm">
           <option value="">Semua status</option>
+          <option value="Proses" {{ request('status') == 'Proses' ? 'selected' : '' }}>Proses</option>
           <option value="Selesai" {{ request('status') == 'Selesai' ? 'selected' : '' }}>Selesai</option>
           <option value="Selesai dengan tindak lanjut" {{ request('status') == 'Selesai dengan tindak lanjut' ? 'selected' : '' }}>Selesai dengan tindak lanjut</option>
           <option value="Tidak dapat dipenuhi" {{ request('status') == 'Tidak dapat dipenuhi' ? 'selected' : '' }}>Tidak dapat dipenuhi</option>

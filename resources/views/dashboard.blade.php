@@ -129,7 +129,6 @@
             <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Layanan</th>
             <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
             <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Waktu</th>
-            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
@@ -170,59 +169,7 @@
               <td class="px-6 py-4 text-center">
                 @if ($isBukuTamu)
                     <span class="text-gray-400 text-xs">-</span>
-                
-                @elseif ($rawStatus === 'menunggu' || $rawStatus === 'pending')
-                    <!-- Tombol Panggil -->
-                    <form action="{{ route('antrian.panggil', ['id' => $item->id]) }}" method="POST" class="inline">
-                        @csrf
-                        <button type="submit" class="px-3 py-1 rounded bg-blue-100 hover:bg-blue-300 text-blue-800 text-xs font-medium">
-                            Panggil
-                        </button>
-                    </form>
-
-                @elseif ($rawStatus === 'dipanggil')
-                    <!-- Tombol Panggil Ulang -->
-                    <form action="{{ route('antrian.panggil', ['id' => $item->id]) }}" method="POST" class="inline">
-                        @csrf
-                        <input type="hidden" name="ulang" value="1">
-                        <button type="submit" class="px-3 py-1 rounded bg-blue-100 hover:bg-blue-300 text-blue-800 text-xs font-medium mr-2">
-                            Panggil Ulang
-                        </button>
-                    </form>
-
-                    <!-- Tombol Mulai -->
-                    <a href="{{ route('pelayanan.show', $item->id) }}" 
-                      class="px-3 py-1 rounded bg-green-100 hover:bg-green-300 text-green-800 text-xs font-medium mr-2">
-                      Mulai
-                    </a>
-
-                    <!-- Tombol Batal -->
-                    <form action="{{ route('antrian.batal', ['id' => $item->id]) }}" method="POST" class="inline">
-                        @csrf
-                        <button type="submit" class="px-3 py-1 rounded bg-red-100 hover:bg-red-300 text-red-800 text-xs font-medium">
-                            Batal
-                        </button>
-                    </form>
-
-                @elseif ($rawStatus === 'sedang_dilayani')
-                  @php
-                      $pelayanan = \App\Models\Pelayanan::where('antrian_id', $item->id)
-                                    ->latest('created_at')
-                                    ->first();
-                  @endphp
-
-                  @if($pelayanan)
-                      <a href="{{ route('pelayanan.lanjut', $pelayanan->id) }}" 
-                        class="px-3 py-1 rounded bg-green-100 hover:bg-green-300 text-green-800 text-xs font-medium mr-2">
-                        Lanjutkan
-                      </a>
-                  @endif
-
-                @elseif ($rawStatus === 'selesai')
-                    <span class="text-gray-500 text-xs font-medium">Selesai Dilayani</span>
                 @endif
-            </td>
-
             </tr>
           @empty
             <tr>

@@ -20,7 +20,13 @@ class RiwayatController extends Controller
                         ->orWhereHas('antrian', fn($q2) => $q2->where('nomor_antrian', 'like', "%{$q}%"))
                         ->orWhereHas('jenisLayanan', fn($q3) => $q3->where('nama_layanan', 'like', "%{$q}%"));
                 })
-                ->when($request->status, fn($query, $status) => $query->where('status_penyelesaian', $status))
+                ->when($request->status, function($query, $status) {
+                    if($status == 'Proses') {
+                        $query->whereNull('status_penyelesaian');
+                    } else {
+                        $query->where('status_penyelesaian', $status);
+                    }
+                })
                 ->when($request->jenis_layanan, fn($query, $id) => $query->where('jenis_layanan_id', $id))
                 ->when($request->periode, function($query, $periode) {
                     if($periode == 'hari_ini') $query->whereDate('waktu_mulai_sesi', today());
@@ -59,7 +65,13 @@ class RiwayatController extends Controller
                           ->orWhereHas('antrian', fn($q2) => $q2->where('nomor_antrian', 'like', "%{$q}%"))
                           ->orWhereHas('jenisLayanan', fn($q3) => $q3->where('nama_layanan', 'like', "%{$q}%"));
                 })
-                ->when($request->status, fn($query, $status) => $query->where('status_penyelesaian', $status))
+                ->when($request->status, function($query, $status) {
+                    if($status == 'Proses') {
+                        $query->whereNull('status_penyelesaian');
+                    } else {
+                        $query->where('status_penyelesaian', $status);
+                    }
+                })
                 ->when($request->jenis_layanan, fn($query, $id) => $query->where('jenis_layanan_id', $id))
                 ->when($request->periode, function($query, $periode) {
                     if($periode == 'hari_ini') $query->whereDate('waktu_mulai_sesi', today());

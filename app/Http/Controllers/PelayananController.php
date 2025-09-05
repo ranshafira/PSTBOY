@@ -14,56 +14,41 @@ use Illuminate\Pagination\Paginator;
 
 class PelayananController extends Controller
 {
-    public function index(Request $request)
+   public function index(Request $request)
     {
-        $riwayatAntrian = \App\Models\Antrian::with('jenisLayanan')
+        // Antrian hari ini
+        $riwayatAntrian = \App\Models\Antrian::with('jenisLayanan', 'pelayanan')
             ->whereDate('created_at', today())
             ->orderBy('created_at', 'desc')
-            ->get()
-            ->map(function($item){
-                return (object)[
-                    'id' => $item->id,
-                    'nomor_antrian' => $item->nomor_antrian,
-                    'nama' => $item->nama,
-                    'nama_layanan' => $item->jenisLayanan->nama_layanan,
-                    'status' => $item->status,
-                    'waktu' => $item->created_at,
-                ];
-            });
+            ->paginate(10);
 
+        // Buku Tamu hari ini
         $riwayatBukuTamu = \App\Models\BukuTamu::whereDate('waktu_kunjungan', today())
             ->orderBy('waktu_kunjungan', 'desc')
-            ->get()
-            ->map(function($tamu){
-                return (object)[
-                    'id' => $tamu->id,
-                    'nomor_antrian' => '-',
-                    'nama' => $tamu->nama_tamu,
-                    'nama_layanan' => 'Buku Tamu',
-                    'status' => 'selesai',
-                    'waktu' => $tamu->waktu_kunjungan,
-                ];
-            });
+            ->paginate(10, ['*'], 'bukutamu_page');
 
-        $riwayatGabungan = $riwayatAntrian->concat($riwayatBukuTamu)
-            ->sortByDesc('waktu');
+        // Statistik tambahan
+        $totalAntrianHariIni = \App\Models\Antrian::whereDate('created_at', today())
+            ->whereIn('status', ['menunggu', 'lewati', 'dipanggil', 'sedang_dilayani'])
+            ->count();
 
-         // Pagination manual
-        $perPage = 10;
-        $currentPage = Paginator::resolveCurrentPage();
-        $currentItems = $riwayatGabungan->slice(($currentPage - 1) * $perPage, $perPage)->all();
+        $sudahDilayani = \App\Models\Antrian::whereDate('created_at', today())
+            ->where('status', 'selesai')
+            ->count();
 
-        $riwayatGabunganPaginator = new LengthAwarePaginator(
-            $currentItems,
-            $riwayatGabungan->count(),
-            $perPage,
-            $currentPage,
-            ['path' => Paginator::resolveCurrentPath()]
-        );
+        $antrianBerjalan = \App\Models\Antrian::whereIn('status', ['dipanggil', 'sedang_dilayani'])
+            ->latest('updated_at')
+            ->first();
 
-        // Kembalikan ke view
+        $bukuTamuCount = \App\Models\BukuTamu::whereDate('waktu_kunjungan', today())->count();
+
         return view('pelayanan.index', [
-            'riwayatGabungan' => $riwayatGabunganPaginator
+            'riwayatAntrian' => $riwayatAntrian,
+            'riwayatBukuTamu' => $riwayatBukuTamu,
+            'totalAntrianHariIni' => $totalAntrianHariIni,
+            'sudahDilayani' => $sudahDilayani,
+            'antrianBerjalan' => $antrianBerjalan,
+            'bukuTamuCount' => $bukuTamuCount,
         ]);
     }
 
@@ -208,33 +193,55 @@ class PelayananController extends Controller
     }
 
    public function finish(Request $request, $id)
-{
-    $pelayanan = Pelayanan::findOrFail($id);
+    {
+        $pelayanan = Pelayanan::findOrFail($id);
 
-    if (is_null($pelayanan->waktu_selesai_sesi)) {
-        $pelayanan->waktu_selesai_sesi = now();
-        
-        // --- LOGIKA PEMBUATAN PIN UNIK ---
-        do {
-            // Buat PIN acak dengan format XXX-XXX
-            $token = strtoupper(Str::random(3) . '-' . Str::random(3));
-            // Cek apakah PIN ini sudah ada di database
-            $exists = Pelayanan::where('survey_token', $token)->exists();
-        } while ($exists); // Ulangi jika sudah ada, untuk menjamin keunikan
+        if (is_null($pelayanan->waktu_selesai_sesi)) {
+            $pelayanan->waktu_selesai_sesi = now();
+            
+            // --- LOGIKA PEMBUATAN PIN UNIK ---
+            do {
+                // Buat PIN acak dengan format XXX-XXX
+                $token = strtoupper(Str::random(3) . '-' . Str::random(3));
+                // Cek apakah PIN ini sudah ada di database
+                $exists = Pelayanan::where('survey_token', $token)->exists();
+            } while ($exists); // Ulangi jika sudah ada, untuk menjamin keunikan
 
-        $pelayanan->survey_token = $token;
-        // --- SELESAI ---
-        
-        $pelayanan->save();
+            $pelayanan->survey_token = $token;
+            // --- SELESAI ---
+            
+            $pelayanan->save();
 
-        // --- UPDATE STATUS ANTRIAN ---
-        if ($pelayanan->antrian) {
-            $pelayanan->antrian->status = 'selesai';
-            $pelayanan->antrian->save();
+            // --- UPDATE STATUS ANTRIAN ---
+            if ($pelayanan->antrian) {
+                $pelayanan->antrian->status = 'selesai';
+                $pelayanan->antrian->save();
+            }
         }
-    }
 
-    return redirect()->route('pelayanan.selesai', $pelayanan->id)
-                     ->with('success', 'Waktu pelayanan berhasil dicatat!');
-}
+        return redirect()->route('pelayanan.selesai', $pelayanan->id)
+                        ->with('success', 'Waktu pelayanan berhasil dicatat!');
+    }
+    public function detail($id)
+    {
+        // Ambil record pelayanan beserta relasinya
+        $pelayanan = \App\Models\Pelayanan::with(['jenisLayanan', 'antrian', 'petugas', 'surveyKepuasan'])
+            ->findOrFail($id);
+
+        // Siapkan data turunan untuk view
+        $data = [
+            'pelayanan' => $pelayanan,
+            'nomor_antrian' => $pelayanan->antrian->nomor_antrian ?? null,
+            'petugas_nama' => $pelayanan->petugas->name ?? null,
+            'jenis_layanan' => $pelayanan->jenisLayanan->nama_layanan ?? null,
+            // decode jenis_output kalau ada dan valid
+            'jenis_output_list' => is_array($pelayanan->jenis_output) ? $pelayanan->jenis_output : ( $pelayanan->jenis_output ? json_decode($pelayanan->jenis_output, true) : []),
+            // path -> url (cek kalau ada)
+            'url_surat_pengantar' => $pelayanan->path_surat_pengantar ? Storage::url($pelayanan->path_surat_pengantar) : null,
+            'url_dokumen_hasil' => $pelayanan->path_dokumen_hasil ? Storage::url($pelayanan->path_dokumen_hasil) : null,
+        ];
+
+        return view('pelayanan.detail', $data);
+    }
+    
 }

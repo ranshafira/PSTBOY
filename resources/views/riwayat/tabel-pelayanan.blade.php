@@ -41,7 +41,7 @@
           </td>
           <td class="px-4 py-2">
             @php
-                $status = $p->status_penyelesaian;
+                $status = $p->status_penyelesaian ?? 'Proses';
                 $bgColor = 'bg-gray-100 text-gray-500';
                 if(in_array($status, ['Selesai','Selesai dengan tindak lanjut'])) $bgColor='bg-green-100 text-green-700';
                 elseif($status=='Tidak dapat dipenuhi') $bgColor='bg-red-100 text-red-700';
@@ -56,8 +56,7 @@
           @endphp
           <td class="px-4 py-2">{{ $rataRata ? $rataRata.'/5' : 'Belum Mengisi' }}</td>
           <td class="px-4 py-2">
-            <a href="#" class="px-2 py-1 text-xs rounded-full bg-blue-100 text-gray-500 hover:text-indigo-600">Lihat</a>
-          </td>
+            <a href="{{ route('pelayanan.detail', $p->id) }}" class="px-3 py-1 rounded bg-gray-100 hover:bg-gray-300 text-black-800 text-xs font-medium mr-2">Lihat Detail</a>
         </tr>
         @endforeach
       </tbody>
