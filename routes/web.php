@@ -66,7 +66,6 @@ Route::middleware(['auth'])->group(function () {
     // Identitas dalam Pelayanan
     Route::get('/pelayanan/{id}/identitas', [\App\Http\Controllers\PelayananController::class, 'identitas'])->name('pelayanan.identitas');
     Route::post('/pelayanan/{id}/identitas', [\App\Http\Controllers\PelayananController::class, 'storeIdentitas'])->name('pelayanan.storeIdentitas');
-
     // Hasil pelayanan
     Route::get('/pelayanan/{id}/hasil', [PelayananController::class, 'hasil'])->name('pelayanan.hasil');
     Route::post('/pelayanan/{id}/hasil', [PelayananController::class, 'storeHasil'])->name('pelayanan.storeHasil');
@@ -75,7 +74,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/pelayanan/{id}/selesai', [PelayananController::class, 'selesai'])->name('pelayanan.selesai');
     // Mencatat waktu selesai saat tombol ditekan
     Route::post('/pelayanan/{id}/selesaikan', [PelayananController::class, 'finish'])->name('pelayanan.finish');
-
 
     // Dashboard Umum - arahkan berdasarkan role
     Route::get('/dashboard', function () {
@@ -100,6 +98,9 @@ Route::middleware(['auth', 'isAdmin'])->group(function () {
     // Halaman admin untuk daftar user petugas PST
     Route::get('/admin/petugas', [UserManagementController::class, 'index'])->name('admin.petugas.index');
     Route::delete('/admin/petugas/{id}', [UserManagementController::class, 'destroy'])->name('admin.petugas.destroy');
+
+    // Eksport survei
+    Route::get('/admin/dashboard/export-survei', [DashboardAdminController::class, 'exportSurvei'])->name('admin.dashboard.exportSurvei');
 
     // Register user baru khusus admin
     Route::get('/admin/register', [RegisteredUserController::class, 'create'])->name('admin.register');
@@ -129,10 +130,8 @@ Route::middleware(['auth', 'isAdmin'])->prefix('admin')->group(function () {
 Route::middleware(['auth'])->group(function () {
     Route::get('/petugas/dashboard', [DashboardController::class, 'index'])->name('petugas.dashboard');
 });
-
 // ROUTE BARU UNTUK SURVEI (Tidak perlu login)
 Route::get('/survei', [SurveyController::class, 'entry'])->name('survei.entry');
 Route::post('/survei/cari', [SurveyController::class, 'find'])->name('survei.find');
 Route::get('/survei/{token}', [SurveyController::class, 'show'])->name('survei.show');
 Route::post('/survei/{token}', [SurveyController::class, 'store'])->name('survei.store');
-
