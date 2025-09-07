@@ -9,7 +9,7 @@
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     </head>
 
-    <body class="bg-gray-50 min-h-screen font-sans text-gray-800">
+    <body class="font-figtree antialiase bg-gray-50 min-h-screen font-sans text-gray-800">
         {{-- Navbar --}}
         @if(Auth::user()->role_id == 1)
             @include('layouts.navbar-admin')
