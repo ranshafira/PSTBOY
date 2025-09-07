@@ -77,6 +77,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Dashboard Umum - arahkan berdasarkan role
     Route::get('/dashboard', function () {
+         /** @var \App\Models\User $user */
         $user = auth()->user();
         if ($user->hasRole('admin')) {
             return redirect()->route('admin.dashboard');
