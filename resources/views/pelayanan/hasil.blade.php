@@ -36,7 +36,7 @@
                     <div class="space-y-6 pl-10">
                         <div>
                             <label for="status_penyelesaian" class="block text-sm font-medium text-gray-700 mb-2">Status Penyelesaian <span class="text-red-500">*</span></label>
-                            <select name="status_penyelesaian" id="status_penyelesaian" class="w-full rounded-lg border-gray-300 focus:ring-orange-500 focus:border-orange-500 py-2.5 px-4 transition" required><option value="">Pilih status penyelesaian</option><option value="Selesai">Selesai</option><option value="Selesai_dengan_tindak_lanjut">Selesai dengan tindak lanjut</option><option value="Tidak_dapat_dipenuhi">Tidak dapat dipenuhi</option><option value="Dibatalkan_klien">Dibatalkan klien</option></select>
+                            <select name="status_penyelesaian" id="status_penyelesaian" class="w-full rounded-lg border-gray-300 focus:ring-orange-500 focus:border-orange-500 py-2.5 px-4 transition" required><option value="">Pilih status penyelesaian</option><option value="Selesai">Selesai</option><option value="Selesai dengan tindak lanjut">Selesai dengan tindak lanjut</option><option value="Tidak dapat dipenuhi">Tidak dapat dipenuhi</option><option value="Dibatalkan klien">Dibatalkan klien</option></select>
                         </div>
                         <div>
                             <label for="deskripsi_hasil" class="block text-sm font-medium text-gray-700 mb-2">Deskripsi Hasil <span class="text-red-500">*</span></label>

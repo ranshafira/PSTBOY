@@ -124,11 +124,7 @@
                                                                 ->first();
                                             @endphp
 
-                                            @if($pelayanan)
-                                                <a href="{{ route('pelayanan.detail', $pelayanan->id) }}" class="px-3 py-1 rounded bg-gray-100 hover:bg-gray-300 text-black-800 text-xs font-medium mr-2">Lihat Detail</a>
-                                            @else
-                                                <span class="text-gray-500">Selesai Dilayani</span>
-                                            @endif
+                                                <span class="px-3 py-1 rounded bg-gray-100 text-black-800 text-xs font-medium mr-2">Selesai Dilayani</span>
                                         @endif
                                     </td>
                                 </tr>

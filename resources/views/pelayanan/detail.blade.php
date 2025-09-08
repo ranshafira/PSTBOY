@@ -10,7 +10,7 @@
                 <h1 class="text-3xl font-bold text-gray-900">Detail Pelayanan</h1>
                 <p class="text-md text-gray-500 mt-1">Ringkasan lengkap hasil layanan, status, dan dokumen terkait.</p>
             </div>
-            <a href="{{ route('pelayanan.index') }}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 transition text-sm font-medium">
+            <a href="{{ route('riwayat.index') }}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 transition text-sm font-medium">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" /></svg>
                 <span>Kembali</span>
             </a>

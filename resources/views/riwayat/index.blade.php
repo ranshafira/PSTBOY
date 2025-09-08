@@ -20,16 +20,23 @@
     </div>
   </div>
 
-  <!-- Toggle Tab -->
-  <div class="flex space-x-4 mb-4">
-      <a href="{{ route('riwayat.index', array_merge(request()->all(), ['tab' => 'pelayanan'])) }}"
-         class="px-4 py-2 rounded-lg font-semibold {{ $tab == 'pelayanan' ? 'bg-orange-500 text-white' : 'bg-gray-200 text-gray-700' }}">
-         Riwayat Pelayanan
-      </a>
-      <a href="{{ route('riwayat.index', array_merge(request()->all(), ['tab' => 'buku_tamu'])) }}"
-         class="px-4 py-2 rounded-lg font-semibold {{ $tab == 'buku_tamu' ? 'bg-orange-500 text-white' : 'bg-gray-200 text-gray-700' }}">
-         Riwayat Buku Tamu
-      </a>
+  <!-- Toggle Tab Modern -->
+  <div class="flex justify-start mb-6 border-b border-gray-200 dark:border-gray-700">
+    <a href="{{ route('riwayat.index', array_merge(request()->all(), ['tab' => 'pelayanan'])) }}"
+      class="px-4 py-2 font-medium transition-all duration-300
+              {{ $tab == 'pelayanan' 
+                ? 'text-orange-600 border-b-2 border-orange-500' 
+                : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white' }}">
+      Riwayat Pelayanan
+    </a>
+
+    <a href="{{ route('riwayat.index', array_merge(request()->all(), ['tab' => 'buku_tamu'])) }}"
+      class="ml-6 px-4 py-2 font-medium transition-all duration-300
+              {{ $tab == 'buku_tamu' 
+                ? 'text-orange-600 border-b-2 border-orange-500' 
+                : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white' }}">
+      Riwayat Buku Tamu
+    </a>
   </div>
 
   <!-- Filter & Pencarian -->
