@@ -31,28 +31,6 @@
 </head>
 <body class="bg-gray-100">
 
-    <nav class="bg-white shadow">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex-shrink-0 flex items-center">
-                    <div class="bg-orange-500 text-white font-bold w-8 h-8 rounded-lg flex items-center justify-center text-lg">
-                        P
-                    </div>
-                    <span class="ml-3 font-semibold text-xl text-gray-700">Pelayanan PST</span>
-                </div>
-                <div class="hidden sm:block sm:ml-6">
-                    <div class="flex space-x-4">
-                        <a href="#" class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">Beranda</a>
-                        <a href="#" class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">Absensi</a>
-                        <a href="#" class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">Pelayanan</a>
-                        <a href="#" class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">Riwayat</a>
-                        <a href="#" class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">Profil</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </nav>
-
     <main class="flex flex-col items-center justify-center py-12 px-4">
         <div class="text-center mb-8">
             <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-orange-100 text-orange-500 mb-4">

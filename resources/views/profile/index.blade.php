@@ -68,8 +68,8 @@
                     <!-- Status Badge -->
                     <div class="inline-flex">
                         <span class="px-6 py-2 text-sm font-semibold rounded-full shadow-sm
-                            {{ Auth::user()->status == 'admin' ? 'bg-gray-100 text-gray-700 ring-2 ring-gray-300' : 'bg-orange-100 text-orange-700 ring-2 ring-orange-300' }}">
-                            {{ Auth::user()->status == 'admin' ? 'Administrator' : 'Pegawai PST' }}
+                            {{ Auth::user()->id == '1' ? 'bg-red-100 text-red-700 ring-2 ring-red-300' : 'bg-orange-100 text-orange-700 ring-2 ring-orange-300' }}">
+                            {{ Auth::user()->id == '1' ? 'Administrator' : 'Petugas PST' }}
                         </span>
                     </div>
                 </div>
