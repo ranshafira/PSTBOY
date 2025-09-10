@@ -32,9 +32,9 @@
                 <p class="text-6xl font-bold text-gray-400 my-4">- - : - -</p>
                 <p class="text-gray-600 text-lg">Tekan tombol di bawah untuk merekam waktu selesai.</p>
                 <form action="{{ route('pelayanan.finish', $pelayanan->id) }}" method="POST" class="mt-6">
-                    @csrf
-                    <button type="submit" class="px-7 py-2.5 bg-emerald-500 text-white font-medium rounded-lg hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition">Rekam & Selesaikan Sekarang</button>
-                </form>
+    @csrf
+    <button type="submit" class="px-7 py-2.5 bg-orange-500 text-white font-medium rounded-lg hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition">Rekam & Selesaikan Sekarang</button>
+</form>
             @endif
         </div>
 
@@ -62,7 +62,9 @@
             <div class="my-6 p-5 bg-orange-100 border-2 border-dashed border-orange-300 rounded-xl inline-block">
                 <p class="text-6xl font-extrabold text-orange-700 tracking-wider">{{ $pelayanan->survey_token }}</p>
             </div>
-            <p class="text-sm text-gray-500 mt-4">Arahkan pengguna ke PC Survei dengan alamat <span class="font-semibold text-orange-600">{{ route('survei.entry') }}</span></p>
+            <p class="text-sm text-gray-500 mt-4">Arahkan pengguna ke PC Survei dengan alamat <a href="{{ route('survei.entry') }}" class="font-semibold text-orange-600 hover:underline" target="_blank">
+    {{ route('survei.entry') }}
+</a></p>
         </div>
         @endif
         
