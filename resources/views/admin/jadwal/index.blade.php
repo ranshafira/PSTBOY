@@ -16,7 +16,7 @@
             </span>
         </h2>
 
-        <form id="generateForm" method="POST" action="{{ route('admin.jadwal.generate') }}" class="mb-8 relative z-10">
+        <form id="generateForm" method="POST" action="{{ route('admin.jadwal.generate') }}" class="mb-8 relative z-10" onsubmit="return confirmGenerate(event)">
             @csrf
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div>
@@ -650,6 +650,15 @@
 </style>
 
 <script type="text/javascript">
+    // Function to confirm schedule generation
+    function confirmGenerate(event) {
+        if (!confirm('Apakah anda yakin untuk menggenerate jadwal?')) {
+            event.preventDefault();
+            return false;
+        }
+        return true;
+    }
+    
     document.addEventListener('DOMContentLoaded', function() {
         // Status messages untuk loading yang realistis
         const statusMessages = [

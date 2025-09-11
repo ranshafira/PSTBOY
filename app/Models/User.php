@@ -12,7 +12,8 @@ use App\Models\Role;
 class User extends Authenticatable 
 {
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
-
+    use Notifiable;
+    
     protected $fillable = [
         'nama_lengkap',
         'nip',

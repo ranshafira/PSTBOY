@@ -7,6 +7,9 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Notifications\JadwalDiubahNotification;
+use App\Notifications\JadwalDihapusNotification;
+use Illuminate\Support\Facades\Notification;
 use Carbon\Carbon;
 
 
@@ -149,6 +152,31 @@ class JadwalController extends Controller
 
     public function update(Request $request, $id)
     {
+         $jadwal = Jadwal::findOrFail($id);
+
+    $request->validate([
+        'user_id' => 'required|exists:users,id',
+    ]);
+
+    $userLama = $jadwal->user; // Petugas lama
+    $userBaru = User::findOrFail($request->user_id); // Petugas baru
+
+    // Update jadwal
+    $jadwal->user_id = $request->user_id;
+    $jadwal->save();
+
+    // Kirim notifikasi email
+    if ($userLama->id !== $userBaru->id) {
+        // Petugas lama
+        $userLama->notify(new JadwalDiubahNotification($jadwal, 'lama'));
+
+        // Petugas baru
+        $userBaru->notify(new JadwalDiubahNotification($jadwal, 'baru'));
+    }
+
+    return redirect()->route('admin.jadwal.edit', $jadwal->id)
+                     ->with('success', 'Jadwal berhasil diperbarui dan notifikasi telah dikirim.');
+
         $request->validate([
             'user_id' => 'required|exists:users,id'
         ]);
@@ -161,23 +189,31 @@ class JadwalController extends Controller
         return redirect()->route('admin.jadwal.index')->with('success', 'Jadwal berhasil diperbarui.');
     }
 
-    public function destroy($id)
-    {
-        try {
-            $jadwal = Jadwal::findOrFail($id);
-            $jadwal->delete();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Jadwal berhasil dihapus.'
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal menghapus jadwal: ' . $e->getMessage()
-            ], 500);
+        public function destroy($id)
+{
+    try {
+        $jadwal = Jadwal::findOrFail($id);
+        $petugas = $jadwal->user;
+
+        if ($petugas && $petugas->email) {
+            $petugas->notify(new JadwalDihapusNotification($jadwal));
         }
+
+        $jadwal->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Jadwal berhasil dihapus dan notifikasi telah dikirim ke petugas.'
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Gagal menghapus jadwal: ' . $e->getMessage()
+        ], 500);
     }
+}
+
 
     /**
      * Generate a unique soft color based on user ID
