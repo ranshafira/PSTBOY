@@ -8,8 +8,8 @@
 
         {{-- Header & Stepper --}}
         <div class="text-center mb-10">
-            <h1 class="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Mulai Sesi Pelayanan</h1>
-            <p class="mt-2 text-base text-slate-600">Langkah 1 dari 6: Inisialisasi layanan untuk nomor antrian yang dipilih.</p>
+            <h1 class="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Mulai Layanan</h1>
+            <p class="mt-2 text-base text-slate-600">Langkah 1. Inisialisasi layanan untuk nomor antrian yang dipilih.</p>
         </div>
         <div class="flex justify-center mb-12">
             @include('partials._stepper', ['currentStep' => 1])
