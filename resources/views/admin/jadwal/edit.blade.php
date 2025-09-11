@@ -50,7 +50,7 @@
         <!-- Main Card -->
         <div class="bg-white shadow-xl rounded-lg overflow-hidden">
             <!-- Card Header -->
-            <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
+            <div class="bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-4">
                 <h3 class="text-lg font-medium text-white">Detail Jadwal</h3>
             </div>
 
@@ -60,7 +60,7 @@
                 @method('PUT')
 
                 <!-- Current Schedule Info -->
-                <div class="bg-gray-50 rounded-lg p-4 border-l-4 border-blue-500">
+                <div class="bg-gray-50 rounded-lg p-4 border-l-4 border-orange-500">
                     <h4 class="text-sm font-medium text-gray-900 mb-3">Informasi Jadwal Saat Ini</h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="flex items-center">
@@ -98,10 +98,10 @@
                 </div>
 
                 <!-- Current Officer Info -->
-                <div class="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-500">
+                <div class="bg-orange-50 rounded-lg p-4 border-l-4 border-orange-500">
                     <h4 class="text-sm font-medium text-gray-900 mb-3">Petugas Saat Ini</h4>
                     <div class="flex items-center">
-                        <div class="h-10 w-10 bg-blue-500 rounded-full flex items-center justify-center mr-3">
+                        <div class="h-10 w-10 bg-orange-500 rounded-full flex items-center justify-center mr-3">
                             <span class="text-white font-medium text-sm">
                                 {{ strtoupper(substr($jadwal->user->nama_lengkap, 0, 2)) }}
                             </span>
@@ -119,7 +119,7 @@
                         Pilih Petugas Baru
                         <span class="text-red-500">*</span>
                     </label>
-                    <select name="user_id" id="user_id" required class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition duration-200">
+                    <select name="user_id" id="user_id" required class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 sm:text-sm transition duration-200">
                         @foreach ($users as $user)
                             <option value="{{ $user->id }}" {{ $jadwal->user_id == $user->id ? 'selected' : '' }}>
                                 {{ $user->nama_lengkap }}
@@ -132,14 +132,14 @@
 
                 <!-- Action Buttons -->
                 <div class="flex justify-between pt-6 border-t border-gray-200">
-                    <a href="{{ route('admin.jadwal.index') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-200">
+                    <a href="{{ route('admin.jadwal.index') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition duration-200">
                         <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                         </svg>
                         Kembali
                     </a>
 
-                    <button type="submit" class="inline-flex items-center px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-200 transform hover:scale-105">
+                    <button type="submit" class="inline-flex items-center px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition duration-200 transform hover:scale-105">
                         <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                         </svg>
@@ -172,7 +172,7 @@
     </div>
 </div>
 
-<script>
+<script type="text/javascript">
 // Add confirmation dialog for form submission
 document.querySelector('form').addEventListener('submit', function(e) {
     const currentOfficer = '{{ $jadwal->user->nama_lengkap }}';
@@ -207,5 +207,81 @@ document.querySelector('button[type="submit"]').addEventListener('click', functi
         button.innerHTML = originalText;
     }, 3000);
 });
+
+// Animasi sukses setelah update jadwal
+@if(session('success'))
+    // Tambahkan elemen animasi sukses
+    document.addEventListener('DOMContentLoaded', function() {
+        // Buat elemen animasi
+        const successAnimation = document.createElement('div');
+        successAnimation.className = 'fixed inset-0 flex items-center justify-center z-50';
+        successAnimation.innerHTML = `
+            <div class="bg-white bg-opacity-80 fixed inset-0"></div>
+            <div class="bg-white rounded-lg p-8 shadow-2xl relative z-10 transform transition-all duration-700 scale-110">
+                <div class="text-center">
+                    <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-orange-100 mb-4">
+                        <svg class="h-10 w-10 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Jadwal Berhasil Diperbarui!</h3>
+                    <p class="text-sm text-gray-500 mb-6">Perubahan jadwal telah disimpan</p>
+                    <div class="flex justify-center">
+                        <a href="{{ route('admin.jadwal.index') }}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition duration-200">
+                            <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                            Lihat Jadwal
+                        </a>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Tambahkan ke body
+        document.body.appendChild(successAnimation);
+        
+        // Animasi masuk
+        setTimeout(() => {
+            const animationBox = successAnimation.querySelector('.scale-110');
+            animationBox.classList.add('scale-100');
+            animationBox.classList.remove('scale-110');
+        }, 100);
+        
+        // Animasi keluar otomatis setelah beberapa detik
+        setTimeout(() => {
+            const animationBox = successAnimation.querySelector('.scale-100');
+            animationBox.classList.add('scale-110', 'opacity-0');
+            successAnimation.querySelector('.bg-opacity-80').classList.add('opacity-0');
+            
+            setTimeout(() => {
+                successAnimation.remove();
+            }, 700);
+        }, 3000);
+    });
+@endif
 </script>
+
+<style>
+/* Animasi transisi */
+.transition-all {
+    transition-property: all;
+}
+
+.duration-700 {
+    transition-duration: 700ms;
+}
+
+.scale-110 {
+    transform: scale(1.1);
+}
+
+.scale-100 {
+    transform: scale(1);
+}
+
+.opacity-0 {
+    opacity: 0;
+}
+</style>
 @endsection
