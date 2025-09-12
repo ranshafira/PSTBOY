@@ -79,20 +79,26 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                             <div>
-                                <p class="text-xs text-gray-500">Shift</p>
-                                <div class="flex items-center">
-                                    <span class="text-sm font-medium text-gray-900 mr-2">{{ ucfirst($jadwal->shift) }}</span>
-                                    @if($jadwal->shift === 'pagi')
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                            08:00 - {{ \Carbon\Carbon::parse($jadwal->tanggal)->dayOfWeek === 5 ? '11:30' : '12:00' }}
-                                        </span>
-                                    @else
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
-                                            {{ \Carbon\Carbon::parse($jadwal->tanggal)->dayOfWeek === 5 ? '13:30' : '13:00' }} - 16:00
-                                        </span>
-                                    @endif
-                                </div>
-                            </div>
+    <p class="text-xs text-gray-500">Shift</p>
+    <div class="flex items-center">
+        <span class="text-sm font-medium text-gray-900 mr-2">{{ ucfirst($jadwal->shift) }}</span>
+        
+        @if($jadwal->shift === 'pagi')
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                08:00 - 11:30
+            </span>
+        @elseif($jadwal->shift === 'siang')
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                11:30 - 15:30
+            </span>
+        @else
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                Jadwal Tidak Dikenali
+            </span>
+        @endif
+    </div>
+</div>
+
                         </div>
                     </div>
                 </div>
