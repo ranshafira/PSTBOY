@@ -8,7 +8,7 @@
         <script src="https://unpkg.com/alpinejs" defer></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     </head>
-    <body class="font-figtree antialiased bg-gray-50 min-h-screen font-sans text-gray-800 flex flex-col">
+    <body class="font-figtree antialiased bg-gray-50 min-h-screen text-gray-800 flex flex-col">
         
         {{-- Navbar --}}
         <div> {{-- Dibungkus div agar tidak ikut "stretch" --}}
