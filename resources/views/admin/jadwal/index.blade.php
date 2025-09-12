@@ -886,9 +886,10 @@
             },
             height: 'auto',
 
+            // PERUBAHAN UTAMA: Waktu disesuaikan dari 15:00 ke 15:30
             slotMinTime: '07:00:00',
-            slotMaxTime: '17:00:00',
-            slotDuration: '01:00:00',
+            slotMaxTime: '16:00:00', // Diperpanjang sedikit untuk menampung shift siang sampai 15:30
+            slotDuration: '00:30:00', // Ubah ke 30 menit untuk proporsi yang lebih baik
             slotLabelInterval: '01:00:00',
 
             slotLabelFormat: {
@@ -1267,14 +1268,14 @@
         const shiftText = event.extendedProps.shift ? event.extendedProps.shift.charAt(0).toUpperCase() + event.extendedProps.shift.slice(1) : '-';
         document.getElementById('modalShift').textContent = shiftText;
 
-        // Tampilkan waktu shift sesuai dengan shift yang dipilih
+        // PERUBAHAN: Waktu shift disesuaikan dari 15:00 ke 15:30
         let startTime, endTime;
         if (event.extendedProps.shift === 'pagi') {
             startTime = '08:00';
             endTime = '11:30';
         } else {
             startTime = '11:30';
-            endTime = '15:00';
+            endTime = '15:30'; // Ubah dari 15:00 ke 15:30
         }
         document.getElementById('modalTime').textContent = `${startTime} - ${endTime}`;
 

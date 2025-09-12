@@ -126,7 +126,7 @@
           <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
               <h3 class="font-bold text-lg mb-4">Informasi</h3>
               <ul class="text-sm text-gray-600 list-disc list-inside space-y-2">
-                  <li>Jam kerja standar: 08:00 - 16:00</li>
+                  <li>Jam kerja standar: 08:00 - 15:30</li>
                   <li>Check-in otomatis mencatat waktu kedatangan</li>
                   <li>Jangan lupa check-out saat pulang</li>
               </ul>

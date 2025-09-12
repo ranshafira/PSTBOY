@@ -20,6 +20,7 @@ class Presensi extends Model
         'tanggal',
         'waktu_datang',
         'waktu_pulang',
+        'shift',
     ];
 
     public function petugas()

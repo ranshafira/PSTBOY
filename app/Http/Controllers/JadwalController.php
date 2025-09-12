@@ -296,7 +296,7 @@ class JadwalController extends Controller
                     $end->setTime(11, 30); // 11:30
                 } else { // shift siang
                     $start->setTime(11, 30); // 11:30
-                    $end->setTime(15, 0); // 15:00
+                    $end->setTime(15, 30); // 15:30
                 }
 
                 $color = $this->getUserColor($item->user_id, $item->shift);
