@@ -163,7 +163,7 @@
                         <ul class="list-disc list-inside space-y-1">
                             <li>Pastikan petugas yang dipilih tersedia pada tanggal dan waktu yang ditentukan</li>
                             <li>Perubahan jadwal akan langsung berlaku setelah disimpan</li>
-                            <li>Notifikasi akan dikirim ke petugas yang terkait (jika fitur notifikasi aktif)</li>
+                            <li>Notifikasi akan dikirim ke petugas yang terkait</li>
                         </ul>
                     </div>
                 </div>

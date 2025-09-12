@@ -3,20 +3,22 @@
 @section('title', 'Detail Pelayanan')
 
 @section('content')
-<div class="bg-gray-50 min-h-screen py-10">
+<div class="font-sans antialiased bg-gray-50 min-h-screen py-10">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {{-- Header Section --}}
         <div class="mb-8 flex justify-between items-center">
             <div>
                 <h1 class="text-3xl font-bold text-gray-900">Detail Pelayanan</h1>
                 <p class="text-md text-gray-500 mt-1">Ringkasan lengkap hasil layanan, status, dan dokumen terkait.</p>
             </div>
-            <a href="{{ route('riwayat.index') }}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 transition text-sm font-medium">
+            <a href="{{ route('pelayanan.index') }}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 transition text-sm font-medium">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" /></svg>
                 <span>Kembali</span>
             </a>
         </div>
         
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            {{-- Kolom Kiri (Sidebar Info) --}}
             <div class="lg:col-span-4 space-y-8">
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-7">
                     <h3 class="text-xl font-semibold text-gray-800 mb-5">Informasi Dasar</h3>
@@ -27,6 +29,7 @@
                         <div><p class="text-sm text-gray-500 mb-1">Jenis Layanan</p><p class="font-semibold text-gray-900 text-lg">{{ $pelayanan->jenisLayanan->nama_layanan ?? '-' }}</p></div>
                     </div>
                 </div>
+
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-7">
                     <h3 class="text-xl font-semibold text-gray-800 mb-5">Waktu & Durasi</h3>
                     <div class="space-y-4">
@@ -37,8 +40,63 @@
                         @endif
                     </div>
                 </div>
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-7">
+                    <div class="flex justify-between items-start mb-5">
+                        <h3 class="text-xl font-semibold text-gray-800">Survey Kepuasan</h3>
+                        <p class="text-sm font-semibold text-gray-500 font-mono">{{ $pelayanan->survey_token ?? '-' }}</p>
+                    </div>
+
+                    @php
+                        // Logika PHP dari kode asli Anda, tidak diubah
+                        $surveyLabels = [
+                            'fasilitas' => 'Fasilitas', 'keseluruhan' => 'Keseluruhan',
+                            'efisiensi_waktu' => 'Efisiensi Waktu', 'kinerja_petugas' => 'Pelayanan Petugas',
+                            'kualitas_layanan' => 'Kualitas Layanan',
+                        ];
+                        $survey = $pelayanan->surveyKepuasan;
+                        if (is_null($survey?->rekomendasi)) { $rekomendasi = '-'; } 
+                        elseif ($survey->rekomendasi == 1) { $rekomendasi = 'Merekomendasikan'; } 
+                        elseif ($survey->rekomendasi == 0) { $rekomendasi = 'Tidak merekomendasikan'; } 
+                        else { $rekomendasi = '-'; }
+                    @endphp
+
+                    <div class="space-y-4 mb-5">
+                        @foreach($surveyLabels as $key => $label)
+                        <div>
+                            <div class="flex justify-between items-center mb-1.5">
+                                <span class="text-sm text-gray-700">{{ $label }}</span>
+                                <span class="text-sm font-medium text-gray-900">{{ $survey->skor_kepuasan[$key] ?? '-' }}/5</span>
+                            </div>
+                            <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                                <div class="h-full bg-orange-500 rounded-full" style="width: {{ (($survey->skor_kepuasan[$key] ?? 0)/5)*100 }}%"></div>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+
+                    <div class="border-t border-gray-200 pt-4">
+                        <p class="text-sm text-gray-500 mb-1">Rekomendasi</p>
+                        <p class="font-semibold text-sm text-gray-800">{{ $rekomendasi }}</p>
+                    </div>
+
+                    <div class="mt-4 border-t border-gray-200 pt-4">
+                        <p class="text-sm text-gray-500 mb-2">Saran / Masukan</p>
+                        <ul class="space-y-2 text-sm text-gray-700">
+                            @php $saranMasukan = $pelayanan->surveyKepuasan?->saran_masukan ?? []; @endphp
+                            @forelse($saranMasukan as $value)
+                                <li class="flex items-start gap-2">
+                                    <span class="w-1.5 h-1.5 bg-gray-400 rounded-full mt-1.5 flex-shrink-0"></span>
+                                    <span>{{ $value }}</span>
+                                </li>
+                            @empty
+                                <li><p class="text-sm text-gray-500">Belum ada saran dan masukan.</p></li>
+                            @endforelse
+                        </ul>
+                    </div>
+                </div>
             </div>
 
+            {{-- Kolom Utama (Detail Pelayanan) --}}
             <div class="lg:col-span-8 space-y-8">
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-7">
                      <div class="flex items-start gap-5">
