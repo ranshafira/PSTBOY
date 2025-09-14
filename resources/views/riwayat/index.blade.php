@@ -66,7 +66,7 @@
           <option value="Selesai" {{ request('status') == 'Selesai' ? 'selected' : '' }}>Selesai</option>
           <option value="Selesai dengan tindak lanjut" {{ request('status') == 'Selesai dengan tindak lanjut' ? 'selected' : '' }}>Selesai dengan tindak lanjut</option>
           <option value="Tidak dapat dipenuhi" {{ request('status') == 'Tidak dapat dipenuhi' ? 'selected' : '' }}>Tidak dapat dipenuhi</option>
-          <option value="Dibatalkan klien" {{ request('status') == 'Dibatalkan klien' ? 'selected' : '' }}>Dibatalkan klien</option>
+          <option value="Dibatalkan pengunjung" {{ request('status') == 'Dibatalkan pengunjung' ? 'selected' : '' }}>Dibatalkan pengunjung</option>
         </select>
       </div>
 

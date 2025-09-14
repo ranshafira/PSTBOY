@@ -21,7 +21,7 @@
         </div>
         
         <div class="bg-white border border-gray-200 rounded-xl p-5 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-8">
-            <div><p class="font-medium text-gray-500">Klien</p><p class="font-semibold text-base text-gray-800 truncate">{{ $pelayanan->nama_pelanggan }}</p></div>
+            <div><p class="font-medium text-gray-500">Pengunjung</p><p class="font-semibold text-base text-gray-800 truncate">{{ $pelayanan->nama_pengunjung }}</p></div>
             <div><p class="font-medium text-gray-500">No. Antrian</p><p class="font-semibold text-base text-gray-800">{{ $pelayanan->antrian->nomor_antrian }}</p></div>
             <div><p class="font-medium text-gray-500">Durasi</p><p class="font-semibold text-base text-gray-800">{{ $pelayanan->waktu_selesai_sesi ? $pelayanan->waktu_selesai_sesi->diffInMinutes($pelayanan->waktu_mulai_sesi) : '-' }} menit</p></div>
             <div><p class="font-medium text-gray-500">Jenis Layanan</p><p class="font-semibold text-base text-gray-800 truncate">{{ $pelayanan->jenisLayanan->nama_layanan }}</p></div>
@@ -62,9 +62,9 @@
                             <div class="relative">
                                 <input type="radio" name="{{ $name }}" value="{{ $i }}" id="{{ $name }}_{{ $i }}" class="sr-only peer" required>
                                 <label for="{{ $name }}_{{ $i }}" 
-                                       title="{{ $tooltips[$i-1] }}"
+                                    title="{{ $tooltips[$i-1] }}"
                                        class="flex flex-col items-center justify-center p-2 rounded-xl border border-gray-200 bg-gray-50 cursor-pointer transition-all duration-200 ease-in-out text-gray-500 hover:bg-orange-100 hover:border-orange-300 hover:text-orange-600 peer-checked:bg-orange-500 peer-checked:border-orange-500 peer-checked:text-white peer-checked:ring-2 peer-checked:ring-offset-2 peer-checked:ring-orange-500">
-                                    {!! $icons[$i-1] !!}
+                                        {!! $icons[$i-1] !!}
                                     <span class="mt-1 block text-sm font-semibold">{{ $i }}</span>
                                 </label>
                             </div>
@@ -112,8 +112,6 @@
                      </div>
                  </div>
             </div>
-
-            {{-- [REFAKTOR] - Tombol Aksi --}}
             <div class="flex flex-col sm:flex-row justify-end items-center gap-4 pt-4">
                 <a href="{{ route('survei.entry') }}" class="w-full sm:w-auto px-6 py-3 border border-gray-300 rounded-lg text-sm font-semibold text-gray-800 hover:bg-gray-100 transition text-center">Kembali</a>
                 <button type="submit" class="w-full sm:w-auto px-8 py-3 bg-orange-500 text-white text-sm font-semibold rounded-lg hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2">

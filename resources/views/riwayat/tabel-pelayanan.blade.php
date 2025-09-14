@@ -12,7 +12,7 @@
       <thead class="bg-gray-50 text-gray-600">
         <tr>
           <th class="px-4 py-2 text-left">No. Antrian</th>
-          <th class="px-4 py-2 text-left">Klien</th>
+          <th class="px-4 py-2 text-left">Pengunjung</th>
           <th class="px-4 py-2 text-left">Kontak</th>
           <th class="px-4 py-2 text-left">Jenis Layanan</th>
           <th class="px-4 py-2 text-left">Tanggal</th>
@@ -27,8 +27,11 @@
         @foreach($riwayat as $p)
         <tr>
           <td class="px-4 py-2">{{ $p->antrian->nomor_antrian ?? '-' }}</td>
-          <td class="px-4 py-2">{{ $p->nama_pelanggan }}</td>
-          <td class="px-4 py-2">{{ $p->kontak_pelanggan }}</td>
+          <td class="px-4 py-2">{{ $p->nama_pengunjung }}</td>
+          <td class="px-4 py-2">
+            {{ $p->no_hp ?? '-' }} <br>
+            {{ $p->email ?? '-' }}
+          </td>
           <td class="px-4 py-2">{{ $p->jenisLayanan->nama_layanan ?? '-' }}</td>
           <td class="px-4 py-2">{{ \Carbon\Carbon::parse($p->waktu_mulai_sesi)->format('d-m-Y') }}</td>
           <td class="px-4 py-2">
@@ -45,7 +48,7 @@
                 $bgColor = 'bg-gray-100 text-gray-500';
                 if(in_array($status, ['Selesai','Selesai dengan tindak lanjut'])) $bgColor='bg-green-100 text-green-700';
                 elseif($status=='Tidak dapat dipenuhi') $bgColor='bg-red-100 text-red-700';
-                elseif($status=='Dibatalkan klien') $bgColor='bg-purple-100 text-purple-700';
+                elseif($status=='Dibatalkan pengunjung') $bgColor='bg-purple-100 text-purple-700';
             @endphp
             <span class="px-2 py-1 text-xs rounded-full {{ $bgColor }}">{{ $status }}</span>
           </td>

@@ -47,7 +47,6 @@
                     </div>
 
                     @php
-                        // Logika PHP dari kode asli Anda, tidak diubah
                         $surveyLabels = [
                             'fasilitas' => 'Fasilitas', 'keseluruhan' => 'Keseluruhan',
                             'efisiensi_waktu' => 'Efisiensi Waktu', 'kinerja_petugas' => 'Pelayanan Petugas',
@@ -103,11 +102,23 @@
                         <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-orange-600"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" /></svg></div>
                         <div class="flex-1">
                             <div class="flex justify-between items-start mb-2">
-                                <div><p class="text-sm text-gray-500">Klien</p><h3 class="font-semibold text-gray-900 text-xl">{{ $pelayanan->nama_pelanggan ?? '-' }}</h3></div>
-                                <div class="text-right"><p class="text-sm text-gray-500">Kontak</p><p class="text-md text-orange-600 font-medium">{{ $pelayanan->kontak_pelanggan ?? '-' }}</p></div>
+                                <div>
+                                    <p class="text-sm text-gray-500">Pengunjung</p>
+                                    <h3 class="font-semibold text-gray-900 text-xl">{{ $pelayanan->nama_pengunjung ?? '-' }}</h3>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm text-gray-500">Kontak</p>
+                                    <p class="text-md text-orange-600 font-medium">
+                                        {{ $pelayanan->no_hp ?? '-' }}<br>
+                                        {{ $pelayanan->email ?? '-' }}
+                                    </p>
+                                </div>
                             </div>
-                            <p class="text-gray-600 text-md">{{ $pelayanan->instansi_pelanggan ?? '-' }}</p>
-                            <div class="mt-5 pt-5 border-t border-gray-200"><p class="text-sm text-gray-500 mb-2">Kebutuhan Pelanggan</p><p class="text-gray-800 leading-relaxed">{{ $pelayanan->kebutuhan_pelanggan ?? '-' }}</p></div>
+                            <p class="text-gray-600 text-md">{{ $pelayanan->instansi_pengunjung ?? '-' }}</p>
+                            <div class="mt-5 pt-5 border-t border-gray-200">
+                                <p class="text-sm text-gray-500 mb-2">Kebutuhan Pengunjung</p>
+                                <p class="text-gray-800 leading-relaxed">{{ $pelayanan->kebutuhan_pengunjung ?? '-' }}</p>
+                            </div>
                         </div>
                     </div>
                 </div>
