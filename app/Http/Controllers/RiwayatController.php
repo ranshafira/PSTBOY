@@ -15,10 +15,11 @@ class RiwayatController extends Controller
         if ($tab == 'pelayanan') {
             $riwayat = Pelayanan::with(['petugas', 'jenisLayanan', 'antrian', 'surveyKepuasan'])
                 ->when($request->q, function($query, $q) {
-                    $query->where('nama_pelanggan', 'like', "%{$q}%")
-                        ->orWhere('kontak_pelanggan', 'like', "%{$q}%")
-                        ->orWhereHas('antrian', fn($q2) => $q2->where('nomor_antrian', 'like', "%{$q}%"))
-                        ->orWhereHas('jenisLayanan', fn($q3) => $q3->where('nama_layanan', 'like', "%{$q}%"));
+                    $query->where('nama_pengunjung', 'like', "%{$q}%")
+                          ->orWhere('no_hp', 'like', "%{$q}%")
+                          ->orWhere('email', 'like', "%{$q}%")
+                          ->orWhereHas('antrian', fn($q2) => $q2->where('nomor_antrian', 'like', "%{$q}%"))
+                          ->orWhereHas('jenisLayanan', fn($q3) => $q3->where('nama_layanan', 'like', "%{$q}%"));
                 })
                 ->when($request->status, function($query, $status) {
                     if($status == 'Proses') {
@@ -35,7 +36,7 @@ class RiwayatController extends Controller
                 })
                 ->orderBy('waktu_mulai_sesi', 'desc')
                 ->paginate(10);
-        } else { // tab buku_tamu
+        } else { 
             $riwayat = BukuTamu::when($request->q, fn($q1) => 
                             $q1->where('nama_tamu', 'like', "%{$request->q}%")
                                ->orWhere('instansi_tamu', 'like', "%{$request->q}%")
@@ -60,8 +61,9 @@ class RiwayatController extends Controller
         if ($tab == 'pelayanan') {
             $riwayat = Pelayanan::with(['petugas','jenisLayanan','antrian','surveyKepuasan'])
                 ->when($request->q, function($query, $q) {
-                    $query->where('nama_pelanggan', 'like', "%{$q}%")
-                          ->orWhere('kontak_pelanggan', 'like', "%{$q}%")
+                    $query->where('nama_pengunjung', 'like', "%{$q}%")
+                          ->orWhere('no_hp', 'like', "%{$q}%")
+                          ->orWhere('email', 'like', "%{$q}%")
                           ->orWhereHas('antrian', fn($q2) => $q2->where('nomor_antrian', 'like', "%{$q}%"))
                           ->orWhereHas('jenisLayanan', fn($q3) => $q3->where('nama_layanan', 'like', "%{$q}%"));
                 })
@@ -81,10 +83,14 @@ class RiwayatController extends Controller
                 ->orderBy('waktu_mulai_sesi', 'desc')
                 ->get(); 
 
-            $columns = ['No. Antrian', 'Klien','Kontak', 'Jenis Layanan', 'Tanggal', 'Durasi', 'Status', 'Token Survei','Kepuasan'];
+            $columns = [
+                'No. Antrian', 'Nama Pengunjung', 'Instansi', 'No. HP', 'Email',
+                'Jenis Kelamin', 'Pendidikan',
+                'Jenis Layanan', 'Tanggal', 'Durasi', 'Status', 'Token Survei','Kepuasan'
+            ];
             $filename = 'riwayat_pelayanan.csv';
 
-        } else { // buku_tamu
+        } else { 
             $riwayat = BukuTamu::when($request->q, fn($q1) => 
                             $q1->where('nama_tamu', 'like', "%{$request->q}%")
                                ->orWhere('instansi_tamu', 'like', "%{$request->q}%")
@@ -125,8 +131,12 @@ class RiwayatController extends Controller
 
                     fputcsv($file, [
                         $item->antrian->nomor_antrian ?? '-',
-                        $item->nama_pelanggan,
-                        $item->kontak_pelanggan,
+                        $item->nama_pengunjung,
+                        $item->instansi_pengunjung,
+                        $item->no_hp,
+                        $item->email,
+                        $item->jenis_kelamin,
+                        $item->pendidikan,
                         $item->jenisLayanan->nama_layanan ?? '-',
                         $item->waktu_mulai_sesi->format('d-m-Y'),
                         $durasi,

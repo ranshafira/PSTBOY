@@ -62,7 +62,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/pelayanan/{id}/mulai', [\App\Http\Controllers\PelayananController::class, 'start'])->name('pelayanan.start');
     Route::get('/pelayanan/{id}/detail', [\App\Http\Controllers\PelayananController::class, 'detail'])->name('pelayanan.detail');
     Route::get('/pelayanan/{id}/lanjut', [PelayananController::class, 'lanjutkan'])->name('pelayanan.lanjut');
-
+    Route::post('/pelayanan/{id}/start', [\App\Http\Controllers\PelayananController::class, 'storeStart'])
+    ->name('pelayanan.storeStart');
+ 
     // Identitas dalam Pelayanan
     Route::get('/pelayanan/{id}/identitas', [\App\Http\Controllers\PelayananController::class, 'identitas'])->name('pelayanan.identitas');
     Route::post('/pelayanan/{id}/identitas', [\App\Http\Controllers\PelayananController::class, 'storeIdentitas'])->name('pelayanan.storeIdentitas');

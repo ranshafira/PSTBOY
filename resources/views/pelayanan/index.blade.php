@@ -38,7 +38,7 @@
                         <thead class="bg-gray-100">
                             <tr>
                                 <th class="px-4 py-2 text-left font-medium text-gray-600">No. Antrian</th>
-                                <th class="px-4 py-2 text-left font-medium text-gray-600">Klien</th>
+                                <th class="px-4 py-2 text-left font-medium text-gray-600">Pengunjung</th>
                                 <th class="px-4 py-2 text-left font-medium text-gray-600">Jenis Layanan</th>
                                 <th class="px-4 py-2 text-left font-medium text-gray-600">Status</th>
                                 <th class="px-4 py-2 text-left font-medium text-gray-600">Waktu</th>
@@ -68,7 +68,7 @@
                                 @endphp
                                 <tr class="hover:bg-gray-50">
                                     <td class="px-4 py-2">{{ $item->nomor_antrian }}</td>
-                                    <td class="px-4 py-2">{{ $item->pelayanan->nama_pelanggan ?? '-' }}</td>
+                                    <td class="px-4 py-2">{{ $item->pelayanan->nama_pengunjung ?? '-' }}</td>
                                     <td class="px-4 py-2">{{ $item->jenisLayanan->nama_layanan ?? '-' }}</td>
                                     <td class="px-4 py-2">
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $statusColors[$rawStatus] ?? 'bg-gray-100 text-gray-800' }}">

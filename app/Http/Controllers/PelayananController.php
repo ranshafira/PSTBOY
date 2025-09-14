@@ -95,70 +95,66 @@ class PelayananController extends Controller
             ->with('success', "Pelayanan untuk antrian {$antrian->nomor_antrian} sudah dimulai.");
     }
 
-    public function lanjutkan($id)
+   public function lanjutkan($id)
     {
         $pelayanan = Pelayanan::findOrFail($id);
-
-        // Jika belum ada nama pelanggan -> ke identitas
-        if (!$pelayanan->nama_pelanggan) {
+        if (!$pelayanan->nama_pengunjung) {   
             return redirect()->route('pelayanan.identitas', $pelayanan->id);
         }
 
-        // Jika belum ada hasil -> ke hasil
         if (!$pelayanan->deskripsi_hasil) {
             return redirect()->route('pelayanan.hasil', $pelayanan->id);
         }
 
-        // Sudah selesai semua -> ke halaman selesai
         return redirect()->route('pelayanan.selesai', $pelayanan->id);
     }
-
     public function identitas($id)
     {
         $pelayanan = Pelayanan::findOrFail($id);
         return view('pelayanan.identitas', compact('pelayanan'));
     }
 
-    // Step 2: Simpan Identitas (dengan penyimpanan lokal)
     public function storeIdentitas(Request $request, $id)
     {
         $pelayanan = Pelayanan::findOrFail($id);
 
         $data = $request->validate([
-            'nama_pelanggan' => 'required|string|max:255',
-            'instansi_pelanggan' => 'nullable|string|max:255',
-            'kontak_pelanggan' => 'nullable|string|max:255',
+            'nama_pengunjung' => 'required|string|max:255',   // UBAH
+            'instansi_pengunjung' => 'nullable|string|max:255', // UBAH
+            'no_hp' => 'nullable|string|max:20',              // UBAH
+            'email' => 'nullable|email|max:255',              // TAMBAHAN
+            'jenis_kelamin' => 'nullable|in:Laki-laki,Perempuan', // TAMBAHAN
+            'pendidikan' => 'nullable|string|max:50',         // TAMBAHAN
             'path_surat_pengantar' => 'nullable|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:5120',
-            'kebutuhan_pelanggan' => 'nullable|string',
+            'kebutuhan_pengunjung' => 'nullable|string',      // UBAH
         ]);
 
-        // PERUBAHAN: Upload ke penyimpanan lokal (public disk)
         if ($request->hasFile('path_surat_pengantar')) {
-            // Simpan file di dalam folder 'storage/app/public/surat_pengantar'
-            // dan simpan path-nya ke database
-            $data['path_surat_pengantar'] = $request->file('path_surat_pengantar')->store('surat_pengantar', 'public');
+            $data['path_surat_pengantar'] = $request->file('path_surat_pengantar')
+                                                ->store('surat_pengantar', 'public');
         }
 
         $pelayanan->update($data);
 
-        // Redirect ke halaman hasil pelayanan
         return redirect()->route('pelayanan.hasil', $pelayanan->id);
     }
-
-    // TAMBAHAN BARU: Step 4 - Halaman Hasil Pelayanan
     public function hasil($id)
     {
-        $pelayanan = Pelayanan::with('antrian')->findOrFail($id);
-        return view('pelayanan.hasil', compact('pelayanan'));
+        $pelayanan = Pelayanan::with(['antrian', 'jenisLayanan'])->findOrFail($id);
+        return response()
+            ->view('pelayanan.hasil', compact('pelayanan'))
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0'); // Disable cache
     }
 
-    public function storeHasil(Request $request, $id)
+   public function storeHasil(Request $request, $id)
     {
         $pelayanan = Pelayanan::findOrFail($id);
 
+        // Validasi diubah: 'required' menjadi 'nullable'
+        // Artinya field ini boleh kosong, tapi jika diisi harus berupa string.
         $data = $request->validate([
-            'status_penyelesaian' => 'required|string',
-            'deskripsi_hasil' => 'required|string',
+            'status_penyelesaian' => 'nullable|string', // DIUBAH
+            'deskripsi_hasil' => 'nullable|string',     // DIUBAH
             'jenis_output' => 'nullable|array',
             'path_dokumen_hasil' => 'nullable|file|mimes:pdf,jpg,jpeg,png,doc,docx,xls,xlsx,csv|max:10240',
             'perlu_tindak_lanjut' => 'nullable|boolean',
@@ -166,31 +162,29 @@ class PelayananController extends Controller
             'catatan_tindak_lanjut' => 'required_if:perlu_tindak_lanjut,1|nullable|string',
             'catatan_tambahan' => 'nullable|string',
         ]);
-        
+
+        // Bagian ini tidak perlu diubah, biarkan seperti semula
         $data['perlu_tindak_lanjut'] = $request->has('perlu_tindak_lanjut');
 
         if ($request->hasFile('path_dokumen_hasil')) {
+            // (Opsional tapi direkomendasikan) Hapus file lama jika ada file baru yang diupload
+            if ($pelayanan->path_dokumen_hasil) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($pelayanan->path_dokumen_hasil);
+            }
             $data['path_dokumen_hasil'] = $request->file('path_dokumen_hasil')->store('dokumen_hasil', 'public');
         }
 
-        // PERUBAHAN 1: Hapus pencatatan waktu selesai di sini
-        // $data['waktu_selesai_sesi'] = now(); // <-- Baris ini dihapus
-
         $pelayanan->update($data);
 
-        // PERUBAHAN 2: Arahkan ke halaman ringkasan 'selesai', bukan ke dashboard
         return redirect()->route('pelayanan.selesai', $pelayanan->id);
     }
 
-    // METHOD BARU: Menampilkan halaman Selesai Pelayanan
     public function selesai($id)
     {
-        // Ambil semua data yang relevan untuk ditampilkan
         $pelayanan = Pelayanan::with(['antrian', 'jenisLayanan'])->findOrFail($id);
-
-        // Tampilkan view baru
         return view('pelayanan.selesai', compact('pelayanan'));
     }
+
 
    public function finish(Request $request, $id)
     {
