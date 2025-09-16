@@ -15,6 +15,18 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\PelayananController;
 use App\Http\Controllers\SurveyController;
 use App\Http\Controllers\JadwalController;
+use App\Http\Controllers\DisplayController;
+
+// Routes untuk display antrian
+Route::prefix('display')->name('display.')->group(function () {
+    Route::get('/', [DisplayController::class, 'display'])->name('antrian');
+    Route::get('/fullscreen', [DisplayController::class, 'fullscreen'])->name('fullscreen');
+    Route::get('/api', [DisplayController::class, 'apiData'])->name('api');
+});
+
+// Route untuk akses cepat
+Route::get('/monitor', [DisplayController::class, 'display'])->name('monitor');
+Route::get('/screen', [DisplayController::class, 'fullscreen'])->name('screen');
 
 
 // == Route untuk Halaman Publik (Sistem Antrian) ==
@@ -30,7 +42,7 @@ Route::get('/riwayat', [RiwayatController::class, 'index'])->name('riwayat.index
 Route::get('/riwayat/export', [RiwayatController::class, 'exportCsv'])->name('riwayat.export');
 
 // == Route untuk Otentikasi (login, register, logout, dll) ==
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
 
 // == Route yang Memerlukan Login ==
 Route::middleware(['auth'])->group(function () {
@@ -77,7 +89,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Dashboard Umum - arahkan berdasarkan role
     Route::get('/dashboard', function () {
-         /** @var \App\Models\User $user */
+        /** @var \App\Models\User $user */
         $user = auth()->user();
         if ($user->hasRole('admin')) {
             return redirect()->route('admin.dashboard');
@@ -108,23 +120,20 @@ Route::middleware(['auth', 'isAdmin'])->group(function () {
     Route::post('/admin/register', [RegisteredUserController::class, 'store'])->name('admin.register.store');
 
     // Jadwal routes - Updated with proper middleware and structure
-Route::middleware(['auth', 'isAdmin'])->prefix('admin')->group(function () {
-    // Main jadwal routes
-    Route::get('/jadwal', [JadwalController::class, 'index'])->name('admin.jadwal.index');
-    Route::get('/jadwal/generate', [JadwalController::class, 'generateForm'])->name('admin.jadwal.generate.form');
-    Route::post('/jadwal/generate', [JadwalController::class, 'generateJadwal'])->name('admin.jadwal.generate');
-    
-    // CRUD operations for individual jadwal
-    Route::get('/jadwal/{id}/edit', [JadwalController::class, 'edit'])->name('admin.jadwal.edit');
-    Route::put('/jadwal/{id}', [JadwalController::class, 'update'])->name('admin.jadwal.update');
-    Route::delete('/jadwal/{id}', [JadwalController::class, 'destroy'])->name('admin.jadwal.destroy');
-    
-    // API endpoint for calendar events
-    Route::get('/jadwal/events', [JadwalController::class, 'getEvents'])->name('admin.jadwal.events');
-});
+    Route::middleware(['auth', 'isAdmin'])->prefix('admin')->group(function () {
+        // Main jadwal routes
+        Route::get('/jadwal', [JadwalController::class, 'index'])->name('admin.jadwal.index');
+        Route::get('/jadwal/generate', [JadwalController::class, 'generateForm'])->name('admin.jadwal.generate.form');
+        Route::post('/jadwal/generate', [JadwalController::class, 'generateJadwal'])->name('admin.jadwal.generate');
 
+        // CRUD operations for individual jadwal
+        Route::get('/jadwal/{id}/edit', [JadwalController::class, 'edit'])->name('admin.jadwal.edit');
+        Route::put('/jadwal/{id}', [JadwalController::class, 'update'])->name('admin.jadwal.update');
+        Route::delete('/jadwal/{id}', [JadwalController::class, 'destroy'])->name('admin.jadwal.destroy');
 
-
+        // API endpoint for calendar events
+        Route::get('/jadwal/events', [JadwalController::class, 'getEvents'])->name('admin.jadwal.events');
+    });
 }); // <== Ini penutup untuk group middleware(['auth', 'isAdmin'])
 
 // Dashboard Petugas PST (hanya perlu login)

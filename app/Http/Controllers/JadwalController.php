@@ -11,6 +11,7 @@ use App\Notifications\JadwalDiubahNotification;
 use App\Notifications\JadwalDihapusNotification;
 use Illuminate\Support\Facades\Notification;
 use Carbon\Carbon;
+use App\Helpers\FonnteHelper;
 
 
 class JadwalController extends Controller
@@ -150,9 +151,9 @@ class JadwalController extends Controller
         return view('admin.jadwal.edit', compact('jadwal', 'users'));
     }
 
-    public function update(Request $request, $id)
-    {
-         $jadwal = Jadwal::findOrFail($id);
+public function update(Request $request, $id)
+{
+    $jadwal = Jadwal::findOrFail($id);
 
     $request->validate([
         'user_id' => 'required|exists:users,id',
@@ -165,54 +166,157 @@ class JadwalController extends Controller
     $jadwal->user_id = $request->user_id;
     $jadwal->save();
 
-    // Kirim notifikasi email
+    // Kirim notifikasi hanya jika ada perubahan petugas
     if ($userLama->id !== $userBaru->id) {
-        // Petugas lama
-        $userLama->notify(new JadwalDiubahNotification($jadwal, 'lama'));
+        try {
+            // Kirim notifikasi email terlebih dahulu
+            $userLama->notify(new JadwalDiubahNotification($jadwal, 'lama'));
+            $userBaru->notify(new JadwalDiubahNotification($jadwal, 'baru'));
+            Log::info('Email notifications sent successfully');
 
-        // Petugas baru
-        $userBaru->notify(new JadwalDiubahNotification($jadwal, 'baru'));
+            // Kirim notifikasi WhatsApp
+            $whatsappResult = $this->sendWhatsAppNotifications($userLama, $userBaru, $jadwal);
+            
+            if ($whatsappResult) {
+                $message = 'Jadwal berhasil diperbarui dan semua notifikasi (email + WhatsApp) telah dikirim.';
+            } else {
+                $message = 'Jadwal berhasil diperbarui dan email terkirim, tetapi WhatsApp gagal dikirim.';
+            }
+
+        } catch (\Exception $e) {
+            Log::error('Error sending notifications: ' . $e->getMessage());
+            return redirect()->route('admin.jadwal.edit', $jadwal->id)
+                ->with('warning', 'Jadwal berhasil diperbarui, tetapi ada masalah saat mengirim notifikasi: ' . $e->getMessage());
+        }
+    } else {
+        $message = 'Jadwal berhasil diperbarui (tidak ada perubahan petugas).';
     }
 
-    return redirect()->route('admin.jadwal.edit', $jadwal->id)
-                     ->with('success', 'Jadwal berhasil diperbarui dan notifikasi telah dikirim.');
+    return redirect()->route('admin.jadwal.edit', $jadwal->id)->with('success', $message);
+}
 
-        $request->validate([
-            'user_id' => 'required|exists:users,id'
-        ]);
-
-        $jadwal = Jadwal::findOrFail($id);
-        $jadwal->update([
-            'user_id' => $request->user_id
-        ]);
-
-        return redirect()->route('admin.jadwal.index')->with('success', 'Jadwal berhasil diperbarui.');
-    }
-
-
-        public function destroy($id)
+/**
+ * Kirim notifikasi WhatsApp untuk update jadwal
+ */
+private function sendWhatsAppNotifications($userLama, $userBaru, $jadwal)
 {
     try {
-        $jadwal = Jadwal::findOrFail($id);
-        $petugas = $jadwal->user;
+        $tanggal = \Carbon\Carbon::parse($jadwal->tanggal)->locale('id')->isoFormat('dddd, D MMMM Y');
+        $shift = ucfirst($jadwal->shift);
 
-        if ($petugas && $petugas->email) {
-            $petugas->notify(new JadwalDihapusNotification($jadwal));
+        // Validasi nomor HP
+        if (empty($userLama->no_hp) || empty($userBaru->no_hp)) {
+            Log::warning('Nomor HP tidak lengkap', [
+                'user_lama' => $userLama->no_hp,
+                'user_baru' => $userBaru->no_hp
+            ]);
+            return false;
         }
 
-        $jadwal->delete();
+        // Pesan untuk petugas lama
+        $messageLama = <<<EOT
+🔄 *PERUBAHAN JADWAL TUGAS*
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Jadwal berhasil dihapus dan notifikasi telah dikirim ke petugas.'
+Halo {$userLama->nama_lengkap},
+
+Jadwal tugas Anda telah diubah:
+
+📅 Tanggal: {$tanggal}
+⏰ Shift: {$shift}
+📋 Status: Digantikan oleh petugas lain
+
+Terima kasih atas pengertiannya.
+
+_PST Kabupaten Boyolali_
+EOT;
+
+        // Pesan untuk petugas baru
+        $messageBaru = <<<EOT
+✅ *PENUGASAN JADWAL BARU*
+
+Halo {$userBaru->nama_lengkap},
+
+Anda mendapat penugasan baru:
+
+📅 Tanggal: {$tanggal}
+⏰ Shift: {$shift}
+📋 Status: Petugas Bertugas
+
+Mohon hadir sesuai jadwal.
+
+_PST Kabupaten Boyolali_
+EOT;
+
+        // Kirim pesan WhatsApp
+        Log::info('Mengirim WhatsApp ke petugas lama: ' . $userLama->nama_lengkap);
+        $resultLama = FonnteHelper::sendMessage($userLama->no_hp, $messageLama);
+        
+        Log::info('Mengirim WhatsApp ke petugas baru: ' . $userBaru->nama_lengkap);
+        $resultBaru = FonnteHelper::sendMessage($userBaru->no_hp, $messageBaru);
+
+        // Log hasil
+        Log::info('WhatsApp Results:', [
+            'petugas_lama' => $resultLama ? 'SUCCESS' : 'FAILED',
+            'petugas_baru' => $resultBaru ? 'SUCCESS' : 'FAILED'
         ]);
+
+        return ($resultLama && $resultBaru);
+
     } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Gagal menghapus jadwal: ' . $e->getMessage()
-        ], 500);
+        Log::error('Error in sendWhatsAppNotifications: ' . $e->getMessage());
+        return false;
     }
 }
+
+
+    public function destroy($id)
+    {
+        try {
+            $jadwal = Jadwal::findOrFail($id);
+            $petugas = $jadwal->user;
+
+            if ($petugas) {
+                // Kirim notifikasi WA via FonnteHelper
+                $tanggal = \Carbon\Carbon::parse($jadwal->tanggal)->locale('id')->isoFormat('dddd, D MMMM Y');
+                $shift = ucfirst($jadwal->shift);
+
+                $no_hp = preg_replace('/[^0-9]/', '', $petugas->no_hp);
+
+                $message = <<<EOT
+[Pemberitahuan Penghapusan Jadwal]
+
+Halo, {$petugas->nama_lengkap}
+
+Kami informasikan bahwa jadwal tugas Anda telah dihapus dengan rincian berikut:
+
+Tanggal : {$tanggal}
+Shift   : {$shift}
+
+Jika ada pertanyaan, silakan hubungi admin PST Kabupaten Boyolali.
+
+Terima kasih atas perhatian Anda.
+
+PST Kabupaten Boyolali
+EOT;
+
+                FonnteHelper::sendMessage($no_hp, $message);
+            }
+
+            $jadwal->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Jadwal berhasil dihapus dan notifikasi telah dikirim ke petugas.'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus jadwal: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+
 
 
     /**
@@ -278,7 +382,7 @@ class JadwalController extends Controller
             // Jika bulan dan tahun disediakan, filter jadwal
             if ($month && $year) {
                 $query->whereMonth('tanggal', $month)
-                      ->whereYear('tanggal', $year);
+                    ->whereYear('tanggal', $year);
             }
 
             $jadwal = $query->get();
@@ -345,7 +449,7 @@ class JadwalController extends Controller
             } elseif ($month && $year) {
                 // Filter berdasarkan bulan dan tahun
                 $query->whereMonth('tanggal', $month)
-                      ->whereYear('tanggal', $year);
+                    ->whereYear('tanggal', $year);
             }
 
             $jadwal = $query->get();
