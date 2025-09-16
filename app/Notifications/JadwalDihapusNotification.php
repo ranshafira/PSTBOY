@@ -20,18 +20,36 @@ class JadwalDihapusNotification extends Notification
 
     public function via($notifiable)
     {
-        return ['mail'];
+        return ['mail', 'database'];
+    }
+    
+    public function toArray($notifiable)
+    {
+        $tanggal = \Carbon\Carbon::parse($this->jadwal->tanggal)->locale('id')->isoFormat('dddd, D MMMM Y');
+        $shift = ucfirst($this->jadwal->shift);
+        
+        return [
+            'title' => 'PEMBERITAHUAN RESMI: Pembatalan Jadwal Tugas',
+            'message' => "Dengan ini disampaikan bahwa jadwal tugas Anda telah dibatalkan.\nTanggal: {$tanggal}\nShift: {$shift}\nMohon untuk segera mengkonfirmasi penerimaan pemberitahuan ini.",
+            'tanggal' => $this->jadwal->tanggal,
+            'shift' => $this->jadwal->shift
+        ];
     }
 
     public function toMail($notifiable)
     {
+        $tanggal = \Carbon\Carbon::parse($this->jadwal->tanggal)->locale('id')->isoFormat('dddd, D MMMM Y');
+        $shift = ucfirst($this->jadwal->shift);
+        
         return (new MailMessage)
-            ->subject('Jadwal Anda Telah Dihapus')
-            ->greeting('Halo ' . $notifiable->nama_lengkap . ',')
-            ->line('Kami ingin memberitahukan bahwa jadwal Anda telah dihapus.')
-            ->line('📅 Tanggal: ' . \Carbon\Carbon::parse($this->jadwal->tanggal)->isoFormat('dddd, D MMMM Y'))
-            ->line('⏰ Shift: ' . ucfirst($this->jadwal->shift))
-            ->line('Jika ini adalah kesalahan, silakan hubungi admin.')
-            ->salutation('Terima kasih');
+            ->subject('PEMBERITAHUAN RESMI: Pembatalan Jadwal Tugas')
+            ->greeting('Kepada ' . $notifiable->nama_lengkap . ',')
+            ->line('Dengan ini disampaikan bahwa jadwal tugas Anda telah dibatalkan dengan rincian sebagai berikut:')
+            ->line('Tanggal: ' . $tanggal)
+            ->line('Shift: ' . $shift)
+            ->line('Mohon untuk segera mengkonfirmasi penerimaan pemberitahuan ini.')
+            ->line('Apabila terdapat pertanyaan atau keberatan, harap menghubungi administrator sistem.')
+            ->salutation('Hormat Kami, Administrator PST');
     }
-}
+    }
+

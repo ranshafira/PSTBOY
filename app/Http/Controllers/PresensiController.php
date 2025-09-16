@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Presensi;
-use App\Models\Jadwal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -17,16 +16,17 @@ class PresensiController extends Controller
         $today = Carbon::today();
 
         $presensiHariIni = Presensi::where('petugas_id', $user->id)
-                                   ->where('tanggal', $today)
-                                   ->first();
+            ->where('tanggal', $today)
+            ->first();
 
         $riwayatPresensi = Presensi::where('petugas_id', $user->id)
-                                   ->orderBy('tanggal', 'desc')
-                                   ->take(10)
-                                   ->get();
+            ->orderBy('tanggal', 'desc')
+            ->take(10)
+            ->get();
 
-        // Hitung total hari kerja (Senin - Jumat) dari awal bulan
+        // Hitung total hari kerja dari awal bulan sampai hari ini (Senin - Jumat)
         $startOfMonth = $today->copy()->startOfMonth();
+
         $period = CarbonPeriod::create($startOfMonth, $today);
 
         $totalHari = 0;
@@ -37,8 +37,8 @@ class PresensiController extends Controller
         }
 
         $hariHadir = Presensi::where('petugas_id', $user->id)
-                             ->whereBetween('tanggal', [$startOfMonth, $today])
-                             ->count();
+            ->whereBetween('tanggal', [$startOfMonth, $today])
+            ->count();
 
         $statistik = [
             'total_hari' => $totalHari,
@@ -54,83 +54,59 @@ class PresensiController extends Controller
 {
     $user = Auth::user();
     $today = Carbon::today();
-    $now = Carbon::now();
 
-    $currentShift = null;
+    // ✅ Cek apakah petugas dijadwalkan hari ini
+    $terjadwalHariIni = \App\Models\Jadwal::where('user_id', $user->id)
+        ->where('tanggal', $today)
+        ->exists();
 
-    // Tentukan shift berdasarkan waktu sekarang
-    if ($now->between(Carbon::today()->setTime(7, 30), Carbon::today()->setTime(8, 30))) {
-        $currentShift = 'pagi';
-    } elseif ($now->between(Carbon::today()->setTime(11, 0), Carbon::today()->setTime(12, 0))) {
-        $currentShift = 'siang';
+    if (!$terjadwalHariIni) {
+        return redirect()->route('presensi.index')->with('error', 'Anda tidak dijadwalkan hari ini. Presensi tidak diperbolehkan.');
     }
 
-    if ($currentShift === null) {
-        return redirect()->route('presensi.index')->with('error', 'Check-in hanya dapat dilakukan pada jam shift yang ditentukan.');
-    }
-
-    // Cek apakah user terjadwal untuk shift ini hari ini
-    $jadwalHariIni = Jadwal::where('user_id', $user->id)
-                           ->where('tanggal', $today)
-                           ->where('shift', $currentShift)
-                           ->first();
-
-    if (!$jadwalHariIni) {
-        return redirect()->route('presensi.index')->with('error', 'Anda tidak terjadwal untuk shift ' . ucfirst($currentShift) . ' hari ini.');
-    }
-
-    // Cek apakah sudah check-in untuk shift ini
-    $sudahCheckIn = Presensi::where('petugas_id', $user->id)
-                            ->where('tanggal', $today)
-                            ->where('shift', $currentShift)
-                            ->exists();
+    // Cek apakah sudah presensi hari ini
+    $sudahCheckIn = Presensi::where('petugas_id', $user->id)->where('tanggal', $today)->exists();
 
     if ($sudahCheckIn) {
-        return redirect()->route('presensi.index')->with('error', 'Anda sudah melakukan check-in untuk shift ini hari ini.');
+        return redirect()->route('presensi.index')->with('error', 'Anda sudah melakukan check-in hari ini.');
     }
 
+    // Lakukan check-in
     Presensi::create([
         'petugas_id' => $user->id,
         'tanggal' => $today,
         'waktu_datang' => now(),
-        'shift' => $currentShift,
     ]);
 
-    return redirect()->route('presensi.index')->with('success', 'Berhasil Check In untuk shift ' . ucfirst($currentShift) . '. Selamat bekerja!');
+    return redirect()->route('presensi.index')->with('success', 'Berhasil Check In. Selamat bekerja!');
 }
 
-
-    public function checkOut(Request $request)
+public function checkOut(Request $request)
 {
     $user = Auth::user();
     $today = Carbon::today();
-    $now = Carbon::now();
 
-    // Ambil presensi yang belum check-out
-    $presensi = Presensi::where('petugas_id', $user->id)
-                        ->where('tanggal', $today)
-                        ->whereNull('waktu_pulang')
-                        ->first();
+    // ✅ Cek apakah petugas dijadwalkan hari ini
+    $terjadwalHariIni = \App\Models\Jadwal::where('user_id', $user->id)
+        ->where('tanggal', $today)
+        ->exists();
 
-    if (!$presensi) {
-        return redirect()->route('presensi.index')->with('error', 'Anda belum check-in atau sudah check-out.');
+    if (!$terjadwalHariIni) {
+        return redirect()->route('presensi.index')->with('error', 'Anda tidak dijadwalkan hari ini. Presensi tidak diperbolehkan.');
     }
 
-    // Validasi waktu check-out sesuai shift
-    if ($presensi->shift === 'pagi') {
-        if (!$now->between(Carbon::today()->setTime(11, 0), Carbon::today()->setTime(12, 0))) {
-            return redirect()->route('presensi.index')->with('error', 'Waktu check-out untuk shift pagi adalah antara 11:00 - 12:00.');
-        }
-    } elseif ($presensi->shift === 'siang') {
-        if (!$now->between(Carbon::today()->setTime(15, 0), Carbon::today()->setTime(16, 0))) {
-            return redirect()->route('presensi.index')->with('error', 'Waktu check-out untuk shift siang adalah antara 15:00 - 16:00.');
-        }
+    // Update presensi jika belum check-out
+    $updated = Presensi::where('petugas_id', $user->id)
+        ->whereDate('tanggal', $today)
+        ->whereNull('waktu_pulang')
+        ->update([
+            'waktu_pulang' => now()
+        ]);
+
+    if ($updated) {
+        return redirect()->route('presensi.index')->with('success', 'Berhasil Check Out. Terima kasih!');
     }
 
-    $presensi->waktu_pulang = now();
-    $presensi->save();
-
-    return redirect()->route('presensi.index')->with('success', 'Berhasil Check Out untuk shift ' . ucfirst($presensi->shift) . '. Terima kasih!');
+    return redirect()->route('presensi.index')->with('error', 'Gagal melakukan check-out atau Anda belum check-in.');
 }
-
 }
