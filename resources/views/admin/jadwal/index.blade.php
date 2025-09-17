@@ -2,28 +2,26 @@
 
 @section('content')
 <div class="max-w-7xl mx-auto mt-10 p-6">
-    <div class="bg-white rounded-lg shadow-lg p-6 mb-6 border-t-4 border-orange-500 relative overflow-hidden">
+    <div class="bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 p-6 mb-6 relative overflow-hidden border border-gray-100">
         <div class="absolute top-0 right-0 w-40 h-40 -mt-10 -mr-10 bg-orange-50 rounded-full opacity-30 z-0"></div>
         <div class="absolute bottom-0 left-0 w-32 h-32 -mb-8 -ml-8 bg-orange-50 rounded-full opacity-30 z-0"></div>
 
-        <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center relative z-10">
-            <svg class="h-6 w-6 mr-2 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            <span class="relative">
+         <div class="relative z-10 mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 flex items-center">
+                <svg class="h-6 w-6 mr-2 text-black-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
                 Generate Jadwal Bulanan
-                <span class="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-orange-500 to-orange-300 rounded-full"></span>
-            </span>
-        </h2>
+            </h2>
+            <p class="text-gray-600 mt-1">Buat jadwal kerja bulanan secara otomatis dan terstruktur</p>
+        </div>
 
         <form id="generateForm" method="POST" action="{{ route('admin.jadwal.generate') }}" class="mb-8 relative z-10" onsubmit="return confirmGenerate(event)">
             @csrf
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2 flex items-center">
-                        <svg class="h-4 w-4 mr-1 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
                         Bulan
                     </label>
                     <select name="bulan" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent shadow-sm hover:border-orange-300 transition-colors duration-200" required>
@@ -37,16 +35,13 @@
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2 flex items-center">
-                        <svg class="h-4 w-4 mr-1 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                        </svg>
                         Tahun
                     </label>
                     <input type="number" name="tahun" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent shadow-sm hover:border-orange-300 transition-colors duration-200" value="{{ request('tahun', date('Y')) }}" required>
                 </div>
             </div>
 
-            <button type="submit" id="generateButton" class="bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-6 rounded-md transition duration-200 ease-in-out transform hover:scale-105 hover:shadow-md flex items-center">
+            <button type="submit" id="generateButton" class="bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-6 rounded-md flex items-center">
                 <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
@@ -55,52 +50,35 @@
         </form>
     </div>
 
-    <!-- Enhanced Loading Overlay -->
-    <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center hidden backdrop-blur-sm">
-        <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4 text-center loading-card">
-            <!-- Animated Loading Icon -->
-            <div class="mb-6 flex justify-center">
-                <div class="relative">
-                    <div class="pulse-ring absolute top-0 left-0"></div>
-                    <div class="modern-spinner relative z-10"></div>
-                </div>
+   <!-- Simple Loading Overlay -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-40 z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-xl shadow-lg p-6 max-w-sm mx-4 text-center">
+            <!-- Spinner -->
+            <div class="flex justify-center mb-4">
+            <svg class="animate-spin h-10 w-10 text-orange-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <path d="M12 2a10 10 0 100 20 10 10 0 010-20z" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-dasharray="60 40"/>
+            </svg>
             </div>
 
-            <!-- Loading Title -->
-            <h3 class="text-2xl font-bold loading-text mb-2">Memproses</h3>
-            <p class="text-gray-600 mb-6 info-fade-in" id="loadingSubtext">Sedang menggenerate jadwal bulanan...</p>
 
-            <!-- Progress Bar -->
-            <div class="progress-bar mb-4">
-                <div class="progress-fill"></div>
-            </div>
 
-            <!-- Status Information -->
-            <div class="info-fade-in">
-                <p class="text-sm text-gray-500 mb-2">Mohon tunggu sebentar</p>
-                <div class="flex items-center justify-center text-xs text-gray-400">
-                    <span class="status-dot status-processing"></span>
-                    <span id="statusText">Menganalisis data...</span>
-                </div>
-            </div>
-
-            <!-- Floating Animation -->
-            <div class="float-animation mt-6 text-4xl">⏳</div>
+            <!-- Text -->
+            <h3 class="text-lg font-semibold text-gray-800">Memproses...</h3>
+            <p class="text-gray-500 text-sm mt-1">Sedang membuat jadwal bulanan</p>
         </div>
     </div>
 
-    <div class="bg-white rounded-lg shadow-xl p-6 border-t-4 border-orange-500 hover:shadow-lg transition-shadow duration-300 relative overflow-hidden">
+    <div class="bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 p-6 mb-6 relative overflow-hidden border border-gray-100">
         <div class="absolute top-0 right-0 w-40 h-40 -mt-10 -mr-10 bg-orange-50 rounded-full opacity-30 z-0"></div>
         <div class="absolute bottom-0 left-0 w-32 h-32 -mb-8 -ml-8 bg-orange-50 rounded-full opacity-30 z-0"></div>
 
         <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-6 relative z-10">
             <h3 class="text-xl font-semibold text-gray-800 flex items-center mb-4 md:mb-0">
-                <svg class="h-5 w-5 mr-2 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg class="h-5 w-5 mr-2 text-black-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
                 <span class="relative">
-                    Jadwal Bulan Ini
-                    <span class="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-orange-500 to-orange-300 rounded-full"></span>
+                    Jadwal Bulanan Petugas PST
                 </span>
             </h3>
 
@@ -576,22 +554,37 @@
     }
 
     .fc-button-primary {
-        background-color: #ff8c42 !important;
-        border-color: #ff8c42 !important;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
-        transition: all 0.2s;
+        background-color: #ffffff !important;
+        border-color: #e5e7eb !important;
+        color: #374151 !important;
+        font-size: 0.875rem !important;
+        font-weight: 500 !important;
+        padding: 0.5rem 0.75rem !important;
+        border-radius: 8px !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+        transition: all 0.2s ease !important;
     }
 
     .fc-button-primary:hover {
-        background-color: #ff7c2a !important;
-        border-color: #ff7c2a !important;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
+        background-color: #f9fafb !important;
+        border-color: #d1d5db !important;
+        color: #111827 !important;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+        transform: translateY(-1px);
     }
 
     .fc-button-primary:not(:disabled):active,
     .fc-button-primary:not(:disabled).fc-button-active {
-        background-color: #ff6a00 !important;
-        border-color: #ff6a00 !important;
+        background-color: #f3f4f6 !important;
+        border-color: #9ca3af !important;
+        color: #111827 !important;
+        box-shadow: 0 0 0 2px rgba(156, 163, 175, 0.2) !important;
+        transform: translateY(0);
+    }
+
+    .fc-button-primary:focus {
+        outline: none !important;
+        box-shadow: 0 0 0 2px rgba(156, 163, 175, 0.2) !important;
     }
 
     /* Responsive Design */

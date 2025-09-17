@@ -231,7 +231,7 @@
             case 'Perpustakaan': return 'PRP';
             case 'Konsultasi Statistik': return 'KST';
             case 'Rekomendasi Statistik': return 'RST';
-            case 'Pengaduan Layanan': return 'PLS';
+            case 'Pengaduan': return 'PLS';
             case 'Buku Tamu': return 'BT';
             default: return name;
         }
