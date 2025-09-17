@@ -3,12 +3,11 @@
 @section('title', 'Pelayanan Statistik Terpadu')
 
 @section('content')
-<div class="w-full mx-auto py-8 px-4 sm:px-6 lg:px-8">
 
     {{-- Header --}}
     <div class="flex justify-between items-center mb-8">
         <div>
-            <h1 class="text-2xl font-bold">Pelayanan Admin PST</h1>
+            <h1 class="text-3xl font-bold text-gray-800 mb-1">Pelayanan Admin PST</h1>
             <p class="text-gray-500">{{ \Carbon\Carbon::now()->translatedFormat('l, d F Y • H:i') }}</p>
         </div>
     </div>

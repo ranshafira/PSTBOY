@@ -33,6 +33,10 @@
          class="{{ request()->routeIs('presensi.*') ? 'text-orange-500 font-semibold' : 'hover:text-orange-500 transition' }}">
         Presensi
       </a>
+      <a href="{{ route('petugas.jadwal.index') }}"
+         class="{{ request()->routeIs('petugas.jadwal.*') ? 'text-orange-500 font-semibold' : 'hover:text-orange-500 transition' }}">
+        Jadwal
+      </a>
       <a href="{{ route('pelayanan.index') }}"
          class="{{ request()->routeIs('pelayanan.*') ? 'text-orange-500 font-semibold' : 'hover:text-orange-500 transition' }}">
         Pelayanan

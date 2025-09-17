@@ -15,6 +15,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\PelayananController;
 use App\Http\Controllers\SurveyController;
 use App\Http\Controllers\JadwalController;
+use App\Http\Controllers\PetugasJadwalController;
 use App\Http\Controllers\DisplayController;
 
 // Routes untuk display antrian
@@ -101,6 +102,12 @@ Route::middleware(['auth'])->group(function () {
         // Jika role lain atau default:
         return redirect('/');
     })->name('dashboard');
+});
+
+// Routes untuk petugas
+Route::middleware(['auth'])->prefix('petugas')->name('petugas.')->group(function () {
+    Route::get('/jadwal', [PetugasJadwalController::class, 'index'])->name('jadwal.index');
+    Route::get('/jadwal/events', [PetugasJadwalController::class, 'events'])->name('jadwal.events');
 });
 
 // == Route Dashboard berdasarkan Role ==

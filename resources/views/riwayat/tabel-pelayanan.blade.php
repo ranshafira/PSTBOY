@@ -15,8 +15,8 @@
           <th class="px-4 py-2 text-left">Pengunjung</th>
           <th class="px-4 py-2 text-left">Kontak</th>
           <th class="px-4 py-2 text-left">Jenis Layanan</th>
+          <th class="px-4 py-2 text-left">Petugas</th>
           <th class="px-4 py-2 text-left">Tanggal</th>
-          <th class="px-4 py-2 text-left">Durasi</th>
           <th class="px-4 py-2 text-left">Status</th>
           <th class="px-4 py-2 text-left">Token Survei</th>
           <th class="px-4 py-2 text-left">Kepuasan</th>
@@ -33,15 +33,8 @@
             {{ $p->email ?? '-' }}
           </td>
           <td class="px-4 py-2">{{ $p->jenisLayanan->nama_layanan ?? '-' }}</td>
+          <td class="px-4 py-2">{{ $p->petugas->username ?? '-' }}</td>
           <td class="px-4 py-2">{{ \Carbon\Carbon::parse($p->waktu_mulai_sesi)->format('d-m-Y') }}</td>
-          <td class="px-4 py-2">
-            @if($p->waktu_selesai_sesi)
-              {{ \Carbon\Carbon::parse($p->waktu_mulai_sesi)->diffInHours($p->waktu_selesai_sesi) }} jam
-              {{ \Carbon\Carbon::parse($p->waktu_mulai_sesi)->diffInMinutes($p->waktu_selesai_sesi) % 60 }} menit
-            @else
-              -
-            @endif
-          </td>
           <td class="px-4 py-2">
             @php
                 $status = $p->status_penyelesaian ?? 'Proses';

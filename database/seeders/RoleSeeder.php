@@ -7,11 +7,18 @@ use Illuminate\Support\Facades\DB;
 
 class RoleSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
-        DB::table('roles')->insert([
-            ['id' => 1, 'nama_role' => 'Admin'],
-            ['id' => 2, 'nama_role' => 'Petugas PST'],
-        ]);
+        // Role Admin
+        DB::table('roles')->updateOrInsert(
+            ['id' => 1], 
+            ['nama_role' => 'Admin'] 
+        );
+
+        // Role Petugas PST
+        DB::table('roles')->updateOrInsert(
+            ['id' => 2],
+            ['nama_role' => 'Petugas PST']
+        );
     }
 }
