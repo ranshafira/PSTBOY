@@ -2,240 +2,163 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Pelayanan;
-use App\Models\JenisLayanan;
 use App\Models\Antrian;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Storage; 
+use App\Models\BukuTamu;
+use App\Models\JenisLayanan;
+use App\Models\Pelayanan;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Pagination\Paginator;
 
 class PelayananController extends Controller
 {
-   public function index(Request $request)
+    /**
+     * Menampilkan halaman utama dashboard pelayanan petugas.
+     */
+    public function index()
     {
-        // Antrian hari ini
-        $riwayatAntrian = \App\Models\Antrian::with('jenisLayanan', 'pelayanan')
+        $riwayatAntrian = Antrian::with('jenisLayanan', 'pelayanan')
             ->whereDate('created_at', today())
             ->orderBy('created_at', 'desc')
-            ->paginate(10);
+            ->paginate(10, ['*'], 'antrian_page');
 
-        // Buku Tamu hari ini
-        $riwayatBukuTamu = \App\Models\BukuTamu::whereDate('waktu_kunjungan', today())
+        $riwayatBukuTamu = BukuTamu::whereDate('waktu_kunjungan', today())
             ->orderBy('waktu_kunjungan', 'desc')
             ->paginate(10, ['*'], 'bukutamu_page');
 
-        // Statistik tambahan
-        $totalAntrianHariIni = \App\Models\Antrian::whereDate('created_at', today())
-            ->whereIn('status', ['menunggu', 'lewati', 'dipanggil', 'sedang_dilayani'])
-            ->count();
+        $statistik = [
+            'totalAntrianHariIni' => Antrian::whereDate('created_at', today())->whereIn('status', ['menunggu', 'lewati', 'dipanggil', 'sedang_dilayani'])->count(),
+            'sudahDilayani' => Antrian::whereDate('created_at', today())->where('status', 'selesai')->count(),
+            'antrianBerjalan' => Antrian::whereIn('status', ['dipanggil', 'sedang_dilayani'])->latest('updated_at')->first(),
+            'bukuTamuCount' => BukuTamu::whereDate('waktu_kunjungan', today())->count(),
+        ];
 
-        $sudahDilayani = \App\Models\Antrian::whereDate('created_at', today())
-            ->where('status', 'selesai')
-            ->count();
-
-        $antrianBerjalan = \App\Models\Antrian::whereIn('status', ['dipanggil', 'sedang_dilayani'])
-            ->latest('updated_at')
-            ->first();
-
-        $bukuTamuCount = \App\Models\BukuTamu::whereDate('waktu_kunjungan', today())->count();
-
-        return view('pelayanan.index', [
-            'riwayatAntrian' => $riwayatAntrian,
-            'riwayatBukuTamu' => $riwayatBukuTamu,
-            'totalAntrianHariIni' => $totalAntrianHariIni,
-            'sudahDilayani' => $sudahDilayani,
-            'antrianBerjalan' => $antrianBerjalan,
-            'bukuTamuCount' => $bukuTamuCount,
-        ]);
+        return view('pelayanan.index', compact('riwayatAntrian', 'riwayatBukuTamu', 'statistik'));
     }
 
-    public function show($id)
+    /**
+     * LANGKAH 1: Menampilkan form identitas pengunjung.
+     */
+    public function createStep1($antrian_id)
     {
-        $antrian = Antrian::findOrFail($id);
+        $antrian = Antrian::findOrFail($antrian_id);
         $jenisLayanan = JenisLayanan::all();
+        $pelayanan = Pelayanan::where('antrian_id', $antrian->id)->latest()->first();
 
-        // Ambil data pelayanan terakhir yang terkait dengan antrian ini
-        $dataTerisi = Pelayanan::where('antrian_id', $antrian->id)
-                                ->latest('waktu_mulai_sesi') // ambil session terakhir
-                                ->first();
-
-        return view('pelayanan.show', compact('antrian', 'jenisLayanan', 'dataTerisi'));
+        return view('pelayanan.langkah1', compact('antrian', 'jenisLayanan', 'pelayanan'));
     }
 
-
-    public function start(Request $request, $id)
+    /**
+     * LANGKAH 1: Menyimpan data identitas & memulai sesi pelayanan.
+     */
+    public function storeStep1(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
+            'antrian_id' => 'required|exists:antrian,id',
             'jenis_layanan_id' => 'required|exists:jenis_layanan,id',
-            'waktu_mulai' => 'required|string',
+            'nama_pengunjung' => 'required|string|max:255',
+            'instansi_pengunjung' => 'nullable|string|max:255',
+            'no_hp' => 'nullable|string|max:20',
+            'email' => 'nullable|email|max:255',
+            'jenis_kelamin' => 'nullable|in:Laki-laki,Perempuan',
+            'pendidikan' => 'nullable|string|max:50',
         ]);
 
-        $antrian = Antrian::findOrFail($id);
-
-        // Update status antrian
+        $antrian = Antrian::find($validated['antrian_id']);
         $antrian->status = 'sedang_dilayani';
         $antrian->save();
 
-        // Pastikan format waktu_mulai aman
-        $waktu_mulai_string = str_replace('.', ':', $request->waktu_mulai);
-        $waktu_mulai_datetime = now()->format('Y-m-d') . ' ' . $waktu_mulai_string;
-
-        // Simpan data pelayanan
         $pelayanan = Pelayanan::create([
             'petugas_id' => auth()->id(),
             'antrian_id' => $antrian->id,
-            'jenis_layanan_id' => $request->jenis_layanan_id,
-            'waktu_mulai_sesi' => $waktu_mulai_datetime,
+            'waktu_mulai_sesi' => now(),
+            'jenis_layanan_id' => $validated['jenis_layanan_id'],
+            'nama_pengunjung' => $validated['nama_pengunjung'],
+            'instansi_pengunjung' => $validated['instansi_pengunjung'],
+            'no_hp' => $validated['no_hp'],
+            'email' => $validated['email'],
+            'jenis_kelamin' => $validated['jenis_kelamin'],
+            'pendidikan' => $validated['pendidikan'],
         ]);
 
-        return redirect()->route('pelayanan.identitas', $pelayanan->id)
-            ->with('success', "Pelayanan untuk antrian {$antrian->nomor_antrian} sudah dimulai.");
+        return redirect()->route('pelayanan.langkah2.create', $pelayanan->id);
     }
 
-   public function lanjutkan($id)
+    /**
+     * LANGKAH 2: Menampilkan form hasil pelayanan.
+     */
+    public function createStep2(Pelayanan $pelayanan)
     {
-        $pelayanan = Pelayanan::findOrFail($id);
-        if (!$pelayanan->nama_pengunjung) {   
-            return redirect()->route('pelayanan.identitas', $pelayanan->id);
-        }
-
-        if (!$pelayanan->deskripsi_hasil) {
-            return redirect()->route('pelayanan.hasil', $pelayanan->id);
-        }
-
-        return redirect()->route('pelayanan.selesai', $pelayanan->id);
-    }
-    public function identitas($id)
-    {
-        $pelayanan = Pelayanan::findOrFail($id);
-        return view('pelayanan.identitas', compact('pelayanan'));
+        $pelayanan->load('antrian');
+        return view('pelayanan.langkah2', compact('pelayanan'));
     }
 
-    public function storeIdentitas(Request $request, $id)
+    /**
+     * LANGKAH 2: Menyimpan data hasil pelayanan.
+     */
+    public function storeStep2(Request $request, Pelayanan $pelayanan)
     {
-        $pelayanan = Pelayanan::findOrFail($id);
-
         $data = $request->validate([
-            'nama_pengunjung' => 'required|string|max:255',   // UBAH
-            'instansi_pengunjung' => 'nullable|string|max:255', // UBAH
-            'no_hp' => 'nullable|string|max:20',              // UBAH
-            'email' => 'nullable|email|max:255',              // TAMBAHAN
-            'jenis_kelamin' => 'nullable|in:Laki-laki,Perempuan', // TAMBAHAN
-            'pendidikan' => 'nullable|string|max:50',         // TAMBAHAN
-            'path_surat_pengantar' => 'nullable|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:5120',
-            'kebutuhan_pengunjung' => 'nullable|string',      // UBAH
-        ]);
-
-        if ($request->hasFile('path_surat_pengantar')) {
-            $data['path_surat_pengantar'] = $request->file('path_surat_pengantar')
-                                                ->store('surat_pengantar', 'public');
-        }
-
-        $pelayanan->update($data);
-
-        return redirect()->route('pelayanan.hasil', $pelayanan->id);
-    }
-    public function hasil($id)
-    {
-        $pelayanan = Pelayanan::with(['antrian', 'jenisLayanan'])->findOrFail($id);
-        return response()
-            ->view('pelayanan.hasil', compact('pelayanan'))
-            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0'); // Disable cache
-    }
-
-   public function storeHasil(Request $request, $id)
-    {
-        $pelayanan = Pelayanan::findOrFail($id);
-
-        // Validasi diubah: 'required' menjadi 'nullable'
-        // Artinya field ini boleh kosong, tapi jika diisi harus berupa string.
-        $data = $request->validate([
-            'status_penyelesaian' => 'nullable|string', // DIUBAH
-            'deskripsi_hasil' => 'nullable|string',     // DIUBAH
+            'kebutuhan_pengunjung' => 'required|string',
+            'path_surat_pengantar' => 'nullable|file|mimes:pdf,jpg,png,doc,docx|max:5120',
+            'status_penyelesaian' => 'required|string',
+            'deskripsi_hasil' => 'required|string',
             'jenis_output' => 'nullable|array',
-            'path_dokumen_hasil' => 'nullable|file|mimes:pdf,jpg,jpeg,png,doc,docx,xls,xlsx,csv|max:10240',
+            'path_dokumen_hasil' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,csv|max:10240',
             'perlu_tindak_lanjut' => 'nullable|boolean',
             'tanggal_tindak_lanjut' => 'required_if:perlu_tindak_lanjut,1|nullable|date',
             'catatan_tindak_lanjut' => 'required_if:perlu_tindak_lanjut,1|nullable|string',
-            'catatan_tambahan' => 'nullable|string',
         ]);
 
-        // Bagian ini tidak perlu diubah, biarkan seperti semula
+        if ($request->hasFile('path_surat_pengantar')) {
+            $data['path_surat_pengantar'] = $request->file('path_surat_pengantar')->store('surat_pengantar', 'public');
+        }
+        if ($request->hasFile('path_dokumen_hasil')) {
+            $data['path_dokumen_hasil'] = $request->file('path_dokumen_hasil')->store('dokumen_hasil', 'public');
+        }
         $data['perlu_tindak_lanjut'] = $request->has('perlu_tindak_lanjut');
 
-        if ($request->hasFile('path_dokumen_hasil')) {
-            // (Opsional tapi direkomendasikan) Hapus file lama jika ada file baru yang diupload
-            if ($pelayanan->path_dokumen_hasil) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($pelayanan->path_dokumen_hasil);
-            }
-            $data['path_dokumen_hasil'] = $request->file('path_dokumen_hasil')->store('dokumen_hasil', 'public');
+        if (empty($pelayanan->survey_token)) {
+            do {
+                $token = strtoupper(Str::random(3) . '-' . Str::random(3));
+            } while (Pelayanan::where('survey_token', $token)->exists());
+            $data['survey_token'] = $token;
         }
 
         $pelayanan->update($data);
+        $pelayanan->antrian->update(['status' => 'selesai']);
 
-        return redirect()->route('pelayanan.selesai', $pelayanan->id);
+        return redirect()->route('survei.internal.show', $pelayanan->survey_token);
     }
 
-    public function selesai($id)
+    /**
+     * Halaman "Terima Kasih" setelah alur pelayanan selesai.
+     */
+    public function terimakasih(Pelayanan $pelayanan)
     {
-        $pelayanan = Pelayanan::with(['antrian', 'jenisLayanan'])->findOrFail($id);
-        return view('pelayanan.selesai', compact('pelayanan'));
+        $pelayanan->load('antrian');
+        return view('pelayanan.terimakasih', compact('pelayanan'));
     }
 
-
-   public function finish(Request $request, $id)
+    /**
+     * Fitur untuk melanjutkan sesi pelayanan yang belum selesai.
+     */
+    public function lanjutkan($id)
     {
         $pelayanan = Pelayanan::findOrFail($id);
-
-        if (is_null($pelayanan->waktu_selesai_sesi)) {
-            $pelayanan->waktu_selesai_sesi = now();
-            
-            // --- LOGIKA PEMBUATAN PIN UNIK ---
-            do {
-                // Buat PIN acak dengan format XXX-XXX
-                $token = strtoupper(Str::random(3) . '-' . Str::random(3));
-                // Cek apakah PIN ini sudah ada di database
-                $exists = Pelayanan::where('survey_token', $token)->exists();
-            } while ($exists); // Ulangi jika sudah ada, untuk menjamin keunikan
-
-            $pelayanan->survey_token = $token;
-            // --- SELESAI ---
-            
-            $pelayanan->save();
-
-            // --- UPDATE STATUS ANTRIAN ---
-            if ($pelayanan->antrian) {
-                $pelayanan->antrian->status = 'selesai';
-                $pelayanan->antrian->save();
-            }
+        if (!$pelayanan->deskripsi_hasil) {
+            return redirect()->route('pelayanan.langkah2.create', $pelayanan->id);
         }
-
-        return redirect()->route('pelayanan.selesai', $pelayanan->id)
-                        ->with('success', 'Waktu pelayanan berhasil dicatat!');
+        return redirect()->route('pelayanan.detail', $pelayanan->id);
     }
+
+    /**
+     * Menampilkan halaman detail untuk riwayat pelayanan.
+     */
     public function detail($id)
     {
-        // Ambil record pelayanan beserta relasinya
-        $pelayanan = \App\Models\Pelayanan::with(['jenisLayanan', 'antrian', 'petugas', 'surveyKepuasan'])
+        // CATATAN: Pastikan Anda memiliki file 'detail.blade.php' di dalam folder 'pelayanan'.
+        $pelayanan = Pelayanan::with(['jenisLayanan', 'antrian', 'petugas', 'surveyKepuasan'])
             ->findOrFail($id);
-
-        // Siapkan data turunan untuk view
-        $data = [
-            'pelayanan' => $pelayanan,
-            'nomor_antrian' => $pelayanan->antrian->nomor_antrian ?? null,
-            'petugas_nama' => $pelayanan->petugas->name ?? null,
-            'jenis_layanan' => $pelayanan->jenisLayanan->nama_layanan ?? null,
-            // decode jenis_output kalau ada dan valid
-            'jenis_output_list' => is_array($pelayanan->jenis_output) ? $pelayanan->jenis_output : ( $pelayanan->jenis_output ? json_decode($pelayanan->jenis_output, true) : []),
-            // path -> url (cek kalau ada)
-            'url_surat_pengantar' => $pelayanan->path_surat_pengantar ? Storage::url($pelayanan->path_surat_pengantar) : null,
-            'url_dokumen_hasil' => $pelayanan->path_dokumen_hasil ? Storage::url($pelayanan->path_dokumen_hasil) : null,
-        ];
-
-        return view('pelayanan.detail', $data);
+        return view('pelayanan.detail', compact('pelayanan'));
     }
-    
 }

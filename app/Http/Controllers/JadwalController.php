@@ -151,70 +151,69 @@ class JadwalController extends Controller
         return view('admin.jadwal.edit', compact('jadwal', 'users'));
     }
 
-public function update(Request $request, $id)
-{
-    $jadwal = Jadwal::findOrFail($id);
+    public function update(Request $request, $id)
+    {
+        $jadwal = Jadwal::findOrFail($id);
 
-    $request->validate([
-        'user_id' => 'required|exists:users,id',
-    ]);
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+        ]);
 
-    $userLama = $jadwal->user; // Petugas lama
-    $userBaru = User::findOrFail($request->user_id); // Petugas baru
+        $userLama = $jadwal->user; // Petugas lama
+        $userBaru = User::findOrFail($request->user_id); // Petugas baru
 
-    // Update jadwal
-    $jadwal->user_id = $request->user_id;
-    $jadwal->save();
+        // Update jadwal
+        $jadwal->user_id = $request->user_id;
+        $jadwal->save();
 
-    // Kirim notifikasi hanya jika ada perubahan petugas
-    if ($userLama->id !== $userBaru->id) {
-        try {
-            // Kirim notifikasi email terlebih dahulu
-            $userLama->notify(new JadwalDiubahNotification($jadwal, 'lama'));
-            $userBaru->notify(new JadwalDiubahNotification($jadwal, 'baru'));
-            Log::info('Email notifications sent successfully');
+        // Kirim notifikasi hanya jika ada perubahan petugas
+        if ($userLama->id !== $userBaru->id) {
+            try {
+                // Kirim notifikasi email terlebih dahulu
+                $userLama->notify(new JadwalDiubahNotification($jadwal, 'lama'));
+                $userBaru->notify(new JadwalDiubahNotification($jadwal, 'baru'));
+                Log::info('Email notifications sent successfully');
 
-            // Kirim notifikasi WhatsApp
-            $whatsappResult = $this->sendWhatsAppNotifications($userLama, $userBaru, $jadwal);
-            
-            if ($whatsappResult) {
-                $message = 'Jadwal berhasil diperbarui dan semua notifikasi (email + WhatsApp) telah dikirim.';
-            } else {
-                $message = 'Jadwal berhasil diperbarui dan email terkirim, tetapi WhatsApp gagal dikirim.';
+                // Kirim notifikasi WhatsApp
+                $whatsappResult = $this->sendWhatsAppNotifications($userLama, $userBaru, $jadwal);
+
+                if ($whatsappResult) {
+                    $message = 'Jadwal berhasil diperbarui dan semua notifikasi (email + WhatsApp) telah dikirim.';
+                } else {
+                    $message = 'Jadwal berhasil diperbarui dan email terkirim, tetapi WhatsApp gagal dikirim.';
+                }
+            } catch (\Exception $e) {
+                Log::error('Error sending notifications: ' . $e->getMessage());
+                return redirect()->route('admin.jadwal.edit', $jadwal->id)
+                    ->with('warning', 'Jadwal berhasil diperbarui, tetapi ada masalah saat mengirim notifikasi: ' . $e->getMessage());
             }
-
-        } catch (\Exception $e) {
-            Log::error('Error sending notifications: ' . $e->getMessage());
-            return redirect()->route('admin.jadwal.edit', $jadwal->id)
-                ->with('warning', 'Jadwal berhasil diperbarui, tetapi ada masalah saat mengirim notifikasi: ' . $e->getMessage());
+        } else {
+            $message = 'Jadwal berhasil diperbarui (tidak ada perubahan petugas).';
         }
-    } else {
-        $message = 'Jadwal berhasil diperbarui (tidak ada perubahan petugas).';
+
+        return redirect()->route('admin.jadwal.edit', $jadwal->id)->with('success', $message);
     }
 
-    return redirect()->route('admin.jadwal.edit', $jadwal->id)->with('success', $message);
-}
+    /**
+     * Kirim notifikasi WhatsApp untuk update jadwal
+     */
+    private function sendWhatsAppNotifications($userLama, $userBaru, $jadwal)
+    {
+        try {
+            $tanggal = \Carbon\Carbon::parse($jadwal->tanggal)->locale('id')->isoFormat('dddd, D MMMM Y');
+            $shift = ucfirst($jadwal->shift);
 
-/**
- * Kirim notifikasi WhatsApp untuk update jadwal
- */
-private function sendWhatsAppNotifications($userLama, $userBaru, $jadwal)
-{
-    try {
-        $tanggal = \Carbon\Carbon::parse($jadwal->tanggal)->locale('id')->isoFormat('dddd, D MMMM Y');
-        $shift = ucfirst($jadwal->shift);
+            // Validasi nomor HP
+            if (empty($userLama->no_hp) || empty($userBaru->no_hp)) {
+                Log::warning('Nomor HP tidak lengkap', [
+                    'user_lama' => $userLama->no_hp,
+                    'user_baru' => $userBaru->no_hp
+                ]);
+                return false;
+            }
 
-        // Validasi nomor HP
-        if (empty($userLama->no_hp) || empty($userBaru->no_hp)) {
-            Log::warning('Nomor HP tidak lengkap', [
-                'user_lama' => $userLama->no_hp,
-                'user_baru' => $userBaru->no_hp
-            ]);
-            return false;
-        }
-
-        // Pesan untuk petugas lama
-        $messageLama = <<<EOT
+            // Pesan untuk petugas lama
+            $messageLama = <<<EOT
 🔄 *PERUBAHAN JADWAL TUGAS*
 
 Halo {$userLama->nama_lengkap},
@@ -230,8 +229,8 @@ Terima kasih atas pengertiannya.
 _PST Kabupaten Boyolali_
 EOT;
 
-        // Pesan untuk petugas baru
-        $messageBaru = <<<EOT
+            // Pesan untuk petugas baru
+            $messageBaru = <<<EOT
 ✅ *PENUGASAN JADWAL BARU*
 
 Halo {$userBaru->nama_lengkap},
@@ -247,26 +246,25 @@ Mohon hadir sesuai jadwal.
 _PST Kabupaten Boyolali_
 EOT;
 
-        // Kirim pesan WhatsApp
-        Log::info('Mengirim WhatsApp ke petugas lama: ' . $userLama->nama_lengkap);
-        $resultLama = FonnteHelper::sendMessage($userLama->no_hp, $messageLama);
-        
-        Log::info('Mengirim WhatsApp ke petugas baru: ' . $userBaru->nama_lengkap);
-        $resultBaru = FonnteHelper::sendMessage($userBaru->no_hp, $messageBaru);
+            // Kirim pesan WhatsApp
+            Log::info('Mengirim WhatsApp ke petugas lama: ' . $userLama->nama_lengkap);
+            $resultLama = FonnteHelper::sendMessage($userLama->no_hp, $messageLama);
 
-        // Log hasil
-        Log::info('WhatsApp Results:', [
-            'petugas_lama' => $resultLama ? 'SUCCESS' : 'FAILED',
-            'petugas_baru' => $resultBaru ? 'SUCCESS' : 'FAILED'
-        ]);
+            Log::info('Mengirim WhatsApp ke petugas baru: ' . $userBaru->nama_lengkap);
+            $resultBaru = FonnteHelper::sendMessage($userBaru->no_hp, $messageBaru);
 
-        return ($resultLama && $resultBaru);
+            // Log hasil
+            Log::info('WhatsApp Results:', [
+                'petugas_lama' => $resultLama ? 'SUCCESS' : 'FAILED',
+                'petugas_baru' => $resultBaru ? 'SUCCESS' : 'FAILED'
+            ]);
 
-    } catch (\Exception $e) {
-        Log::error('Error in sendWhatsAppNotifications: ' . $e->getMessage());
-        return false;
+            return ($resultLama && $resultBaru);
+        } catch (\Exception $e) {
+            Log::error('Error in sendWhatsAppNotifications: ' . $e->getMessage());
+            return false;
+        }
     }
-}
 
 
     public function destroy($id)
@@ -426,7 +424,7 @@ EOT;
 
             return response()->json($events);
         } catch (\Exception $e) {
-            \Log::error('Error in getEvents: ' . $e->getMessage());
+            Log::error('Error in getEvents: ' . $e->getMessage());
             return response()->json(['error' => 'Failed to load events'], 500);
         }
     }
@@ -491,8 +489,77 @@ EOT;
 
             return response()->json($events);
         } catch (\Exception $e) {
-            \Log::error('Error in events: ' . $e->getMessage());
+            Log::error('Error in events: ' . $e->getMessage());
             return response()->json(['error' => 'Failed to load events'], 500);
+        }
+    }
+
+    //Method untuk MENAMPILKAN HALAMAN jadwal khusus petugas
+    public function indexPetugas()
+    {
+        // Kita hanya perlu mengirim user yang sedang login ke view
+        $user = auth()->user();
+
+        // Pastikan Anda punya view di resources/views/jadwal/index.blade.php
+        return view('jadwal.index', compact('user'));
+    }
+
+    public function eventsPetugas(Request $request)
+    {
+        try {
+            $userId = auth()->id(); // Mengambil ID petugas yang sedang login
+
+            $query = Jadwal::with('user')
+                ->where('user_id', $userId); // <-- INI BAGIAN PALING PENTING
+
+            // Filter berdasarkan bulan dan tahun dari request
+            $month = $request->input('month', date('m'));
+            $year = $request->input('year', date('Y'));
+
+            if ($month && $year) {
+                $query->whereMonth('tanggal', $month)
+                    ->whereYear('tanggal', $year);
+            }
+
+            $jadwal = $query->get();
+
+            $events = [];
+            foreach ($jadwal as $item) {
+                $start = Carbon::parse($item->tanggal);
+                $end = Carbon::parse($item->tanggal);
+
+                if ($item->shift === 'pagi') {
+                    $start->setTime(8, 0);
+                    $end->setTime(11, 30);
+                } else { // shift siang
+                    $start->setTime(11, 30);
+                    $end->setTime(15, 30);
+                }
+
+                $color = $this->getUserColor($item->user_id, $item->shift);
+
+                $events[] = [
+                    'id' => $item->id,
+                    'title' => 'Jadwal Anda (' . ucfirst($item->shift) . ')', // Judul lebih simpel
+                    'start' => $start->toDateTimeString(),
+                    'end' => $end->toDateTimeString(),
+                    'backgroundColor' => $color,
+                    'borderColor' => $color,
+                    'textColor' => 'white',
+                    'extendedProps' => [
+                        'shift' => $item->shift,
+                        'petugas' => $item->user->nama_lengkap,
+                        'jadwal_id' => $item->id,
+                        'userId' => $item->user_id,
+                        'userName' => $item->user->nama_lengkap
+                    ]
+                ];
+            }
+
+            return response()->json($events);
+        } catch (\Exception $e) {
+            Log::error('Error in eventsPetugas: ' . $e->getMessage());
+            return response()->json(['error' => 'Gagal memuat jadwal Anda'], 500);
         }
     }
 }

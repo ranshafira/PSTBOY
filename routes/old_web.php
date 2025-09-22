@@ -15,8 +15,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\PelayananController;
 use App\Http\Controllers\SurveyController;
 use App\Http\Controllers\JadwalController;
-use App\Http\Controllers\SurveySkdController;
-use App\Http\Controllers\SurveyInternalController;
+
 
 // == Route untuk Halaman Publik (Sistem Antrian) ==
 Route::get('/', [AntrianController::class, 'index'])->name('antrian.index');
@@ -57,23 +56,26 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/antrian/{id}/panggil', [AntrianController::class, 'panggil'])->name('antrian.panggil');
     Route::post('/antrian/{id}/batal', [AntrianController::class, 'batal'])->name('antrian.batal');
 
-    // == Rute untuk Proses Pelayanan Petugas ==
-    Route::get('/pelayanan', [PelayananController::class, 'index'])->name('pelayanan.index');
-
-    // Langkah 1: Input data pengunjung
-    Route::get('/pelayanan/mulai/{antrian_id}', [PelayananController::class, 'createStep1'])->name('pelayanan.langkah1.create');
-    Route::post('/pelayanan/mulai', [PelayananController::class, 'storeStep1'])->name('pelayanan.langkah1.store');
-
-    // Langkah 2: Input hasil pelayanan
-    Route::get('/pelayanan/{pelayanan}/hasil', [PelayananController::class, 'createStep2'])->name('pelayanan.langkah2.create');
-    Route::post('/pelayanan/{pelayanan}/hasil', [PelayananController::class, 'storeStep2'])->name('pelayanan.langkah2.store');
-
-    // Halaman Terima Kasih (setelah selesai pelayanan)
-    Route::get('/pelayanan/{pelayanan}/terimakasih', [PelayananController::class, 'terimakasih'])->name('pelayanan.terimakasih');
-
-    // Fitur Lanjutan & Detail
+    // Pelayanan
+    Route::get('/pelayanan', [\App\Http\Controllers\PelayananController::class, 'index'])->name('pelayanan.index');
+    Route::get('/pelayanan/{id}', [\App\Http\Controllers\PelayananController::class, 'show'])->name('pelayanan.show');
+    Route::post('/pelayanan/{id}/mulai', [\App\Http\Controllers\PelayananController::class, 'start'])->name('pelayanan.start');
+    Route::get('/pelayanan/{id}/detail', [\App\Http\Controllers\PelayananController::class, 'detail'])->name('pelayanan.detail');
     Route::get('/pelayanan/{id}/lanjut', [PelayananController::class, 'lanjutkan'])->name('pelayanan.lanjut');
-    Route::get('/pelayanan/{id}/detail', [PelayananController::class, 'detail'])->name('pelayanan.detail');
+
+
+    // Identitas dalam Pelayanan
+    Route::get('/pelayanan/{id}/identitas', [\App\Http\Controllers\PelayananController::class, 'identitas'])->name('pelayanan.identitas');
+    Route::post('/pelayanan/{id}/identitas', [\App\Http\Controllers\PelayananController::class, 'storeIdentitas'])->name('pelayanan.storeIdentitas');
+    // Hasil pelayanan
+    Route::get('/pelayanan/{id}/hasil', [PelayananController::class, 'hasil'])->name('pelayanan.hasil');
+    Route::post('/pelayanan/{id}/hasil', [PelayananController::class, 'storeHasil'])->name('pelayanan.storeHasil');
+
+    // Menampilkan halaman Selesai Pelayanan
+    Route::get('/pelayanan/{id}/selesai', [PelayananController::class, 'selesai'])->name('pelayanan.selesai');
+    // Mencatat waktu selesai saat tombol ditekan
+    Route::post('/pelayanan/{id}/selesaikan', [PelayananController::class, 'finish'])->name('pelayanan.finish');
+
     // Dashboard Umum - arahkan berdasarkan role
     Route::get('/dashboard', function () {
         /** @var \App\Models\User $user */
@@ -126,23 +128,9 @@ Route::middleware(['auth', 'isAdmin'])->group(function () {
 // Dashboard Petugas PST (hanya perlu login)
 Route::middleware(['auth'])->group(function () {
     Route::get('/petugas/dashboard', [DashboardController::class, 'index'])->name('petugas.dashboard');
-    Route::get('/petugas/jadwal', [JadwalController::class, 'indexPetugas'])->name('petugas.jadwal.index');
-    Route::get('/petugas/jadwal/events', [JadwalController::class, 'eventsPetugas'])->name('petugas.jadwal.events');
 });
 // ROUTE BARU UNTUK SURVEI (Tidak perlu login)
 Route::get('/survei', [SurveyController::class, 'entry'])->name('survei.entry');
 Route::post('/survei/cari', [SurveyController::class, 'find'])->name('survei.find');
 Route::get('/survei/{token}', [SurveyController::class, 'show'])->name('survei.show');
 Route::post('/survei/{token}', [SurveyController::class, 'store'])->name('survei.store');
-
-// Rute Survei Internal - bagian dari alur pelayanan
-Route::get('/survei-internal/{token}', [\App\Http\Controllers\SurveyInternalController::class, 'show'])->name('survei.internal.show');
-Route::post('/survei-internal/{token}', [\App\Http\Controllers\SurveyInternalController::class, 'store'])->name('survei.internal.store');
-
-
-// == [BARU] Rute Survei SKD (diakses dengan token) ==
-Route::get('/survei-skd', [App\Http\Controllers\SurveySkdController::class, 'entry'])->name('survei.skd.entry');
-Route::post('/survei-skd/cari', [App\Http\Controllers\SurveySkdController::class, 'find'])->name('survei.skd.find');
-Route::get('/survei-skd/{token}', [App\Http\Controllers\SurveySkdController::class, 'show'])->name('survei.skd.show');
-Route::post('/survei-skd/{token}', [App\Http\Controllers\SurveySkdController::class, 'store'])->name('survei.skd.store');
-Route::get('/survei-skd-terimakasih', [App\Http\Controllers\SurveySkdController::class, 'terimakasih'])->name('survei.skd.terimakasih');

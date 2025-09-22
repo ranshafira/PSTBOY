@@ -51,49 +51,42 @@ class SurveyController extends Controller
     }
 
     public function store(Request $request, $token)
-{
-    $pelayanan = Pelayanan::where('survey_token', $token)->whereNull('survey_completed_at')->firstOrFail();
-    
-    // 1. Validasi semua input dari form baru
-    $validated = $request->validate([
-        'skor_keseluruhan' => 'required|integer|between:1,5',
-        'skor_kualitas' => 'required|integer|between:1,5',
-        'skor_petugas' => 'required|integer|between:1,5',
-        'skor_efisiensi' => 'required|integer|between:1,5',
-        'skor_fasilitas' => 'required|integer|between:1,5',
-        'rekomendasi' => 'required|boolean',
-        'feedback_pelayanan' => 'nullable|string|max:2000',
-        'saran_perbaikan' => 'nullable|string|max:2000',
-    ]);
+    {
+        $pelayanan = Pelayanan::where('survey_token', $token)->firstOrFail();
 
-    // 2. Kelompokkan data skor menjadi satu array
-    $skor = [
-        'keseluruhan' => (int) $validated['skor_keseluruhan'],
-        'kualitas_layanan' => (int) $validated['skor_kualitas'],
-        'kinerja_petugas' => (int) $validated['skor_petugas'],
-        'efisiensi_waktu' => (int) $validated['skor_efisiensi'],
-        'fasilitas' => (int) $validated['skor_fasilitas'],
-    ];
+        // Pastikan survei hanya bisa diisi sekali
+        if ($pelayanan->surveyKepuasan) {
+            return redirect()->route('pelayanan.terimakasih', $pelayanan->id)->with('info', 'Anda sudah pernah mengisi survei ini.');
+        }
 
-    // 3. Kelompokkan data masukan & saran menjadi satu array
-    $masukan = [
-        'feedback' => $validated['feedback_pelayanan'],
-        'saran' => $validated['saran_perbaikan'],
-    ];
+        $validated = $request->validate([
+            'skor_kepuasan' => 'required|array',
+            'skor_kepuasan.*' => 'required|integer|min:1|max:5',
+            'rekomendasi' => 'required|boolean',
+            'saran_masukan' => 'nullable|array',
+            'saran_masukan.*' => 'nullable|string',
+        ]);
 
-    // 4. Simpan ke database menggunakan Model SurveyKepuasan
-    SurveyKepuasan::create([
-        'pelayanan_id' => $pelayanan->id,
-        'skor_kepuasan' => $skor, // Disimpan sebagai JSON
-        'rekomendasi' => (bool) $validated['rekomendasi'],
-        'saran_masukan' => $masukan, // Disimpan sebagai JSON
-        'waktu_isi' => now(),
-    ]);
+        SurveyKepuasan::create([
+            'pelayanan_id' => $pelayanan->id,
+            'skor_kepuasan' => $validated['skor_kepuasan'],
+            'rekomendasi' => $validated['rekomendasi'],
+            'saran_masukan' => $validated['saran_masukan'],
+        ]);
 
-    // 5. Update status di tabel pelayanan
-    $pelayanan->survey_completed_at = now();
-    $pelayanan->save();
+        // === [PINDAHAN] LOGIKA FINISH PELAYANAN ===
+        if (is_null($pelayanan->waktu_selesai_sesi)) {
+            $pelayanan->waktu_selesai_sesi = now(); // Catat waktu selesai
+            $pelayanan->save();
 
-    return view('survei.thanks');
-}
+            if ($pelayanan->antrian) {
+                $pelayanan->antrian->status = 'selesai'; // Update status antrian
+                $pelayanan->antrian->save();
+            }
+        }
+        // === SELESAI PINDAHAN ===
+
+        return redirect()->route('pelayanan.terimakasih', $pelayanan->id)
+            ->with('success', 'Survei berhasil dikirim. Terima kasih!');
+    }
 }
