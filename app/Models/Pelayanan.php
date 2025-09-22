@@ -10,7 +10,7 @@ class Pelayanan extends Model
     use HasFactory;
 
     protected $table = 'pelayanan';
-    
+
     protected $fillable = [
         'petugas_id',
         'antrian_id',
@@ -35,25 +35,26 @@ class Pelayanan extends Model
         'waktu_selesai_sesi',
         'survey_token',
         'survey_completed_at',
+        'skd_token'
     ];
 
 
     protected $casts = [
         'jenis_output' => 'array',
-        'waktu_mulai_sesi' => 'datetime',     
-        'waktu_selesai_sesi' => 'datetime',    
-        'tanggal_tindak_lanjut' => 'date',     
-        'survey_completed_at' => 'datetime', 
+        'waktu_mulai_sesi' => 'datetime',
+        'waktu_selesai_sesi' => 'datetime',
+        'tanggal_tindak_lanjut' => 'date',
+        'survey_completed_at' => 'datetime',
     ];
 
     public function jenisLayanan()
     {
-        return $this->belongsTo(JenisLayanan::class, 'jenis_layanan_id'); 
+        return $this->belongsTo(JenisLayanan::class, 'jenis_layanan_id');
     }
 
     public function antrian()
     {
-        return $this->belongsTo(Antrian::class, 'antrian_id'); 
+        return $this->belongsTo(Antrian::class, 'antrian_id');
     }
 
     public function petugas()
@@ -65,6 +66,14 @@ class Pelayanan extends Model
     {
         return $this->hasOne(SurveyKepuasan::class, 'pelayanan_id');
     }
-    
 
+    public function surveyInternal()
+    {
+        return $this->hasOne(SurveyInternal::class);
+    }
+
+    public function surveySkd()
+    {
+        return $this->hasOne(SurveySkd::class);
+    }
 }

@@ -18,6 +18,7 @@ class Antrian extends Model
     protected $fillable = [
         'nomor_antrian',
         'jenis_layanan_id',
+        'status'
         // tambahkan field lain jika perlu
     ];
 
