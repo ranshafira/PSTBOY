@@ -94,6 +94,7 @@ Route::middleware(['auth'])->group(function () {
 Route::middleware(['auth', 'isAdmin'])->group(function () {
     // Dashboard admin
     Route::get('/admin/dashboard', [DashboardAdminController::class, 'index'])->name('admin.dashboard');
+    Route::get('/admin/dashboard/export-survei', [DashboardAdminController::class, 'exportSurvei'])->name('admin.dashboard.exportSurvei');
 
     // Halaman admin untuk daftar user petugas PST
     Route::get('/admin/petugas', [UserManagementController::class, 'index'])->name('admin.petugas.index');
