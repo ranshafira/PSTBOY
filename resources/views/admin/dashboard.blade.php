@@ -1,227 +1,202 @@
-@extends('layouts.app')
+@extends('layouts.app') {{-- Sesuaikan dengan nama file layout utama Anda --}}
 
-@section('title', 'Dashboard Admin')
+@section('title', 'Dashboard PST')
 
 @section('content')
-<div class="container mx-auto py-8">
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-800 mb-2">Dashboard Administrator</h1>
-        <p class="text-gray-600">Analisis dan monitoring sistem pelayanan - {{ now()->format('d F Y') }}</p>
-    </div>
+<div class="min-h-screen p-4 sm:p-6 lg:p-8 flex flex-col">
+    <div class="max-w-screen-xl mx-auto w-full flex-grow">
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
-            <p class="text-sm font-medium text-gray-600 mb-1">Total Antrian Hari Ini</p>
-            <p class="text-3xl font-bold text-gray-800">{{ $totalAntrianHariIni }}</p>
+        {{-- Header --}}
+        <div class="mb-6">
+            <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Dashboard Pelayanan Statistik Terpadu</h1>
+            <p class="text-gray-500 dark:text-gray-400 mt-1">Analisis Kinerja PST BPS Kabupaten Boyolali — {{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }}</p>
         </div>
-        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
-            <p class="text-sm font-medium text-gray-600 mb-1">Total Petugas</p>
-            <p class="text-3xl font-bold text-gray-800">{{ $jumlahPetugas }}</p>
-        </div>
-        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
-            <p class="text-sm font-medium text-gray-600 mb-1">Petugas Bertugas Hari Ini</p>
-            <div class="mt-2 space-y-1">
-                @forelse($petugasHariIni as $jadwal)
-                <span class="inline-block bg-blue-100 text-blue-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded-full">{{ $jadwal->user->nama_lengkap }}</span>
-                @empty
-                <p class="text-sm text-gray-500">Tidak ada jadwal hari ini</p>
-                @endforelse
-            </div>
-        </div>
-    </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        <div class="lg:col-span-2 bg-white rounded-lg shadow-sm p-6 border border-gray-100">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-semibold text-gray-800">Proporsi Pelayanan</h3>
-                <form method="GET" action="{{ route('admin.dashboard') }}" class="flex items-center space-x-2">
-                    <select name="filter_pie" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-300 focus:ring focus:ring-orange-200 focus:ring-opacity-50 text-sm">
-                        <option value="minggu_ini" {{ $filterPie == 'minggu_ini' ? 'selected' : '' }}>Minggu Ini</option>
-                        <option value="bulan_ini" {{ $filterPie == 'bulan_ini' ? 'selected' : '' }}>Bulan Ini</option>
-                        <option value="triwulan_ini" {{ $filterPie == 'triwulan_ini' ? 'selected' : '' }}>Triwulan Ini</option>
-                    </select>
-                    <button type="submit" class="px-3 py-1.5 bg-orange-500 text-white text-sm rounded-md hover:bg-orange-600">Filter</button>
-                </form>
+        {{-- ROW 1: Key Performance Indicators (KPI) --}}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm">
+                <h2 class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Pelayanan Selesai</h2>
+                <p class="text-4xl font-bold text-gray-800 dark:text-gray-100 mt-2">{{ $totalPelayananSelesai }}</p>
             </div>
-            <div class="relative h-72 w-full flex justify-center items-center">
-                @if($proporsiLayanan->isNotEmpty())
-                    <canvas id="proporsiLayananChart"></canvas>
-                @else
-                    <p class="text-gray-500">Tidak ada data untuk periode ini.</p>
-                @endif
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm">
+                <h2 class="text-sm font-medium text-gray-500 dark:text-gray-400">Petugas Aktif</h2>
+                <p class="text-4xl font-bold text-gray-800 dark:text-gray-100 mt-2">{{ count($kinerjaPetugas) }}</p>
+            </div>
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm">
+                <h2 class="text-sm font-medium text-gray-500 dark:text-gray-400">Rating Layanan Rata-Rata ({{ $ratingTahunan->first()->tahun ?? 'N/A' }})</h2>
+                <p class="text-4xl font-bold text-gray-800 dark:text-gray-100 mt-2">{{ number_format($ratingTahunan->first()->avg_rating_layanan ?? 0, 2) }} <span class="text-2xl text-gray-400">/ 5</span></p>
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">Performa Petugas Terbaik (All-Time)</h3>
-            <ol class="space-y-4">
-                @forelse($topPetugas as $index => $item)
-                <li class="flex items-center">
-                    <span class="text-lg font-bold text-orange-500 mr-4">{{ $index + 1 }}</span>
-                    <div>
-                        <p class="font-semibold text-gray-700">{{ $item->petugas->nama_lengkap }}</p>
-                        <p class="text-sm text-gray-500">{{ $item->jumlah_layanan }} pelayanan selesai</p>
+        {{-- ROW 2: Visualisasi Data (Charts) --}}
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-6">
+            {{-- Chart Jenis Layanan --}}
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm lg:col-span-3">
+                <h3 class="text-base font-semibold text-gray-800 dark:text-gray-100 mb-4">Volume per Jenis Layanan</h3>
+                <div class="h-64">
+                    <canvas id="chartJenisLayanan"></canvas>
+                </div>
+            </div>
+            {{-- Chart Jenis Kelamin & Pendidikan --}}
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm lg:col-span-2">
+                <h3 class="text-base font-semibold text-gray-800 dark:text-gray-100 mb-4">Profil Pengunjung</h3>
+                {{-- 1. Hapus tinggi tetap h-64 dari sini --}}
+                <div class="grid grid-cols-2 gap-6 pt-4">
+                    <div class="flex flex-col items-center">
+                        {{-- 2. Beri 'rumah' yang jelas untuk canvas dengan tinggi yang responsif --}}
+                        <div class="relative h-48 w-full">
+                            <canvas id="chartJenisKelamin"></canvas>
+                        </div>
+                        <span class="mt-3 text-sm font-medium text-gray-500">Jenis Kelamin</span>
                     </div>
-                </li>
-                @empty
-                 <p class="text-gray-500">Belum ada data pelayanan.</p>
-                @endforelse
-            </ol>
-        </div>
-    </div>
-
-    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100 mb-8">
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-semibold text-gray-800">Rata-Rata Skor Kepuasan</h3>
-            <div class="flex items-center space-x-2">
-                 <form method="GET" action="{{ route('admin.dashboard') }}" class="flex items-center space-x-2">
-                    <select name="filter_survei" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-300 focus:ring focus:ring-orange-200 focus:ring-opacity-50 text-sm">
-                        <option value="bulanan" {{ $filterSurvei == 'bulanan' ? 'selected' : '' }}>Bulanan</option>
-                        <option value="triwulanan" {{ $filterSurvei == 'triwulanan' ? 'selected' : '' }}>Triwulanan</option>
-                    </select>
-                    <button type="submit" class="px-3 py-1.5 bg-orange-500 text-white text-sm rounded-md hover:bg-orange-600">Filter</button>
-                </form>
-                <a href="{{ route('admin.dashboard.exportSurvei', ['filter_survei' => $filterSurvei]) }}" class="px-3 py-1.5 bg-green-500 text-white text-sm rounded-md hover:bg-green-600">Ekspor</a>
+                    <div class="flex flex-col items-center">
+                        <div class="relative h-48 w-full">
+                            <canvas id="chartPendidikan"></canvas>
+                        </div>
+                        <span class="mt-3 text-sm font-medium text-gray-500">Pendidikan</span>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="relative h-80">
-            @if($hasilSurvei->isNotEmpty())
-                <canvas id="hasilSurveiChart"></canvas>
-            @else
-                <div class="flex items-center justify-center h-full">
-                    <p class="text-gray-500">Tidak ada data survei untuk periode ini.</p>
-                </div>
-            @endif
-        </div>
-    </div>
-    
-    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-semibold text-gray-800">Tren Pelayanan 12 Bulan Terakhir</h3>
-            <form method="GET" action="{{ route('admin.dashboard') }}" class="flex items-center space-x-2">
-                <select name="filter_tren_layanan" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-300 focus:ring focus:ring-orange-200 focus:ring-opacity-50 text-sm">
-                    <option value="">Semua Layanan</option>
-                    @foreach($daftarJenisLayanan as $layanan)
-                    <option value="{{ $layanan->id }}" {{ $filterTrenLayananId == $layanan->id ? 'selected' : '' }}>{{ $layanan->nama_layanan }}</option>
-                    @endforeach
-                </select>
-                <button type="submit" class="px-3 py-1.5 bg-orange-500 text-white text-sm rounded-md hover:bg-orange-600">Filter</button>
-            </form>
-        </div>
-        <div class="relative h-80">
-             @if($trenTahunan->isNotEmpty())
-                <canvas id="trenTahunanChart"></canvas>
-            @else
-                <div class="flex items-center justify-center h-full">
-                     <p class="text-gray-500">Tidak ada data pelayanan.</p>
-                </div>
-            @endif
-        </div>
-    </div>
 
+        {{-- ROW 3: Data Detail (Tables) --}}
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            {{-- Tabel Kinerja Petugas --}}
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm">
+                <h3 class="text-base font-semibold text-gray-800 dark:text-gray-100 mb-4">Kinerja Petugas</h3>
+                <div class="overflow-y-auto max-h-64">
+                    <table class="w-full text-left text-sm">
+                        <thead>
+                            <tr class="border-b dark:border-gray-700">
+                                <th class="py-2 font-medium text-gray-500 dark:text-gray-400">Nama Petugas</th>
+                                <th class="py-2 font-medium text-gray-500 dark:text-gray-400 text-center">Total Layanan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($kinerjaPetugas as $petugas)
+                            <tr class="border-b dark:border-gray-700">
+                                <td class="py-2 text-gray-800 dark:text-gray-200">{{ $petugas->nama_lengkap }}</td>
+                                <td class="py-2 text-gray-800 dark:text-gray-200 text-center font-bold">{{ $petugas->total_layanan }}</td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="2" class="py-4 text-center text-gray-500">Tidak ada data.</td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {{-- Tabel Rating Tahunan --}}
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm">
+                <h3 class="text-base font-semibold text-gray-800 dark:text-gray-100 mb-4">Ringkasan Survei Tahunan</h3>
+                <div class="overflow-y-auto max-h-64">
+                    <table class="w-full text-left text-sm">
+                        <thead>
+                            <tr class="border-b dark:border-gray-700">
+                                <th class="py-2 font-medium text-gray-500 dark:text-gray-400">Tahun</th>
+                                <th class="py-2 font-medium text-gray-500 dark:text-gray-400 text-center">Jml Survei</th>
+                                <th class="py-2 font-medium text-gray-500 dark:text-gray-400 text-center">Avg. Layanan</th>
+                                <th class="py-2 font-medium text-gray-500 dark:text-gray-400 text-center">Avg. Petugas</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($ratingTahunan as $rating)
+                            <tr class="border-b dark:border-gray-700">
+                                <td class="py-2 text-gray-800 dark:text-gray-200">{{ $rating->tahun }}</td>
+                                <td class="py-2 text-gray-800 dark:text-gray-200 text-center">{{ $rating->jumlah }}</td>
+                                <td class="py-2 text-gray-800 dark:text-gray-200 text-center">{{ number_format($rating->avg_rating_layanan, 2) }}</td>
+                                <td class="py-2 text-gray-800 dark:text-gray-200 text-center">{{ number_format($rating->avg_rating_petugas, 2) }}</td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="4" class="py-4 text-center text-gray-500">Tidak ada data.</td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
 </div>
 @endsection
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    
-    // 1. Chart Proporsi Layanan (Pie/Doughnut)
-    const proporsiData = @json($proporsiLayanan);
-    if (Object.keys(proporsiData).length > 0) {
-        const proporsiCtx = document.getElementById('proporsiLayananChart').getContext('2d');
-        new Chart(proporsiCtx, {
-            type: 'doughnut',
-            data: {
-                labels: Object.keys(proporsiData),
-                datasets: [{
-                    data: Object.values(proporsiData),
-                    backgroundColor: ['#f97316', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'],
-                    hoverOffset: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'right' }
-                }
-            }
-        });
-    }
+    document.addEventListener('DOMContentLoaded', () => {
+        const dataJenisLayanan = @json($chartPengunjung['menurut_jenis_layanan']);
+        const dataJenisKelamin = @json($chartPengunjung['menurut_jenis_kelamin']);
+        const dataPendidikan = @json($chartPengunjung['menurut_pendidikan']);
 
-    // 2. Chart Hasil Survei (Bar)
-    const surveiData = @json($hasilSurvei);
-    if (Object.keys(surveiData).length > 0) {
-        const surveiCtx = document.getElementById('hasilSurveiChart').getContext('2d');
-        new Chart(surveiCtx, {
+        const chartColors = ['#2563eb', '#f97316', '#16a34a', '#ef4444', '#9333ea', '#64748b'];
+
+        // 1. Chart Jenis Layanan (Horizontal Bar)
+        new Chart(document.getElementById('chartJenisLayanan'), {
             type: 'bar',
             data: {
-                labels: Object.keys(surveiData),
+                labels: Object.keys(dataJenisLayanan),
                 datasets: [{
-                    label: 'Rata-rata Skor (dari 5)',
-                    data: Object.values(surveiData),
-                    backgroundColor: 'rgba(249, 115, 22, 0.6)',
-                    borderColor: 'rgba(249, 115, 22, 1)',
-                    borderWidth: 1
+                    label: 'Jumlah Pengunjung',
+                    data: Object.values(dataJenisLayanan),
+                    backgroundColor: chartColors,
                 }]
             },
             options: {
+                indexAxis: 'y',
                 responsive: true,
                 maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 5,
-                        ticks: { stepSize: 1 }
+                plugins: {
+                    legend: {
+                        display: false
                     }
                 },
-                plugins: {
-                    legend: { display: false }
+                scales: {
+                    x: {
+                        ticks: {
+                            precision: 0
+                        }
+                    }
                 }
             }
         });
-    }
-    
-    // 3. Chart Tren Tahunan (Line)
-    const trenData = @json($trenTahunan);
-    if (Object.keys(trenData).length > 0) {
-        const trenCtx = document.getElementById('trenTahunanChart').getContext('2d');
-        const labels = Object.keys(trenData).map(bulan => {
-            const [year, month] = bulan.split('-');
-            return new Date(year, month - 1).toLocaleString('default', { month: 'short', year: 'numeric' });
-        });
-        
-        new Chart(trenCtx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Jumlah Pelayanan',
-                    data: Object.values(trenData),
-                    fill: true,
-                    borderColor: '#f97316',
-                    backgroundColor: 'rgba(249, 115, 22, 0.1)',
-                    tension: 0.3
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                },
-                plugins: {
-                    legend: { display: false }
-                }
-            }
-        });
-    }
 
-});
+        // 2. Chart Jenis Kelamin (Doughnut)
+        new Chart(document.getElementById('chartJenisKelamin'), {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(dataJenisKelamin),
+                datasets: [{
+                    data: Object.values(dataJenisKelamin),
+                    backgroundColor: [chartColors[0], chartColors[4]],
+                    borderWidth: 0,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+
+        // 3. Chart Pendidikan (Doughnut)
+        new Chart(document.getElementById('chartPendidikan'), {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(dataPendidikan),
+                datasets: [{
+                    data: Object.values(dataPendidikan),
+                    backgroundColor: [chartColors[1], chartColors[2], chartColors[5]],
+                    borderWidth: 0,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    });
 </script>
 @endpush

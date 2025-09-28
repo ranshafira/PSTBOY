@@ -9,11 +9,11 @@ use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use App\Models\Role;
 
-class User extends Authenticatable 
+class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
     use Notifiable;
-    
+
     protected $fillable = [
         'nama_lengkap',
         'nip',
@@ -33,17 +33,18 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-//     public function role()
-// {
-//     return $this->belongsTo(Role::class);
-// }
+    //     public function role()
+    // {
+    //     return $this->belongsTo(Role::class);
+    // }
 
-public function jadwal()
-{
-    return $this->hasMany(Jadwal::class);
-}
+    public function jadwal()
+    {
+        return $this->hasMany(Jadwal::class);
+    }
 
-
-
-
+    public function pelayanan()
+    {
+        return $this->hasMany(Pelayanan::class, 'petugas_id', 'id');
+    }
 }
