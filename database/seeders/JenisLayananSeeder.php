@@ -26,7 +26,12 @@ class JenisLayananSeeder extends Seeder
 
         DB::table('jenis_layanan')->updateOrInsert(
             ['id' => 4],
-            ['nama_layanan' => 'Pengaduan', 'kode_antrian' => 'PLS-']
+            ['nama_layanan' => 'Whatsapp', 'kode_antrian' => 'WA-']
+        );
+
+        DB::table('jenis_layanan')->updateOrInsert(
+            ['id' => 5],
+            ['nama_layanan' => 'Email', 'kode_antrian' => 'EML-']
         );
     }
 }

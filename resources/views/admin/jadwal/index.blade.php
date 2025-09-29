@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="max-w-7xl mx-auto mt-10 p-6">
+<div class="max-w-7xl mx-auto p-6">
     <div class="bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 p-6 mb-6 relative overflow-hidden border border-gray-100">
         <div class="absolute top-0 right-0 w-40 h-40 -mt-10 -mr-10 bg-orange-50 rounded-full opacity-30 z-0"></div>
         <div class="absolute bottom-0 left-0 w-32 h-32 -mb-8 -ml-8 bg-orange-50 rounded-full opacity-30 z-0"></div>

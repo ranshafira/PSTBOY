@@ -21,6 +21,7 @@ class Pelayanan extends Model
         'email',
         'jenis_kelamin',
         'pendidikan',
+        'media_layanan',
         'path_surat_pengantar',
         'kebutuhan_pengunjung',
         'status_penyelesaian',

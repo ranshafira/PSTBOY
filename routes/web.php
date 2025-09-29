@@ -26,6 +26,9 @@ Route::post('/antrian', [AntrianController::class, 'store'])->name('antrian.stor
 Route::get('/buku-tamu', [BukuTamuController::class, 'create'])->name('bukutamu.create');
 Route::post('/buku-tamu', [BukuTamuController::class, 'store'])->name('bukutamu.store');
 
+Route::get('/antrian/bukutamu-pst', [BukuTamuController::class, 'createPST'])->name('bukutamu.pst');
+Route::get('/antrian/bukutamu-nonpst', [BukuTamuController::class, 'createNonPST'])->name('bukutamu.nonpst');
+
 // == Route untuk Riwayat (Bisa tanpa login) ==
 Route::get('/riwayat', [RiwayatController::class, 'index'])->name('riwayat.index');
 Route::get('/riwayat/export', [RiwayatController::class, 'exportCsv'])->name('riwayat.export');
