@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Presensi;
+use App\Models\Jadwal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -24,89 +25,99 @@ class PresensiController extends Controller
             ->take(10)
             ->get();
 
-        // Hitung total hari kerja dari awal bulan sampai hari ini (Senin - Jumat)
+        // Hitung statistik berdasarkan jadwal petugas
         $startOfMonth = $today->copy()->startOfMonth();
+        $endOfMonth = $today->copy()->endOfMonth();
 
-        $period = CarbonPeriod::create($startOfMonth, $today);
+        // Ambil semua jadwal petugas di bulan ini
+        $jadwalBulanIni = Jadwal::where('user_id', $user->id)
+            ->whereBetween('tanggal', [$startOfMonth, $endOfMonth])
+            ->get()
+            ->groupBy('tanggal');
 
-        $totalHari = 0;
-        foreach ($period as $date) {
-            if (in_array($date->dayOfWeek, [Carbon::MONDAY, Carbon::TUESDAY, Carbon::WEDNESDAY, Carbon::THURSDAY, Carbon::FRIDAY])) {
-                $totalHari++;
-            }
-        }
+        // Hitung total hari dijadwalkan (hari unik)
+        $totalHariTerjadwal = $jadwalBulanIni->count();
 
+        // Hitung hari hadir (presensi pada hari yang dijadwalkan)
         $hariHadir = Presensi::where('petugas_id', $user->id)
-            ->whereBetween('tanggal', [$startOfMonth, $today])
+            ->whereBetween('tanggal', [$startOfMonth, $endOfMonth])
+            ->whereIn('tanggal', $jadwalBulanIni->keys())
             ->count();
 
+        // Hitung hari tidak hadir
+        $hariTidakHadir = $totalHariTerjadwal - $hariHadir;
+
+        // Hitung persentase
+        $persentase = $totalHariTerjadwal > 0 ? ($hariHadir / $totalHariTerjadwal) * 100 : 0;
+
+        // PERBAIKAN: Gunakan key yang sesuai dengan view
         $statistik = [
-            'total_hari' => $totalHari,
+            'total_hari' => $totalHariTerjadwal, // Key diubah sesuai yang diharapkan view
             'hadir' => $hariHadir,
-            'tidak_hadir' => $totalHari - $hariHadir,
-            'persentase' => $totalHari > 0 ? ($hariHadir / $totalHari) * 100 : 0,
+            'tidak_hadir' => $hariTidakHadir,
+            'persentase' => round($persentase, 1),
         ];
 
         return view('presensi.index', compact('presensiHariIni', 'riwayatPresensi', 'statistik'));
     }
 
     public function checkIn(Request $request)
-{
-    $user = Auth::user();
-    $today = Carbon::today();
+    {
+        $user = Auth::user();
+        $today = Carbon::today();
 
-    // ✅ Cek apakah petugas dijadwalkan hari ini
-    $terjadwalHariIni = \App\Models\Jadwal::where('user_id', $user->id)
-        ->where('tanggal', $today)
-        ->exists();
+        // Cek apakah petugas dijadwalkan hari ini
+        $terjadwalHariIni = Jadwal::where('user_id', $user->id)
+            ->where('tanggal', $today)
+            ->exists();
 
-    if (!$terjadwalHariIni) {
-        return redirect()->route('presensi.index')->with('error', 'Anda tidak dijadwalkan hari ini. Presensi tidak diperbolehkan.');
-    }
+        if (!$terjadwalHariIni) {
+            return redirect()->route('presensi.index')->with('error', 'Anda tidak dijadwalkan hari ini. Presensi tidak diperbolehkan.');
+        }
 
-    // Cek apakah sudah presensi hari ini
-    $sudahCheckIn = Presensi::where('petugas_id', $user->id)->where('tanggal', $today)->exists();
+        // Cek apakah sudah presensi hari ini
+        $sudahCheckIn = Presensi::where('petugas_id', $user->id)->where('tanggal', $today)->exists();
 
-    if ($sudahCheckIn) {
-        return redirect()->route('presensi.index')->with('error', 'Anda sudah melakukan check-in hari ini.');
-    }
+        if ($sudahCheckIn) {
+            return redirect()->route('presensi.index')->with('error', 'Anda sudah melakukan check-in hari ini.');
+        }
 
-    // Lakukan check-in
-    Presensi::create([
-        'petugas_id' => $user->id,
-        'tanggal' => $today,
-        'waktu_datang' => now(),
-    ]);
-
-    return redirect()->route('presensi.index')->with('success', 'Berhasil Check In. Selamat bekerja!');
-}
-
-public function checkOut(Request $request)
-{
-    $user = Auth::user();
-    $today = Carbon::today();
-
-    // ✅ Cek apakah petugas dijadwalkan hari ini
-    $terjadwalHariIni = \App\Models\Jadwal::where('user_id', $user->id)
-        ->where('tanggal', $today)
-        ->exists();
-
-    if (!$terjadwalHariIni) {
-        return redirect()->route('presensi.index')->with('error', 'Anda tidak dijadwalkan hari ini. Presensi tidak diperbolehkan.');
-    }
-
-    // Update presensi jika belum check-out
-    $updated = Presensi::where('petugas_id', $user->id)
-        ->whereDate('tanggal', $today)
-        ->whereNull('waktu_pulang')
-        ->update([
-            'waktu_pulang' => now()
+        // Lakukan check-in
+        Presensi::create([
+            'petugas_id' => $user->id,
+            'tanggal' => $today,
+            'waktu_datang' => now(),
         ]);
 
-    if ($updated) {
-        return redirect()->route('presensi.index')->with('success', 'Berhasil Check Out. Terima kasih!');
+        return redirect()->route('presensi.index')->with('success', 'Berhasil Check In. Selamat bekerja!');
     }
 
-    return redirect()->route('presensi.index')->with('error', 'Gagal melakukan check-out atau Anda belum check-in.');
-}
+    public function checkOut(Request $request)
+    {
+        $user = Auth::user();
+        $today = Carbon::today();
+
+        // Cek apakah petugas dijadwalkan hari ini
+        $terjadwalHariIni = Jadwal::where('user_id', $user->id)
+            ->where('tanggal', $today)
+            ->exists();
+
+        if (!$terjadwalHariIni) {
+            return redirect()->route('presensi.index')->with('error', 'Anda tidak dijadwalkan hari ini. Presensi tidak diperbolehkan.');
+        }
+
+        // Update presensi jika belum check-out
+        $updated = Presensi::where('petugas_id', $user->id)
+            ->whereDate('tanggal', $today)
+            ->whereNull('waktu_pulang')
+            ->update([
+                'waktu_pulang' => now()
+            ]);
+
+        if ($updated) {
+            return redirect()->route('presensi.index')->with('success', 'Berhasil Check Out. Terima kasih!');
+        }
+
+        return redirect()->route('presensi.index')->with('error', 'Gagal melakukan check-out atau Anda belum check-in.');
+    }
 }

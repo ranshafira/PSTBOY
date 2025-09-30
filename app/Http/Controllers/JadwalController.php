@@ -368,16 +368,15 @@ EOT;
         return $userPalette[$colorIndex];
     }
 
+    // Update juga method getEvents dengan cara yang sama
     public function getEvents(Request $request)
     {
         try {
-            // Filter jadwal berdasarkan bulan dan tahun yang dipilih
             $month = $request->input('month', date('m'));
             $year = $request->input('year', date('Y'));
 
             $query = Jadwal::with('user');
 
-            // Jika bulan dan tahun disediakan, filter jadwal
             if ($month && $year) {
                 $query->whereMonth('tanggal', $month)
                     ->whereYear('tanggal', $year);
@@ -392,20 +391,20 @@ EOT;
                 $end = Carbon::parse($item->tanggal);
                 $isJumat = $start->dayOfWeek === Carbon::FRIDAY;
 
-                // Tentukan waktu berdasarkan shift
                 if ($item->shift === 'pagi') {
-                    $start->setTime(8, 0); // 08:00
-                    $end->setTime(11, 30); // 11:30
-                } else { // shift siang
-                    $start->setTime(11, 30); // 11:30
-                    $end->setTime(15, 30); // 15:30
+                    $start->setTime(8, 0);
+                    $end->setTime(11, 30);
+                } else {
+                    $start->setTime(11, 30);
+                    $end->setTime(15, 30);
                 }
 
                 $color = $this->getUserColor($item->user_id, $item->shift);
 
+                // PERUBAHAN: Hapus (pagi) dan (siang) dari title
                 $events[] = [
                     'id' => $item->id,
-                    'title' => $item->user->nama_lengkap . ' (' . ucfirst($item->shift) . ')',
+                    'title' => $item->user->nama_lengkap, // Hanya nama petugas saja
                     'start' => $start->toDateTimeString(),
                     'end' => $end->toDateTimeString(),
                     'backgroundColor' => $color,
@@ -436,16 +435,14 @@ EOT;
             // Filter jadwal berdasarkan bulan dan tahun yang dipilih
             $month = $request->input('month', date('m'));
             $year = $request->input('year', date('Y'));
-            $startDate = $request->get('start'); // Parameter baru
-            $endDate = $request->get('end');     // Parameter baru
+            $startDate = $request->get('start');
+            $endDate = $request->get('end');
 
             $query = Jadwal::with('user');
 
             if ($startDate && $endDate) {
-                // Gunakan range tanggal untuk query yang lebih akurat
                 $query->whereBetween('tanggal', [$startDate, $endDate]);
             } elseif ($month && $year) {
-                // Filter berdasarkan bulan dan tahun
                 $query->whereMonth('tanggal', $month)
                     ->whereYear('tanggal', $year);
             }
@@ -460,18 +457,19 @@ EOT;
 
                 // Tentukan waktu berdasarkan shift
                 if ($item->shift === 'pagi') {
-                    $start->setTime(8, 0); // 08:00
-                    $end->setTime(11, 30);  // 11:30
-                } else { // shift siang
-                    $start->setTime(11, 30); // 11:30
-                    $end->setTime(15, 0); // 15:00
+                    $start->setTime(8, 0);
+                    $end->setTime(11, 30);
+                } else {
+                    $start->setTime(11, 30);
+                    $end->setTime(15, 30);
                 }
 
                 $color = $this->getUserColor($item->user_id, $item->shift);
 
+                // PERUBAHAN: Hapus (pagi) dan (siang) dari title
                 $events[] = [
                     'id' => $item->id,
-                    'title' => $item->user->nama_lengkap . ' (' . ucfirst($item->shift) . ')',
+                    'title' => $item->user->nama_lengkap, // Hanya nama petugas saja
                     'start' => $start->toDateTimeString(),
                     'end' => $end->toDateTimeString(),
                     'backgroundColor' => $color,
@@ -507,12 +505,11 @@ EOT;
     public function eventsPetugas(Request $request)
     {
         try {
-            $userId = auth()->id(); // Mengambil ID petugas yang sedang login
+            $userId = auth()->id();
 
             $query = Jadwal::with('user')
-                ->where('user_id', $userId); // <-- INI BAGIAN PALING PENTING
+                ->where('user_id', $userId);
 
-            // Filter berdasarkan bulan dan tahun dari request
             $month = $request->input('month', date('m'));
             $year = $request->input('year', date('Y'));
 
@@ -531,16 +528,17 @@ EOT;
                 if ($item->shift === 'pagi') {
                     $start->setTime(8, 0);
                     $end->setTime(11, 30);
-                } else { // shift siang
+                } else {
                     $start->setTime(11, 30);
                     $end->setTime(15, 30);
                 }
 
                 $color = $this->getUserColor($item->user_id, $item->shift);
 
+                // PERUBAHAN: Hapus (pagi) dan (siang) dari title
                 $events[] = [
                     'id' => $item->id,
-                    'title' => 'Jadwal Anda (' . ucfirst($item->shift) . ')', // Judul lebih simpel
+                    'title' => 'Jadwal Anda', // Judul lebih simpel tanpa shift
                     'start' => $start->toDateTimeString(),
                     'end' => $end->toDateTimeString(),
                     'backgroundColor' => $color,
@@ -562,4 +560,107 @@ EOT;
             return response()->json(['error' => 'Gagal memuat jadwal Anda'], 500);
         }
     }
+
+    public function exportCsv(Request $request)
+{
+    try {
+        $bulan = $request->input('bulan', date('m'));
+        $tahun = $request->input('tahun', date('Y'));
+
+        // Validasi input
+        if (!is_numeric($bulan) || $bulan < 1 || $bulan > 12) {
+            return redirect()->back()->with('error', 'Bulan tidak valid.');
+        }
+
+        if (!is_numeric($tahun) || $tahun < 2000 || $tahun > 2100) {
+            return redirect()->back()->with('error', 'Tahun tidak valid.');
+        }
+
+        // Query jadwal berdasarkan filter
+        $jadwal = Jadwal::with('user')
+            ->whereMonth('tanggal', $bulan)
+            ->whereYear('tanggal', $tahun)
+            ->orderBy('tanggal', 'asc')
+            ->orderBy('shift', 'asc')
+            ->get();
+
+        // Nama file CSV
+        $fileName = 'jadwal_pst_' . $bulan . '_' . $tahun . '.csv';
+
+        // Headers untuk response CSV
+        $headers = [
+            'Content-Type' => 'text/csv; charset=utf-8',
+            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+        ];
+
+        // Callback untuk generate CSV
+        $callback = function () use ($jadwal, $bulan, $tahun) {
+            $file = fopen('php://output', 'w');
+            
+            // Add BOM for UTF-8
+            fwrite($file, "\xEF\xBB\xBF");
+            
+            // Header CSV - GUNAKAN CARBON untuk nama bulan
+            $monthName = Carbon::createFromDate($tahun, $bulan, 1)->locale('id')->translatedFormat('F');
+            fputcsv($file, [
+                'JADWAL PETUGAS PST',
+                'Bulan: ' . $monthName . ' ' . $tahun
+            ]);
+            fputcsv($file, []); // Empty row
+            
+            // Column headers
+            fputcsv($file, [
+                'No',
+                'Tanggal', 
+                'Hari', 
+                'Shift', 
+                'Waktu', 
+                'Petugas',
+                'Status'
+            ]);
+
+            // Data rows
+            $counter = 1;
+            foreach ($jadwal as $item) {
+                $tanggal = Carbon::parse($item->tanggal);
+                $hari = $tanggal->locale('id')->isoFormat('dddd');
+                
+                $shift = ucfirst($item->shift);
+                $waktu = $item->shift == 'pagi' ? '08:00 - 11:30' : '11:30 - 15:30';
+                
+                // Tentukan status berdasarkan hari libur
+                $isWeekend = $tanggal->isWeekend();
+                $status = $isWeekend ? 'Libur' : 'Kerja';
+
+                fputcsv($file, [
+                    $counter++,
+                    $tanggal->format('d-m-Y'),
+                    $hari,
+                    $shift,
+                    $waktu,
+                    $item->user->nama_lengkap,
+                    $status
+                ]);
+            }
+            
+            // Empty row
+            fputcsv($file, []);
+            
+            // Summary
+            fputcsv($file, ['SUMMARY:']);
+            fputcsv($file, ['Total Jadwal:', count($jadwal)]);
+            fputcsv($file, ['Shift Pagi:', $jadwal->where('shift', 'pagi')->count()]);
+            fputcsv($file, ['Shift Siang:', $jadwal->where('shift', 'siang')->count()]);
+            
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+
+    } catch (\Exception $e) {
+        Log::error('Error exporting CSV: ' . $e->getMessage());
+        return redirect()->back()->with('error', 'Gagal mengekspor CSV: ' . $e->getMessage());
+    }
+}
+
 }

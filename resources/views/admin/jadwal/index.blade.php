@@ -6,7 +6,7 @@
         <div class="absolute top-0 right-0 w-40 h-40 -mt-10 -mr-10 bg-orange-50 rounded-full opacity-30 z-0"></div>
         <div class="absolute bottom-0 left-0 w-32 h-32 -mb-8 -ml-8 bg-orange-50 rounded-full opacity-30 z-0"></div>
 
-         <div class="relative z-10 mb-6">
+        <div class="relative z-10 mb-6">
             <h2 class="text-2xl font-bold text-gray-800 flex items-center">
                 <svg class="h-6 w-6 mr-2 text-black-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -50,14 +50,14 @@
         </form>
     </div>
 
-   <!-- Simple Loading Overlay -->
+    <!-- Simple Loading Overlay -->
     <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-40 z-50 flex items-center justify-center hidden">
         <div class="bg-white rounded-xl shadow-lg p-6 max-w-sm mx-4 text-center">
             <!-- Spinner -->
             <div class="flex justify-center mb-4">
-            <svg class="animate-spin h-10 w-10 text-orange-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <path d="M12 2a10 10 0 100 20 10 10 0 010-20z" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-dasharray="60 40"/>
-            </svg>
+                <svg class="animate-spin h-10 w-10 text-orange-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <path d="M12 2a10 10 0 100 20 10 10 0 010-20z" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-dasharray="60 40" />
+                </svg>
             </div>
 
 
@@ -89,6 +89,15 @@
                     </svg>
                     Tampilkan Legenda
                 </button>
+
+                <!-- Tombol Ekspor CSV -->
+                <button id="exportCsvBtn" class="flex items-center text-sm bg-green-600 text-white hover:bg-green-700 transition-colors duration-200 rounded-md px-3 py-2 mr-4">
+                    <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <span class="btn-text">Ekspor CSV</span>
+                </button>
+
                 <div class="flex items-center">
                     <form id="filterForm" class="flex items-center">
                         <select id="filterBulan" class="text-xs border border-gray-300 rounded-md mr-2 px-2 py-1">
@@ -651,7 +660,7 @@
         }
         return true;
     }
-    
+
     document.addEventListener('DOMContentLoaded', function() {
         // Status messages untuk loading yang realistis
         const statusMessages = [
@@ -1232,6 +1241,55 @@
                 showToast(`Jadwal bulan ${getMonthName(bulan)} ${tahun} berhasil dimuat`, 'success');
             }, 2500);
         });
+
+        // Event listener untuk tombol ekspor CSV
+        document.getElementById('exportCsvBtn').addEventListener('click', function() {
+            const bulan = document.getElementById('filterBulan').value;
+            const tahun = document.getElementById('filterTahun').value;
+
+            // Validasi
+            if (!bulan || !tahun) {
+                showToast('Pilih bulan dan tahun terlebih dahulu', 'error');
+                return;
+            }
+
+            // Tampilkan loading state
+            const btn = this;
+            const originalText = btn.querySelector('.btn-text').textContent;
+            btn.querySelector('.btn-text').textContent = 'Mengekspor...';
+            btn.disabled = true;
+
+            // Build URL untuk ekspor
+            const exportUrl = `{{ route('admin.jadwal.export.csv') }}?bulan=${bulan}&tahun=${tahun}`;
+
+            // Buat elemen <a> sementara untuk download
+            const downloadLink = document.createElement('a');
+            downloadLink.href = exportUrl;
+            downloadLink.style.display = 'none';
+            document.body.appendChild(downloadLink);
+
+            // Trigger download
+            downloadLink.click();
+
+            // Cleanup
+            document.body.removeChild(downloadLink);
+
+            // Reset button state setelah delay
+            setTimeout(() => {
+                btn.querySelector('.btn-text').textContent = originalText;
+                btn.disabled = false;
+                showToast(`File CSV jadwal ${getMonthName(bulan)} ${tahun} berhasil diunduh`, 'success');
+            }, 2000);
+        });
+
+        // Helper function untuk nama bulan (tambahkan jika belum ada)
+        function getMonthName(monthNum) {
+            const months = [
+                'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+            ];
+            return months[monthNum - 1];
+        }
 
         // Global functions
         window.showLoadingOverlay = showLoadingOverlay;

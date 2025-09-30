@@ -11,14 +11,20 @@ class RoleSeeder extends Seeder
     {
         // Role Admin
         DB::table('roles')->updateOrInsert(
-            ['id' => 1], 
-            ['nama_role' => 'Admin'] 
+            ['id' => 1],
+            ['nama_role' => 'Admin']
         );
 
         // Role Petugas PST
         DB::table('roles')->updateOrInsert(
             ['id' => 2],
             ['nama_role' => 'Petugas PST']
+        );
+
+        // Role Kepala
+        DB::table('roles')->updateOrInsert(
+            ['id' => 3],
+            ['nama_role' => 'Kepala']
         );
     }
 }

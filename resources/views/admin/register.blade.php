@@ -11,8 +11,8 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 14v7m-6-7v4m12-4v4" />
                     </svg>
                 </div>
-                <h2 class="mt-4 text-2xl font-bold text-gray-800">Register Admin</h2>
-                <p class="text-gray-500 text-sm">Buat akun admin baru</p>
+                <h2 class="mt-4 text-2xl font-bold text-gray-800">Register Petugas PST</h2>
+                <p class="text-gray-500 text-sm">Buat akun petugas PST baru</p>
             </div>
 
             <!-- Input Fields -->
@@ -23,7 +23,7 @@
                     <input id="nama_lengkap" name="nama_lengkap" type="text" required autofocus value="{{ old('nama_lengkap') }}"
                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-orange-500 focus:border-orange-500" />
                     @error('nama_lengkap')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
 
@@ -33,7 +33,7 @@
                     <input id="nip" name="nip" type="text" required value="{{ old('nip') }}"
                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-orange-500 focus:border-orange-500" />
                     @error('nip')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
 
@@ -43,7 +43,7 @@
                     <input id="username" name="username" type="text" required value="{{ old('username') }}"
                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-orange-500 focus:border-orange-500" />
                     @error('username')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
 
@@ -53,7 +53,7 @@
                     <input id="email" name="email" type="email" required value="{{ old('email') }}"
                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-orange-500 focus:border-orange-500" />
                     @error('email')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
 
@@ -63,7 +63,7 @@
                     <input id="no_hp" name="no_hp" type="text" required value="{{ old('no_hp') }}"
                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-orange-500 focus:border-orange-500" />
                     @error('no_hp')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
 
@@ -73,7 +73,7 @@
                     <input id="password" name="password" type="password" required autocomplete="new-password"
                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-orange-500 focus:border-orange-500" />
                     @error('password')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
 
@@ -83,14 +83,13 @@
                     <input id="password_confirmation" name="password_confirmation" type="password" required autocomplete="new-password"
                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-orange-500 focus:border-orange-500" />
                     @error('password_confirmation')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
             </div>
 
             <!-- Tombol Daftar -->
             <div class="mt-6 flex items-center justify-between">
-                <a href="{{ route('login') }}" class="text-sm text-orange-600 hover:text-orange-800 font-medium">Sudah punya akun?</a>
                 <button type="submit"
                     class="bg-orange-600 hover:bg-orange-700 text-white font-semibold px-6 py-2 rounded-md shadow-sm transition">
                     Daftar
@@ -101,9 +100,17 @@
 
     <style>
         @keyframes fadeIn {
-            from {opacity: 0; transform: translateY(-10px);}
-            to {opacity: 1; transform: translateY(0);}
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
+
         form {
             animation: fadeIn 0.4s ease-in-out forwards;
         }

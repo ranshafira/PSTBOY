@@ -1,15 +1,15 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="space-y-6">
+<div class="space-y-6">
     <!-- Welcome Card -->
-        <!-- Subtle Background Elements -->
-            <div class="flex items-center mb-4">
-                <div>
-                    <h2 class="text-2xl font-bold text-gray-800">Selamat Datang, {{ $user->nama_lengkap }}!</h2>
-                    <p class="text-sm text-gray-500 mt-1">Berikut adalah jadwal kerja Anda</p>
-                </div>
-            </div>
+    <!-- Subtle Background Elements -->
+    <div class="flex items-center mb-4">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-800">Selamat Datang, {{ $user->nama_lengkap }}!</h2>
+            <p class="text-sm text-gray-500 mt-1">Berikut adalah jadwal kerja Anda</p>
+        </div>
+    </div>
 
     <!-- Calendar Card -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 relative overflow-hidden">
@@ -124,18 +124,37 @@
 <style>
     /* Modern Loading Animations */
     @keyframes modernSpin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
     }
 
     @keyframes slideInUp {
-        0% { transform: translateY(30px); opacity: 0; }
-        100% { transform: translateY(0); opacity: 1; }
+        0% {
+            transform: translateY(30px);
+            opacity: 0;
+        }
+
+        100% {
+            transform: translateY(0);
+            opacity: 1;
+        }
     }
 
     @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.5; }
+
+        0%,
+        100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.5;
+        }
     }
 
     /* Enhanced Button Loading States */
@@ -279,8 +298,8 @@
         font-weight: 500 !important;
         padding: 0.625rem 1rem !important;
         border-radius: 12px !important;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 
-                    0 1px 3px rgba(0, 0, 0, 0.1) !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06),
+            0 1px 3px rgba(0, 0, 0, 0.1) !important;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
         margin: 0 2px !important;
     }
@@ -289,8 +308,8 @@
         background: rgba(255, 255, 255, 0.95) !important;
         border: 1px solid rgba(0, 0, 0, 0.1) !important;
         color: #111827 !important;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 
-                    0 2px 6px rgba(0, 0, 0, 0.06) !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1),
+            0 2px 6px rgba(0, 0, 0, 0.06) !important;
         transform: translateY(-2px) !important;
     }
 

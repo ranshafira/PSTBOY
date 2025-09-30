@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
-use App\Providers\RouteServiceProvider;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -24,27 +23,30 @@ class AuthenticatedSessionController extends Controller
      * Handle an incoming authentication request.
      */
     public function store(LoginRequest $request): RedirectResponse
-{
-    $request->authenticate();
+    {
+        $request->authenticate();
+        $request->session()->regenerate();
 
-    $request->session()->regenerate();
+        $user = Auth::user();
 
-    $user = Auth::user();
-
-    // Cek role user
-    if ($user->role_id == 1) {
-        // Admin
-        return redirect()->route('admin.dashboard');
-    } elseif ($user->role_id == 2) {
-        // Petugas PST
-        return redirect()->route('petugas.dashboard');
+        // Cek role user
+        if ($user->role_id == 1) {
+            // Admin
+            return redirect()->route('admin.dashboard');
+        } elseif ($user->role_id == 2) {
+            // Petugas PST
+            return redirect()->route('petugas.dashboard');
+        } elseif ($user->role_id == 3) {
+            // Kepala
+            return redirect()->route('dashboard.kepala');
+        } else {
+            // Default kalau role tidak dikenali
+            Auth::logout();
+            return redirect()->route('login')->withErrors([
+                'role' => 'Role tidak dikenali.'
+            ]);
+        }
     }
-
-    // Default kalau role tidak dikenali
-    Auth::logout();
-    return redirect()->route('login')->withErrors(['role' => 'Role tidak dikenali.']);
-}
-
 
     /**
      * Destroy an authenticated session.
@@ -54,7 +56,6 @@ class AuthenticatedSessionController extends Controller
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
 
         return redirect('/');
