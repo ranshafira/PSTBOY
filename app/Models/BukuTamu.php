@@ -9,7 +9,7 @@ class BukuTamu extends Model
 {
     use HasFactory;
 
-    protected $table = 'buku_tamu_khusus';
+    protected $table = 'bukutamu_nonpst';
     public $timestamps = false;
 
     protected $fillable = [
@@ -17,5 +17,6 @@ class BukuTamu extends Model
         'instansi_tamu',
         'kontak_tamu',
         'keperluan',
+        'tujuan',
     ];
 }

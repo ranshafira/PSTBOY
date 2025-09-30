@@ -35,7 +35,7 @@ class DashboardController extends Controller
                     'id' => $item->id,
                     'nomor_antrian' => $item->nomor_antrian,
                     'nama' => $item->nama,
-                    'nama_layanan' => $item->jenisLayanan->nama_layanan,
+                    'nama_layanan' => $item->jenisLayanan->nama_layanan ?? '-',
                     'status' => $item->status,
                     'waktu' => $item->created_at,
                 ];

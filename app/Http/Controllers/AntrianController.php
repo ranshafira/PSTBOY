@@ -5,12 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\JenisLayanan; // PASTIKAN BARIS INI ADA
 use App\Models\Antrian;
 use Illuminate\Http\Request;
+use App\Models\Pelayanan;
 
 class AntrianController extends Controller
 {
-    /**
-     * Menampilkan halaman utama untuk mengambil antrian.
-     */
     public function index()
     {
         // Mengambil semua data jenis layanan dari database
@@ -20,55 +18,78 @@ class AntrianController extends Controller
         return view('antrian.index', compact('jenisLayanan'));
     }
 
-    /**
-     * Menyimpan antrian baru.
-     */
     public function store(Request $request)
     {
-        $jenisLayananId = $request->input('jenis_layanan_id');
-        $jenisLayanan = JenisLayanan::findOrFail($jenisLayananId);
-
-        // Logika untuk membuat nomor antrian
-        $nomorAntrian = $this->generateNomorAntrian($jenisLayanan->kode_antrian);
-
-        $antrian = Antrian::create([
-            'nomor_antrian' => $nomorAntrian,
-            'jenis_layanan_id' => $jenisLayananId,
+        $request->validate([
+            'nama_pengunjung'  => 'required|string|max:255',
+            'jenis_layanan_id' => 'nullable|exists:jenis_layanan,id',
+            'media_layanan'    => 'nullable|string|in:whatsapp,email,langsung',
+            'instansi_pengunjung'         => 'nullable|string|max:255',
+            'pendidikan'       => 'nullable|string|max:50',
+            'email'            => 'nullable|email|max:255',
+            'jenis_kelamin'           => 'nullable|string|in:Laki-laki,Perempuan',
+            'no_hp'               => 'nullable|string|max:20',
         ]);
 
-        return redirect()->route('antrian.index')->with('success', 'Nomor antrian Anda adalah: ' . $nomorAntrian);
+        // Tentukan kode antrian
+        if ($request->media_layanan && $request->media_layanan !== 'langsung') {
+            $kode = match($request->media_layanan) {
+                'whatsapp' => 'WA-',
+                'email'    => 'EML-',
+                default    => 'X',
+            };
+        } elseif ($request->jenis_layanan_id) {
+            $jenis = JenisLayanan::findOrFail($request->jenis_layanan_id);
+            $kode = $jenis->kode_antrian;
+        } else {
+            return back()->withErrors('Harus pilih jenis layanan atau media layanan.');
+        }
+
+        // Generate nomor antrian unik per kode per hari
+        $nomorAntrian = $this->generateNomorAntrian($kode);
+        
+        // Membuat record antrian dahulu
+        $antrian = Antrian::create([
+            'nomor_antrian' => $nomorAntrian,
+            'status'        => 'menunggu',
+            'jenis_layanan_id' => $request->jenis_layanan_id,
+        ]);
+        // Simpan ke tabel pelayanan
+        $pelayanan = Pelayanan::create([
+            'nama_pengunjung'         => $request->nama_pengunjung,
+            'instansi_pengunjung'     => $request->instansi_pengunjung,
+            'pendidikan'              => $request->pendidikan,
+            'email'                   => $request->email,
+            'jenis_kelamin'           => $request->jenis_kelamin,
+            'no_hp'                   => $request->no_hp,
+            'jenis_layanan_id'        => $request->jenis_layanan_id,
+            'media_layanan'           => $request->media_layanan,
+            'nomor_antrian'           => $nomorAntrian,
+            'antrian_id'              => $antrian->id,
+            'petugas_id'              => null,
+            'waktu_mulai_sesi'        => null,
+        ]);
+
+        return redirect()->back()
+                        ->with('success', 'Nomor antrian Anda adalah: ' . $nomorAntrian)
+                        ->with('nomor_antrian', $nomorAntrian)
+                        ->with('media_layanan', $request->input('media_layanan'));
     }
 
-    /**
-     * Fungsi private untuk generate nomor antrian.
-     */
     private function generateNomorAntrian($kodeAntrian)
     {
         $tanggal = date('Y-m-d');
 
-        // 1. Cari antrian terakhir HARI INI, TANPA MEMPERDULIKAN JENIS LAYANAN
         $antrianTerakhir = Antrian::whereDate('created_at', $tanggal)
-                                  ->orderBy('id', 'desc')
-                                  ->first();
+                                ->orderBy('id', 'desc')
+                                ->first();
 
         $nomorUrut = 1;
         if ($antrianTerakhir) {
-            // Jika ada antrian sebelumnya (misal: KST-001)
-            
-            // 2. Kita perlu tahu kode antrian dari antrian terakhir itu untuk memotong nomornya
-            $kodeAntrianTerakhir = $antrianTerakhir->jenisLayanan->kode_antrian;
-
-            // 3. Potong nomor antrian terakhir berdasarkan panjang KODE-nya
-            $nomorTerakhir = (int) substr(
-                $antrianTerakhir->nomor_antrian,
-                strlen($kodeAntrianTerakhir)
-            );
-            
-            // 4. Tambah 1 untuk mendapatkan nomor urut baru
+            $nomorTerakhir = (int) substr($antrianTerakhir->nomor_antrian, -3);
             $nomorUrut = $nomorTerakhir + 1;
         }
 
-        // 5. Gabungkan KODE LAYANAN YANG SEKARANG DIAMBIL dengan NOMOR URUT BARU
         return $kodeAntrian . str_pad($nomorUrut, 3, '0', STR_PAD_LEFT);
     }
 
