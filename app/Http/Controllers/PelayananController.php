@@ -67,18 +67,20 @@ class PelayananController extends Controller
         $antrian->status = 'sedang_dilayani';
         $antrian->save();
 
-        $pelayanan = Pelayanan::create([
-            'petugas_id' => auth()->id(),
-            'antrian_id' => $antrian->id,
-            'waktu_mulai_sesi' => now(),
-            'jenis_layanan_id' => $validated['jenis_layanan_id'],
-            'nama_pengunjung' => $validated['nama_pengunjung'],
-            'instansi_pengunjung' => $validated['instansi_pengunjung'],
-            'no_hp' => $validated['no_hp'],
-            'email' => $validated['email'],
-            'jenis_kelamin' => $validated['jenis_kelamin'],
-            'pendidikan' => $validated['pendidikan'],
-        ]);
+        $pelayanan = Pelayanan::updateOrCreate(
+            ['antrian_id' => $validated['antrian_id']],
+            [
+                'petugas_id' => auth()->id(),
+                'waktu_mulai_sesi' => now(),
+                'jenis_layanan_id' => $validated['jenis_layanan_id'],
+                'nama_pengunjung' => $validated['nama_pengunjung'],
+                'instansi_pengunjung' => $validated['instansi_pengunjung'],
+                'no_hp' => $validated['no_hp'],
+                'email' => $validated['email'],
+                'jenis_kelamin' => $validated['jenis_kelamin'],
+                'pendidikan' => $validated['pendidikan'],
+            ]
+        );
 
         return redirect()->route('pelayanan.langkah2.create', $pelayanan->id);
     }

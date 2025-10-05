@@ -68,10 +68,18 @@
                     <!-- Status Badge -->
                     <div class="inline-flex">
                         <span class="px-6 py-2 text-sm font-semibold rounded-full shadow-sm
-                            {{ Auth::user()->id == '1' ? 'bg-red-100 text-red-700 ring-2 ring-red-300' : 'bg-orange-100 text-orange-700 ring-2 ring-orange-300' }}">
-                            {{ Auth::user()->id == '1' ? 'Administrator' : 'Petugas PST' }}
+                            @if(Auth::user()->role_id == 3)
+                                bg-red-100 text-red-700 ring-2 ring-red-300
+                            @elseif(Auth::user()->role_id == 1)
+                                bg-blue-100 text-blue-700 ring-2 ring-blue-300
+                            @else
+                                bg-orange-100 text-orange-700 ring-2 ring-orange-300
+                            @endif">
+                            
+                            {{ Auth::user()->role->nama_role }}
                         </span>
                     </div>
+
                 </div>
             </div>
 
