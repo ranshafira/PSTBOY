@@ -68,7 +68,7 @@
                         <tr class="hover:bg-gray-50">
                             <td class="px-4 py-2">{{ $item->nomor_antrian }}</td>
                             <td class="px-4 py-2">{{ $item->pelayanan->nama_pengunjung ?? '-' }}</td>
-                            <td class="px-4 py-2">{{ $item->jenisLayanan->nama_layanan ?? '-' }}</td>
+                            <td class="px-4 py-2">{{ $item->pelayanan->jenisLayanan->nama_layanan ?? '-' }}</td>
                             <td class="px-4 py-2">
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $statusColors[$rawStatus] ?? 'bg-gray-100 text-gray-800' }}">
                                     {{ $statusText[$rawStatus] ?? ucfirst((string) $item->status) }}

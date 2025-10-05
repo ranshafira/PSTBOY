@@ -124,11 +124,11 @@
 
                     <!-- Tombol Aksi -->
                     <div class="md:col-span-2 flex justify-end space-x-3">
-                        <a href="/" class="px-5 py-2 border border-bps-primary text-bps-primary font-medium rounded-lg hover:bg-bps-primary hover:text-white transition-colors">
+                        <a href="/" class="px-5 py-2 border border-bps-primary text-bps-primary font-medium rounded-full hover:bg-bps-primary hover:text-white transition-colors">
                             Kembali
                         </a>
                         <button type="submit"
-                            class="px-5 py-2 bg-gradient-to-r from-bps-orange to-orange-500 text-white font-medium rounded-lg shadow hover:opacity-90 transition">
+                            class="px-5 py-2 bg-gradient-to-r from-bps-orange to-orange-500 text-white font-medium rounded-full shadow hover:opacity-90 transition">
                             Kirim
                         </button>
                     </div>

@@ -66,7 +66,7 @@
     <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
       <div class="flex items-center justify-between">
         <div>
-          <p class="text-sm font-medium text-gray-600 mb-1">Kunjungan Buku Tamu Hari Ini</p>
+          <p class="text-sm font-medium text-gray-600 mb-1">Pelayanan Non-PST Hari Ini</p>
           <p class="text-3xl font-bold text-blue-600">{{ $bukuTamuCount }}</p>
         </div>
         <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -78,203 +78,212 @@
     </div>
   </div>
 
-  <!-- Row untuk Chart dan Antrian per Layanan -->
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-    <!-- Chart Trend Harian -->
-    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
-      <h3 class="text-lg font-semibold text-gray-800 mb-4">Trend Antrian Bulan Ini</h3>
-      <div class="relative h-64">
-        <canvas id="trendChart"></canvas>
-      </div>
-    </div>
+  <!-- Row untuk Chart dan Antrian per Layanan (diperbaiki) -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+  <!-- KIRI: area chart (ambil 2 kolom) -->
+<div class="col-span-2 grid grid-cols-2 gap-4">
   
-    <!-- Card 2: Pie Chart Layanan -->
-    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
-        <h3 class="text-lg font-semibold text-gray-800 mb-4">Proporsi Layanan Bulan Ini</h3>
-        <div class="relative h-64 w-full flex justify-center items-center">
-            <canvas id="pieChart" class="max-h-64 max-w-64"></canvas>
-        </div>
-    </div>
-
-    <!-- Antrian Per Layanan -->
-    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
-      <h3 class="text-lg font-semibold text-gray-800 mb-4">Antrian Per Layanan Hari Ini</h3>
-      <div class="space-y-3">
-        @forelse($antrianPerLayanan as $layanan)
-          <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-            <h4 class="font-medium text-gray-800">{{ $layanan->nama_layanan }}</h4>
-            <div class="flex items-center space-x-1">
-              <span class="text-2xl font-bold text-orange-600">{{ $layanan->antrian_count }}</span>
-              <span class="text-sm text-gray-500">antrian</span>
-            </div>
+  <!-- Chart 1: Antrian Per Layanan (kanan bawah) -->
+  <div class="bg-white rounded-lg shadow-sm p-4 border border-gray-100">
+    <h3 class="text-base font-semibold text-gray-800 mb-3">Antrian Per Layanan Hari Ini</h3>
+    <div class="space-y-2">
+      @forelse($mediaLayananHariIni as $layanan)
+        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+          <h4 class="font-medium text-gray-700 text-sm">{{ $layanan->mediaLayanan }}</h4>
+          <div class="flex items-center space-x-1">
+            <span class="text-xl font-bold text-orange-600">{{ $layanan->antrian }}</span>
+            <span class="text-xs text-gray-500">antrian</span>
           </div>
-        @empty
-          <div class="text-center py-8 text-gray-500">Belum ada data layanan</div>
-        @endforelse
-      </div>
+        </div>
+      @empty
+        <div class="text-center py-6 text-gray-500 text-sm">Belum ada data layanan</div>
+      @endforelse
     </div>
   </div>
 
-  <!-- Riwayat Layanan -->
-  <div class="bg-white rounded-lg shadow-sm border border-gray-100">
-    <div class="p-6 border-b border-gray-100">
-      <h3 class="text-lg font-semibold text-gray-800">Riwayat Layanan Hari Ini</h3>
+  <!-- Chart 2: Trend (kiri atas) -->
+  <div class="bg-white rounded-lg shadow-sm p-4 border border-gray-100">
+    <h3 class="text-base font-semibold text-gray-800 mb-3">Trend Antrian Bulan Ini</h3>
+    <div class="relative h-48">
+      <canvas id="trendChart"></canvas>
     </div>
-    <div class="overflow-x-auto">
-      <table class="min-w-full table-fixed border-collapse">
-        <thead class="bg-gray-50">
-          <tr>
-            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">No. Antrian</th>
-            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
-            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Layanan</th>
-            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Waktu</th>
+  </div>
+
+  <!-- Chart 3: Bar Jenis Layanan (kanan atas) -->
+  <div class="bg-white rounded-lg shadow-sm p-4 border border-gray-100">
+    <h3 class="text-base font-semibold text-gray-800 mb-3">Volume per Jenis Layanan</h3>
+    <div class="relative h-48">
+      <canvas id="chartJenisLayanan"></canvas>
+    </div>
+  </div>
+
+  <!-- Chart 4: Pie (kiri bawah) -->
+  <div class="bg-white rounded-lg shadow-sm p-4 border border-gray-100">
+    <h3 class="text-base font-semibold text-gray-800 mb-3">Proporsi Layanan Bulan Ini</h3>
+    <div class="relative h-48 w-full flex justify-center items-center">
+      <canvas id="pieChart" class="max-h-56 max-w-80"></canvas>
+    </div>
+  </div>
+
+</div>
+
+  <!-- KANAN: tabel riwayat (memanjang vertikal sejajar 2 baris chart kiri) -->
+<div class="col-span-1 row-span-2">
+  <div class="bg-white rounded-xl border border-gray-100 h-full overflow-hidden">
+    <!-- Header -->
+    <div class="p-4 border-b border-gray-100 flex items-center justify-between">
+      <h3 class="text-base font-semibold text-gray-800">Riwayat layanan hari ini</h3>
+    </div>
+
+    <!-- Isi Tabel -->
+    <div class="overflow-x-auto overflow-y-auto max-h-[80vh]">
+      <table class="min-w-full border-collapse text-[13px] text-gray-700">
+        <thead class="bg-gray-50 sticky top-0 text-gray-600">
+          <tr class="border-b border-gray-200">
+            <th class="px-3 py-2 text-center font-medium">Antrian</th>
+            <th class="px-3 py-2 text-center font-medium">Nama</th>
+            <th class="px-3 py-2 text-center font-medium">Status</th>
+            <th class="px-3 py-2 text-center font-medium">Waktu</th>
           </tr>
         </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
+        <tbody>
           @forelse($riwayatGabungan as $item)
             @php
-              $rawStatus  = is_string($item->status) ? strtolower($item->status) : $item->status;
-              $isBukuTamu = ($item->nomor_antrian === '-' || strtolower($item->nama_layanan) === 'buku tamu');
+              $rawStatus = is_string($item->status) ? strtolower($item->status) : $item->status;
+
               $statusColors = [
-                'pending'   => 'bg-yellow-100 text-yellow-800',
-                'menunggu'  => 'bg-yellow-100 text-yellow-800',
-                'dipanggil' => 'bg-blue-100 text-blue-800',
-                'sedang_dilayani' => 'bg-purple-100 text-purple-800',
-                'selesai'   => 'bg-green-100 text-green-800',
-                'batal'     => 'bg-red-100 text-red-800',
+                  'pending'          => 'bg-yellow-100 text-yellow-800',
+                  'menunggu'         => 'bg-yellow-100 text-yellow-800',
+                  'dipanggil'        => 'bg-blue-100 text-blue-800',
+                  'sedang_dilayani'  => 'bg-purple-100 text-purple-800',
+                  'selesai'          => 'bg-green-100 text-green-800',
+                  'batal'            => 'bg-red-100 text-red-800',
               ];
+
               $statusText = [
-                'pending'   => 'Menunggu',
-                'menunggu'  => 'Menunggu',
-                'dipanggil' => 'Dipanggil',
-                'sedang_dilayani' => 'Sedang Dilayani',
-                'selesai'   => 'Selesai',
-                'batal'     => 'Batal',
+                  'pending'          => 'Menunggu',
+                  'menunggu'         => 'Menunggu',
+                  'dipanggil'        => 'Dipanggil',
+                  'sedang_dilayani'  => 'Sedang dilayani',
+                  'selesai'          => 'Selesai',
+                  'batal'            => 'Batal',
               ];
             @endphp
 
-            <tr class="hover:bg-gray-50">
-              <td class="px-6 py-4 text-center">{{ $item->nomor_antrian }}</td>
-              <td class="px-6 py-4 text-center">{{ $item->nama }}</td>
-              <td class="px-6 py-4 text-center">{{ $item->nama_layanan }}</td>
-              <td class="px-6 py-4 text-center">
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $statusColors[$rawStatus] ?? 'bg-gray-100 text-gray-800' }}">
+            <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+              <td class="px-3 py-3 text-center text-gray-800 ">{{ $item->nomor_antrian }}</td>
+              <td class="px-3 py-3 text-center truncate max-w-[90px]">{{ $item->nama }}</td>
+              <td class="px-3 py-3 text-center">
+                <span class="px-3 py-0.5 rounded-full text-xs {{ $statusColors[$rawStatus] ?? 'bg-gray-100 text-gray-800' }}">
                   {{ $statusText[$rawStatus] ?? ucfirst((string) $item->status) }}
                 </span>
               </td>
-              <td class="px-6 py-4 text-center text-sm text-gray-500">
+              <td class="px-3 py-3 text-center text-gray-500 text-xs">
                 {{ \Carbon\Carbon::parse($item->waktu)->format('H:i') }}
               </td>
-              <td class="px-6 py-4 text-center">
-                @if ($isBukuTamu)
-                    <span class="text-gray-400 text-xs">-</span>
-                @endif
             </tr>
           @empty
             <tr>
-              <td colspan="6" class="px-6 py-8 text-center text-gray-500">Belum ada antrian hari ini</td>
+              <td colspan="4" class="px-4 py-6 text-center text-gray-400 text-sm">
+                Belum ada antrian hari ini
+              </td>
             </tr>
           @endforelse
         </tbody>
       </table>
     </div>
   </div>
+</div>
+  <!-- Akhir Row Chart & Riwayat -->
+
 @endsection
 
 @push('scripts')
-  <!-- Chart.js & DataLabels plugin -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+<!-- Chart.js & DataLabels plugin -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      //Trend Chart
-      const trendData = @json($trendHarian);
-      const dates = Object.keys(trendData);
-      const totals = Object.values(trendData);
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    /* =======================
+       1. LINE CHART TREND
+    ======================= */
+    const trendData = @json($trendHarian);
+    const dates = Object.keys(trendData);
+    const totals = Object.values(trendData);
 
-      const trendCtx = document.getElementById('trendChart').getContext('2d');
-      new Chart(trendCtx, {
+    new Chart(document.getElementById('trendChart'), {
         type: 'line',
         data: {
-          labels: dates.map(date => {
-            const d = new Date(date);
-            return d.getDate() + '/' + (d.getMonth() + 1);
-          }),
-          datasets: [{
-            label: 'Jumlah Antrian',
-            data: totals,
-            borderColor: '#f97316',
-            backgroundColor: 'rgba(249, 115, 22, 0.1)',
-            borderWidth: 2,
-            fill: true,
-            tension: 0.4
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
-        }
-      });
-
-    //Pie Chart Layanan
-    const pieData = @json($pieLayananPersen); 
-    const labelsFull = Object.keys(pieData);
-    const dataValues = Object.values(pieData);
-
-    //Label sesuai nama layanan
-    const labelAbbr = labelsFull.map(name => {
-        switch(name) {
-            case 'Perpustakaan': return 'PRP';
-            case 'Konsultasi Statistik': return 'KST';
-            case 'Rekomendasi Statistik': return 'RST';
-            case 'Pengaduan': return 'PLS';
-            case 'Buku Tamu': return 'BT';
-            default: return name;
-        }
-    });
-
-    const ctx = document.getElementById('pieChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: labelAbbr,
+            labels: dates.map(d => {
+                const date = new Date(d);
+                return `${date.getDate()}/${date.getMonth() + 1}`;
+            }),
             datasets: [{
-                data: dataValues,
-                backgroundColor: [
-                    'rgba(255, 159, 64, 0.8)',
-                    'rgba(75, 192, 192, 0.8)',
-                    'rgba(255, 112, 102, 0.8)',
-                    'rgba(255, 205, 86, 0.8)',
-                    'rgba(54, 162, 235, 0.8)',
-                    'rgba(153, 102, 255, 0.8)',
-                ],
-                borderColor: '#ffffffff',
-                borderWidth: 1,
-                hoverBorderWidth: 4,
-                hoverOffset: 8
+                label: 'Jumlah Antrian',
+                data: totals,
+                borderColor: 'rgba(249, 115, 22, 1)',  // orange-500
+                backgroundColor: 'rgba(249, 115, 22, 0.1)',
+                tension: 0.4,
+                fill: true,
+                borderWidth: 2
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            cutout: '35%', // Untuk doughnut effect
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, ticks: { stepSize: 1 } }
+            }
+        }
+    });
+
+
+    /* =======================
+       2. PIE CHART LAYANAN
+    ======================= */
+    const pieData = @json($pieLayananPersen);
+    const labelsFull = Object.keys(pieData);
+    const dataValues = Object.values(pieData);
+
+    const labelAbbr = labelsFull.map(name =>
+        name === 'Layanan Langsung' ? 'Langsung' : name
+    );
+
+    const softColors = [
+        'rgba(96, 165, 250, 0.8)',   // sky-400
+        'rgba(52, 211, 153, 0.8)',   // emerald-400
+        'rgba(251, 191, 36, 0.8)',   // amber-400
+        'rgba(167, 139, 250, 0.8)',  // violet-400
+        'rgba(251, 113, 133, 0.8)',  // rose-400
+        'rgba(148, 163, 184, 0.8)'   // slate-400
+    ];
+
+    new Chart(document.getElementById('pieChart'), {
+        type: 'doughnut',
+        data: {
+            labels: labelAbbr,
+            datasets: [{
+                data: dataValues,
+                backgroundColor: softColors,
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '35%',
             plugins: {
                 legend: {
-                    display: true,
-                    position: 'right', 
+                    position: 'bottom',
+                    align: 'center',
                     labels: {
                         usePointStyle: true,
-                        boxWidth: 8,
-                        padding: 15,
-                        font: { 
-                            size: 12,
-                            weight: '500'
-                        },
-                        color: '#000000ff' 
+                        boxWidth: 12,
+                        padding: 10,
+                        color: 'rgb(107, 114, 128)',
+                        font: { size: 12, weight: '500' }
                     }
                 },
                 tooltip: {
@@ -285,33 +294,55 @@
                     borderWidth: 1,
                     cornerRadius: 8,
                     callbacks: {
-                        label: function(context) {
-                            return labelsFull[context.dataIndex] + ': ' + context.raw + '%';
-                        }
+                        label: context => `${labelsFull[context.dataIndex]}: ${context.raw}%`
                     }
                 },
                 datalabels: {
                     color: '#ffffff',
-                    formatter: (value, context) => {
-                        return value > 5 ? value + '%' : ''; 
-                    },
-                    font: { 
-                        size: 11,
-                        weight: 'bold'
-                    },
-                    textAlign: 'center',
-                    textShadowColor: 'rgba(0,0,0,0.5)',
-                    textShadowBlur: 3
+                    formatter: v => v > 5 ? `${v}%` : '',
+                    font: { size: 11, weight: 'bold' },
+                    textAlign: 'center'
                 }
             },
-            animation: {
-                animateRotate: true,
-                animateScale: true,
-                duration: 1000
-            }
+            animation: { duration: 1000, animateRotate: true, animateScale: true }
         },
         plugins: [ChartDataLabels]
     });
+
+
+    /* =======================
+       3. BAR CHART JENIS LAYANAN
+    ======================= */
+    const dataJenisLayanan = @json($menurutJenisLayanan);
+
+    new Chart(document.getElementById('chartJenisLayanan'), {
+        type: 'bar',
+        data: {
+            labels: Object.keys(dataJenisLayanan),
+            datasets: [{
+                label: 'Jumlah Pengunjung',
+                data: Object.values(dataJenisLayanan),
+                backgroundColor: softColors
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(200, 200, 200, 0.2)' },
+                    ticks: { precision: 0, color: 'rgb(107, 114, 128)' }
+                },
+                y: {
+                    grid: { color: 'rgba(200, 200, 200, 0.2)' },
+                    ticks: { color: 'rgb(107, 114, 128)' }
+                }
+            }
+        }
     });
-  </script>
+});
+</script>
 @endpush

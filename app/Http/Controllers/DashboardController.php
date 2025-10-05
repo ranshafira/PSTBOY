@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\BukuTamu;
+use App\Models\Pelayanan;
 
 class DashboardController extends Controller
 {
@@ -14,10 +15,25 @@ class DashboardController extends Controller
             ->whereIn('status', ['menunggu', 'lewati', 'dipanggil', 'sedang_dilayani'])
             ->count();
 
-        $antrianPerLayanan = \App\Models\JenisLayanan::withCount(['antrian' => function($q) {
-            $q->whereDate('created_at', today());
-        }])->get();
+        //antrian media 
+        $data = Pelayanan::whereDate('created_at', today())
+            ->get()
+            ->groupBy('media_layanan')
+            ->map(fn($group) => $group->count()); 
 
+         $layananTetap = [
+            'langsung' => 'Pelayanan Langsung',
+            'whatsapp' => 'WhatsApp',
+            'email' => 'Email',
+        ];
+
+        $mediaLayananHariIni = collect($layananTetap)->map(function ($nama, $key) use ($data) {
+            return (object)[
+                'mediaLayanan' => $nama,
+                'antrian' => $data[$key] ?? 0,
+            ];
+        });
+    
         $sudahDilayani = \App\Models\Antrian::whereDate('created_at', today())
             ->where('status', 'selesai')->count();
 
@@ -26,7 +42,7 @@ class DashboardController extends Controller
 
         $antrianBerjalan = \App\Models\Antrian::whereIn('status', ['dipanggil', 'sedang_dilayani'])->first();
 
-        $riwayatAntrian = \App\Models\Antrian::with('jenisLayanan')
+        $riwayatAntrian = \App\Models\Antrian::with('jenisLayanan', 'pelayanan')
             ->whereDate('created_at', today())
             ->orderBy('created_at', 'desc')
             ->get()
@@ -34,7 +50,7 @@ class DashboardController extends Controller
                 return (object)[
                     'id' => $item->id,
                     'nomor_antrian' => $item->nomor_antrian,
-                    'nama' => $item->nama,
+                    'nama' => $item->pelayanan->nama_pengunjung ?? '-',
                     'nama_layanan' => $item->jenisLayanan->nama_layanan ?? '-',
                     'status' => $item->status,
                     'waktu' => $item->created_at,
@@ -47,7 +63,7 @@ class DashboardController extends Controller
             ->map(function($tamu){
                 return (object)[
                     'id' => $tamu->id,
-                    'nomor_antrian' => '-',
+                    'nomor_antrian' => 'NON-PST',
                     'nama' => $tamu->nama_tamu,
                     'nama_layanan' => 'Buku Tamu',
                     'status' => 'selesai',
@@ -66,35 +82,48 @@ class DashboardController extends Controller
         
         $bukuTamuCount = BukuTamu::whereDate('waktu_kunjungan', today())->count();
         
-        // pie chart
         $bulan = $request->query('bulan') ?? now()->month;
 
-        // Ambil semua layanan
-        $layananSemua = \App\Models\JenisLayanan::all();
+        // Ambil jenis layanan
+        $filterJenisLayanan = [1, 2, 3];
+        $jenisLayananTerpilih = \App\Models\JenisLayanan::whereIn('id', $filterJenisLayanan)
+            ->pluck('nama_layanan', 'id');
 
-        // Ambil jumlah antrian per layanan bulan ini
-        $antrianPerLayananBulan = \App\Models\Antrian::whereMonth('created_at', $bulan)
+        // Ambil data pelayanan bulan ini
+        $pelayananBulanIni = \App\Models\Pelayanan::with('jenisLayanan')
+            ->whereNotNull('jenis_layanan_id')
+            ->whereMonth('created_at', $bulan)
+            ->whereIn('jenis_layanan_id', $filterJenisLayanan)
             ->get()
-            ->groupBy(fn($item) => $item->jenisLayanan->nama_layanan ?? 'Layanan Lain')
+            ->groupBy(fn($item) => $item->jenisLayanan->nama_layanan)
             ->map(fn($group) => $group->count());
 
-        // Siapkan array final untuk pie chart
-        $pieLayanan = $layananSemua->pluck('nama_layanan')->mapWithKeys(function($nama) use ($antrianPerLayananBulan) {
-            return [$nama => $antrianPerLayananBulan[$nama] ?? 0];
+        // Gabungkan semua jenis layanan supaya yang kosong tetap 0
+        $menurutJenisLayanan = $jenisLayananTerpilih->mapWithKeys(function($nama) use ($pelayananBulanIni) {
+            return [$nama => $pelayananBulanIni->get($nama, 0)];
         });
 
-        // Tambahkan Buku Tamu
-        $bukuTamuCountBulan = \App\Models\BukuTamu::whereMonth('waktu_kunjungan', $bulan)->count();
-        $pieLayanan->put('Buku Tamu', $bukuTamuCountBulan);
+        // Ambil data per media_layanan bulan ini
+        $mediaLayanan = \App\Models\Pelayanan::whereMonth('created_at', $bulan)
+            ->get()
+            ->groupBy('media_layanan')
+            ->map(fn($group) => $group->count());
+
+        // Hanya ambil 3 kategori
+        $pieLayanan = collect([
+            'Layanan Langsung' => $mediaLayanan['langsung'] ?? 0,
+            'WhatsApp' => $mediaLayanan['whatsapp'] ?? 0,
+            'Email' => $mediaLayanan['email'] ?? 0,
+        ]);
 
         // Hitung persentase
         $total = $pieLayanan->sum();
         $pieLayananPersen = $pieLayanan->map(fn($count) => $total ? round($count / $total * 100, 1) : 0);
 
-
         return view('dashboard', compact(
             'totalAntrianHariIni',
-            'antrianPerLayanan',
+            'mediaLayananHariIni',
+            'menurutJenisLayanan',
             'sudahDilayani',
             'sisaAntrian',
             'antrianBerjalan',

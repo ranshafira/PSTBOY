@@ -68,7 +68,7 @@
           <div class="px-4 py-2 border-b border-gray-100 text-sm text-gray-600">
             <span class="font-semibold">{{ Auth::user()->nama_lengkap }}</span><br>
             <span class="text-xs text-gray-400">
-              {{ Auth::user()->role_id == '1' ? 'Administrator' : 'Petugas PST' }}
+              {{ Auth::user()->role->nama_role }}
             </span>
           </div>
           <a href="{{ route('profile.index') }}" 

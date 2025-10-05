@@ -38,7 +38,7 @@
                 <div class="relative" x-data="{ dropdown: false }">
                     <button @click="dropdown = !dropdown" class="flex items-center space-x-2 focus:outline-none">
                         {{-- Avatar bulat (inisial nama) --}}
-                        <div class="w-6 h-6 rounded-full bg-red-400 text-white flex items-center justify-center font-semibold">
+                        <div class="w-6 h-6 rounded-full bg-blue-400 text-white flex items-center justify-center font-semibold">
                             {{ strtoupper(substr(Auth::user()->nama_lengkap, 0, 1)) }}
                         </div>
                         <span class="text-sm font-medium text-gray-700">
@@ -57,7 +57,7 @@
                         <div class="px-4 py-2 border-b border-gray-100 text-sm text-gray-600">
                             <span class="font-semibold">{{ Auth::user()->nama_lengkap }}</span><br>
                             <span class="text-xs text-gray-400">
-                                {{ Auth::user()->role_id == '1' ? 'Administrator' : 'Petugas PST' }}
+                                {{ Auth::user()->role->nama_role }}
                             </span>
                         </div>
                         <a href="{{ route('profile.index') }}" 

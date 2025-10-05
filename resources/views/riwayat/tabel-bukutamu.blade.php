@@ -15,6 +15,7 @@
           <th class="px-4 py-2 text-left">Nama Tamu</th>
           <th class="px-4 py-2 text-left">Instansi</th>
           <th class="px-4 py-2 text-left">Kontak</th>
+          <th class="px-4 py-2 text-left">Tujuan</th>
           <th class="px-4 py-2 text-left">Keperluan</th>
           <th class="px-4 py-2 text-left">Waktu Kunjungan</th>
         </tr>
@@ -26,6 +27,7 @@
           <td class="px-4 py-2">{{ $tamu->nama_tamu }}</td>
           <td class="px-4 py-2">{{ $tamu->instansi_tamu }}</td>
           <td class="px-4 py-2">{{ $tamu->kontak_tamu }}</td>
+          <td class="px-4 py-2">{{ $tamu->tujuan }}</td>
           <td class="px-4 py-2">{{ $tamu->keperluan }}</td>
           <td class="px-4 py-2">{{ \Carbon\Carbon::parse($tamu->waktu_kunjungan)->format('d-m-Y H:i') }}</td>
         </tr>

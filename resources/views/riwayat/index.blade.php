@@ -27,7 +27,7 @@
               {{ $tab == 'pelayanan' 
                 ? 'text-orange-600 border-b-2 border-orange-500' 
                 : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white' }}">
-      Riwayat Pelayanan
+      Riwayat Pelayanan PST
     </a>
 
     <a href="{{ route('riwayat.index', array_merge(request()->all(), ['tab' => 'buku_tamu'])) }}"
@@ -35,7 +35,7 @@
               {{ $tab == 'buku_tamu' 
                 ? 'text-orange-600 border-b-2 border-orange-500' 
                 : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white' }}">
-      Riwayat Buku Tamu
+      Riwayat Pelayanan Non-PST
     </a>
   </div>
 
