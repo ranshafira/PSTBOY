@@ -123,11 +123,6 @@
                                     <span class="px-3 py-1 rounded bg-gray-100 text-gray-700 text-xs font-medium">
                                         Selesai
                                     </span>
-                                    {{-- Tombol Aksi (Bisa diklik) --}}
-                                    <a href="{{ route('pelayanan.detail', $item->pelayanan->id) }}"
-                                        class="px-3 py-1 rounded bg-indigo-100 hover:bg-indigo-200 text-indigo-800 text-xs font-medium">
-                                        Lihat Detail
-                                    </a>
                                 </div>
                                 @else
                                 {{-- Fallback jika data pelayanan tidak ada --}}

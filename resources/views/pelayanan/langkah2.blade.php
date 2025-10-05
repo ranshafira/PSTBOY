@@ -14,7 +14,7 @@
                     </svg>
                 </div>
                 <div class="flex-grow">
-                    <h2 class="text-lg font-bold text-gray-900">Langkah 2: Detail & Hasil Pelayanan</h2>
+                    <h2 class="text-lg font-bold text-gray-900">Detail Pelayanan</h2>
                     <p class="text-base text-gray-600 mt-1">Catat kebutuhan, hasil, dan output dari pelayanan yang diberikan.</p>
                 </div>
             </div>
@@ -26,12 +26,11 @@
 
                 {{-- Kartu Kebutuhan & Dokumen Pendukung --}}
                 <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-8">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-1">Kebutuhan & Dokumen Pendukung</h3>
-                    <p class="text-base text-gray-600 mb-6">Catat kebutuhan pengunjung dan unggah dokumen jika ada.</p>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-1">Detail Kebutuhan & Dokumen Pendukung</h3>
                     <div class="space-y-6">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1.5">Detail Kebutuhan Layanan <span class="text-red-500">*</span></label>
-                            <textarea name="kebutuhan_pengunjung" rows="4" class="w-full rounded-lg border-gray-300 focus:ring-2 focus:ring-orange-500" required placeholder="Contoh: Membutuhkan data PDRB Kabupaten X ...">{{ old('kebutuhan_pengunjung', $pelayanan->kebutuhan_pengunjung) }}</textarea>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5">Detail Kebutuhan Pengunjung<span class="text-red-500">*</span></label>
+                            <textarea name="kebutuhan_pengunjung" rows="4" class="w-full rounded-lg border-gray-300 focus:ring-2 focus:ring-orange-500 py-2.5 px-4 text-base transition" required placeholder="Contoh: Membutuhkan data PDRB Kabupaten X ...">{{ old('kebutuhan_pengunjung', $pelayanan->kebutuhan_pengunjung) }}</textarea>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1.5">Upload Dokumen Pendukung (Opsional)</label>
@@ -57,20 +56,20 @@
                             </select>
                         </div>
                         <div>
-                            <label for="deskripsi_hasil" class="block text-sm font-medium text-gray-700 mb-1.5">Deskripsi Hasil <span class="text-red-500">*</span></label>
-                            <textarea name="deskripsi_hasil" rows="4" class="w-full rounded-lg border-gray-300 focus:ring-2 focus:ring-orange-500" required placeholder="Jelaskan secara detail hasil dari pelayanan...">{{ old('deskripsi_hasil', $pelayanan->deskripsi_hasil) }}</textarea>
+                            <label for="deskripsi_hasil" class="block text-sm font-medium text-gray-700 mb-1.5">Deskripsi Hasil Pelayanan<span class="text-red-500">*</span></label>
+                            <textarea name="deskripsi_hasil" rows="4" class="w-full rounded-lg border-gray-300 focus:ring-2 focus:ring-orange-500 py-2.5 px-4 text-base transition" required placeholder="Jelaskan secara detail hasil dari pelayanan...">{{ old('deskripsi_hasil', $pelayanan->deskripsi_hasil) }}</textarea>
                         </div>
                     </div>
                 </div>
 
                 {{-- Kartu Output & Tindak Lanjut --}}
                 <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-8" x-data="{ requiresFollowUp: {{ old('perlu_tindak_lanjut', $pelayanan->perlu_tindak_lanjut) ? 'true' : 'false' }} }">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Output & Dokumen</h3>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Output & Dokumen Hasil</h3>
                     <div class="space-y-8">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Jenis Output Diberikan</label>
                             <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                @php $outputs = ['Surat keterangan', 'Informasi tertulis', 'Rujukan', 'Sertifikat', 'Dokumen resmi', 'Data/statistik', 'Formulir', 'Laporan']; @endphp
+                                @php $outputs = ['Surat keterangan', 'Informasi tertulis', 'Rujukan', 'Data', 'Informasi Lisan']; @endphp
                                 @foreach ($outputs as $output)
                                 <div class="flex items-center">
                                     <input id="output_{{ Str::slug($output) }}" name="jenis_output[]" type="checkbox" value="{{ $output }}" class="h-4 w-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500" {{ in_array($output, old('jenis_output', $pelayanan->jenis_output ?? [])) ? 'checked' : '' }}>
@@ -99,7 +98,7 @@
                             </div>
                             <div>
                                 <label for="catatan_tindak_lanjut" class="block text-sm font-medium text-gray-700 mb-1.5">Catatan Tindak Lanjut</label>
-                                <textarea name="catatan_tindak_lanjut" rows="3" class="w-full rounded-lg border-gray-300" placeholder="Jelaskan tindak lanjut yang diperlukan...">{{ old('catatan_tindak_lanjut', $pelayanan->catatan_tindak_lanjut) }}</textarea>
+                                <textarea name="catatan_tindak_lanjut" rows="3" class="w-full rounded-lg border-gray-300 focus:ring-2 focus:ring-orange-500 py-2.5 px-4 text-base transition" placeholder="Jelaskan tindak lanjut yang diperlukan...">{{ old('catatan_tindak_lanjut', $pelayanan->catatan_tindak_lanjut) }}</textarea>
                             </div>
                         </div>
                     </div>
@@ -109,7 +108,7 @@
                 <div class="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4">
                     <a href="{{ route('pelayanan.langkah1.create', $pelayanan->antrian_id) }}" class="w-full sm:w-auto px-6 py-3 border rounded-lg text-sm font-semibold text-gray-800 hover:bg-gray-100 text-center">Halaman Sebelumnya</a>
                     <button type="submit" class="w-full sm:w-auto px-8 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600">
-                        Simpan & Lanjutkan ke Survei
+                        Lanjutkan ke Survei Internal
                     </button>
                 </div>
             </div>

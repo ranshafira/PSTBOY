@@ -14,7 +14,7 @@
                     </svg>
                 </div>
                 <div class="flex-grow">
-                    <h2 class="text-lg font-bold text-gray-900">Langkah 1: Inisiasi & Data Pengunjung</h2>
+                    <h2 class="text-lg font-bold text-gray-900">Identitas Pengunjung</h2>
                     <p class="text-base text-gray-600 mt-1">Isi data pengunjung untuk memulai sesi pelayanan.</p>
                 </div>
             </div>
@@ -37,9 +37,11 @@
                             <select id="jenis_layanan_id" name="jenis_layanan_id" required class="w-full rounded-lg border-gray-300 focus:ring-2 focus:ring-orange-500 py-2.5 px-4 text-base transition">
                                 <option value="" disabled selected>Pilih jenis layanan</option>
                                 @foreach($jenisLayanan as $layanan)
+                                @if(!in_array(strtolower($layanan->nama_layanan), ['whatsapp', 'email']))
                                 <option value="{{ $layanan->id }}" {{ old('jenis_layanan_id', $pelayanan?->jenis_layanan_id) == $layanan->id ? 'selected' : '' }}>
                                     {{ $layanan->nama_layanan }}
                                 </option>
+                                @endif
                                 @endforeach
                             </select>
                         </div>
@@ -98,7 +100,7 @@
                 <div class="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4">
                     <a href="{{ route('pelayanan.index') }}" class="w-full sm:w-auto px-6 py-3 border border-gray-300 rounded-lg text-sm font-semibold text-gray-800 hover:bg-gray-100 transition text-center">Batal</a>
                     <button type="submit" class="w-full sm:w-auto px-8 py-3 bg-orange-500 text-white text-sm font-semibold rounded-lg hover:bg-orange-600">
-                        Lanjutkan ke Detail Layanan
+                        Lanjutkan ke Detail Pelayanan
                     </button>
                 </div>
             </div>

@@ -53,10 +53,9 @@
 {{-- Kartu Kritik & Saran (Kondisional) --}}
 <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-8" x-show=" (ratingKeseluruhan > 0 && ratingKeseluruhan < 4) || (ratingPetugas > 0 && ratingPetugas < 4) " x-transition>
     <h3 class="text-lg font-semibold text-gray-900">Kritik & Saran</h3>
-    <p class="text-base text-gray-600 mt-1">Kami mohon masukan dari Anda agar kami dapat menjadi lebih baik.</p>
     <div class="mt-4">
         <label for="saran" class="sr-only">Kritik & Saran</label>
-        <textarea name="saran" id="saran" rows="4" class="w-full text-base rounded-lg border-gray-300 focus:ring-2 focus:ring-orange-500" placeholder="Tuliskan masukan Anda di sini..."></textarea>
+        <textarea name="saran" id="saran" rows="4" class="w-full rounded-lg border-gray-300 focus:ring-2 focus:ring-orange-500 py-2.5 px-4 text-base transition" placeholder="Tuliskan masukan Anda di sini..."></textarea>
     </div>
 </div>
 

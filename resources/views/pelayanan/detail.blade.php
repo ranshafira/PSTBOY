@@ -90,34 +90,6 @@
                     <p class="text-sm text-gray-500">Belum diisi.</p>
                     @endif
                 </div>
-
-                {{-- [BARU] Kartu Survei SKD --}}
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-7">
-                    <div class="flex justify-between items-start mb-5">
-                        <h3 class="text-xl font-semibold text-gray-800">Survei Kebutuhan Dasar</h3>
-                        <p class="text-sm font-semibold text-gray-500 font-mono">{{ $pelayanan->skd_token ?? '-' }}</p>
-                    </div>
-                    @if($pelayanan->surveySkd)
-                    <div class="space-y-4">
-                        <div>
-                            <p class="text-sm text-gray-500">Pentingnya Data</p>
-                            <p class="font-semibold text-gray-900">{{ $pelayanan->surveySkd->skor_pertanyaan_1 }}/4</p>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500">Kesesuaian Data</p>
-                            <p class="font-semibold text-gray-900">{{ $pelayanan->surveySkd->skor_pertanyaan_2 }}/3</p>
-                        </div>
-                        @if($pelayanan->surveySkd->jawaban_terbuka)
-                        <div class="border-t border-gray-200 pt-3">
-                            <p class="text-sm text-gray-500 mb-1">Kebutuhan Data Lain</p>
-                            <p class="text-sm text-gray-700 italic">"{{ $pelayanan->surveySkd->jawaban_terbuka }}"</p>
-                        </div>
-                        @endif
-                    </div>
-                    @else
-                    <p class="text-sm text-gray-500">Belum diisi.</p>
-                    @endif
-                </div>
             </div>
 
             {{-- Kolom Utama (Detail Pelayanan) --}}
