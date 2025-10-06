@@ -111,7 +111,7 @@
 
   <!-- Chart 3: Bar Jenis Layanan (kanan atas) -->
   <div class="bg-white rounded-lg shadow-sm p-4 border border-gray-100">
-    <h3 class="text-base font-semibold text-gray-800 mb-3">Volume per Jenis Layanan</h3>
+    <h3 class="text-base font-semibold text-gray-800 mb-3">Jumlah per Jenis Layanan Bulan Ini</h3>
     <div class="relative h-48">
       <canvas id="chartJenisLayanan"></canvas>
     </div>

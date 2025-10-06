@@ -218,11 +218,15 @@
             <p class="text-6xl font-bold text-bps-orange my-4 bg-gray-100 p-4 rounded-lg">
                 {{ $nomor }}
             </p>
-
-            @if($mediaLayanan === 'whatsapp')
-            <p class="text-gray-600 mt-3 text-sm">
-                Silakan tunggu, petugas akan melayani Anda sesuai urutan antrian melalui WhatsApp.
-            </p>
+            
+            @if($mediaLayanan === 'langsung')
+                <p class="text-gray-600 mt-3 text-sm">
+                    Silakan tunggu, petugas akan melayani Anda sesuai urutan antrian.
+                </p>
+            @elseif($mediaLayanan === 'whatsapp')
+                <p class="text-gray-600 mt-3 text-sm">
+                    Silakan tunggu, petugas akan melayani Anda sesuai urutan antrian melalui WhatsApp.
+                </p>
             @elseif($mediaLayanan === 'email')
             <p class="text-gray-600 mt-3 text-sm">
                 Silakan tunggu, petugas akan menghubungi Anda melalui email sesuai antrian.
