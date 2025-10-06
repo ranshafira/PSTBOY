@@ -34,9 +34,7 @@ class Pelayanan extends Model
         'catatan_tambahan',
         'waktu_mulai_sesi',
         'waktu_selesai_sesi',
-        'survey_token',
-        'survey_completed_at',
-        'skd_token'
+        'survey_completed_at'
     ];
 
 
@@ -70,11 +68,22 @@ class Pelayanan extends Model
 
     public function surveyInternal()
     {
-        return $this->hasOne(SurveyInternal::class);
+        return $this->hasOne(SurveyInternal::class, 'pelayanan_id');
     }
+
+    public function surveiInternalSudahDiisi(): bool
+    {
+        $survei = $this->surveyInternal()->first();
+        if (!$survei) return false;
+
+        return $survei->skor_keseluruhan !== null && $survei->skor_petugas !== null;
+    }
+
+
+
 
     public function surveySkd()
     {
-        return $this->hasOne(SurveySkd::class);
+        return $this->hasOne(SurveySkd::class, 'pelayanan_id');
     }
 }

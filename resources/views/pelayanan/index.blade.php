@@ -110,19 +110,34 @@
                                 ->latest('created_at')
                                 ->first();
                                 @endphp
-                                @if($pelayanan)
+                                @if(!$pelayanan->surveiInternalSudahDiisi() || empty($pelayanan->deskripsi_hasil))
                                 <a href="{{ route('pelayanan.lanjut', $pelayanan->id) }}"
-                                    class="px-3 py-1 rounded bg-green-100 hover:bg-green-300 text-green-800 text-xs font-medium mr-2">
+                                    class="px-3 py-1 rounded bg-green-100 hover:bg-green-300 text-green-800 text-xs font-medium">
                                     Lanjutkan
                                 </a>
                                 @endif
+
                                 @elseif ($rawStatus === 'selesai')
                                 @if($item->pelayanan)
-                                <div class="flex items-center justify-center gap-2">
-                                    {{-- Indikator Status (Tidak bisa diklik) --}}
+                                @php
+                                $pelayanan = $item->pelayanan;
+                                $sudahIsiSurvei = \App\Models\SurveyInternal::where('pelayanan_id', $pelayanan->id)->exists();
+                                @endphp
+
+                                <div class=" flex items-center justify-center gap-2">
+                                    @if(!$sudahIsiSurvei)
+                                    {{-- Kalau survei internal belum diisi --}}
+                                    <a href="{{ route('survei.internal.show', $pelayanan->id) }}"
+                                        class="px-3 py-1 rounded bg-orange-100 hover:bg-orange-300 text-orange-800 text-xs font-medium">
+                                        Isi Survei
+                                    </a>
+
+                                    @else
+                                    {{-- Kalau survei internal sudah diisi --}}
                                     <span class="px-3 py-1 rounded bg-gray-100 text-gray-700 text-xs font-medium">
                                         Selesai
                                     </span>
+                                    @endif
                                 </div>
                                 @else
                                 {{-- Fallback jika data pelayanan tidak ada --}}
@@ -131,6 +146,8 @@
                                 </span>
                                 @endif
                                 @endif
+
+
                             </td>
                         </tr>
                         @empty

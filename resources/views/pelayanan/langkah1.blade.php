@@ -19,7 +19,6 @@
                 </div>
             </div>
         </div>
-
         <form action="{{ route('pelayanan.langkah1.store') }}" method="POST">
             @csrf
             <input type="hidden" name="antrian_id" value="{{ $antrian->id }}">
