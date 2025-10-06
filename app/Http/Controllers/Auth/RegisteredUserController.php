@@ -29,30 +29,52 @@ class RegisteredUserController extends Controller
      * @throws \Illuminate\Validation\ValidationException
      */
     public function store(Request $request): RedirectResponse
-{
-    $request->validate([
-        'nama_lengkap' => ['required', 'string', 'max:255'],
-        'nip' => ['required', 'string', 'max:18', 'unique:'.User::class],
-        'username' => ['required', 'string', 'max:255', 'unique:'.User::class],
-        'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        'email' => ['nullable', 'email'], // Validasi email
-        'no_hp' => ['nullable', 'string'], // Validasi No HP
-    ]);
+    {
+        $request->validate([
+            'nama_lengkap' => [
+                'required',
+                'string',
+                'max:255',
+                'regex:/^[a-zA-Z\s]+$/', // hanya huruf & spasi
+            ],
+            'nip' => [
+                'required',
+                'digits:15',             // hanya angka & harus tepat 15 digit
+                'unique:' . User::class,
+            ],
+            'username' => [
+                'required',
+                'string',
+                'max:255',
+                'unique:' . User::class,
+            ],
+            'password' => [
+                'required',
+                'confirmed',
+                Rules\Password::min(8),  // minimal 8 karakter
+            ],
+            'email' => [
+                'nullable',
+                'email',
+                'unique:' . User::class,
+            ],
+            'no_hp' => [
+                'nullable',
+                'regex:/^[0-9]{10,15}$/', // hanya angka, panjang 10–15 digit
+            ],
+        ], [
+            'nama_lengkap.regex' => 'Nama hanya boleh berisi huruf dan spasi.',
+            'nip.digits' => 'NIP harus terdiri dari 15 angka.',
+            'no_hp.regex' => 'Nomor HP hanya boleh berisi angka (10–15 digit).',
+            'password.min' => 'Password minimal 8 karakter.',
+            'password.confirmed' => 'Konfirmasi password tidak sesuai.',
+        ]);
 
-    $user = User::create([
-        'nama_lengkap' => $request->nama_lengkap,
-        'nip' => $request->nip,
-        'username' => $request->username,
-        'email' => $request->email,   // Simpan email
-        'no_hp' => $request->no_hp,   // Simpan No HP
-        'password' => Hash::make($request->password),
-        'role_id' => 2, // Asumsi: Semua yang register adalah Petugas (role_id = 2)
-    ]);
 
-    // event(new Registered($user));
+        // event(new Registered($user));
 
-    // Auth::login($user);
+        // Auth::login($user);
 
-    return redirect()->route('admin.petugas.index')->with('success', 'User berhasil didaftarkan.');
-}
+        return redirect()->route('admin.petugas.index')->with('success', 'User berhasil didaftarkan.');
+    }
 }
