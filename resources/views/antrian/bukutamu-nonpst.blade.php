@@ -34,7 +34,7 @@
     <header class="bg-gradient-to-r from-bps-dark to-bps-primary shadow-lg border-b border-white/10">
         <div class="container mx-auto px-6 py-4 flex justify-between items-center">
             <a href="https://boyolalikab.bps.go.id/" target="_blank" rel="noopener noreferrer" class="flex items-center group">
-                <img src="https://4.bp.blogspot.com/-w45pPrU450Q/WitcqmIyloI/AAAAAAAAF3Q/k4pgHadbWvslcDQNTxLOezOK2cOaypPSACLcBGAs/s1600/BPS.png" alt="BPS Logo" class="h-10 mr-4 group-hover:opacity-80 transition-opacity">
+                <img src="{{ asset('build/assets/images/BPS.png') }}" alt="BPS Logo" class="h-10 mr-4 group-hover:opacity-80 transition-opacity">
                 <span class="text-xl text-white hidden sm:block font-semibold group-hover:text-gray-300 transition-colors">
                     BPS Kabupaten Boyolali
                 </span>
@@ -48,7 +48,7 @@
 
             <!-- Header Card -->
             <div class="bg-gradient-to-r from-bps-dark to-bps-primary p-6 text-center">
-                <img src="https://4.bp.blogspot.com/-w45pPrU450Q/WitcqmIyloI/AAAAAAAAF3Q/k4pgHadbWvslcDQNTxLOezOK2cOaypPSACLcBGAs/s1600/BPS.png" alt="BPS Logo" class="mx-auto w-14 h-14 mb-2">
+                <img src="{{ asset('build/assets/images/BPS.png') }}" alt="BPS Logo" class="mx-auto w-14 h-14 mb-2">
                 <h1 class="text-2xl font-bold text-white">Buku Tamu Digital</h1>
                 <p class="text-blue-100 text-sm">Pelayanan Non-PST</p>
             </div>
