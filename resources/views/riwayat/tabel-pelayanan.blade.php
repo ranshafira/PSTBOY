@@ -11,31 +11,36 @@
     <table class="min-w-full border-t border-gray-200 text-sm">
       <thead class="bg-gray-50 text-gray-600">
         <tr>
-          <th class="px-4 py-2 text-left">No. Antrian</th>
-          <th class="px-4 py-2 text-left">Pengunjung</th>
-          <th class="px-4 py-2 text-left">Kontak</th>
-          <th class="px-4 py-2 text-left">Jenis Layanan</th>
-          <th class="px-4 py-2 text-left">Petugas</th>
-          <th class="px-4 py-2 text-left">Tanggal</th>
-          <th class="px-4 py-2 text-left">Status</th>
-          <th class="px-4 py-2 text-left">Token Survei</th>
-          <th class="px-4 py-2 text-left">Kepuasan</th>
-          <th class="px-4 py-2 text-left">Aksi</th>
+          <th class="px-4 py-2 text-center">No. Antrian</th>
+          <th class="px-4 py-2 text-center">Pengunjung</th>
+          <th class="px-4 py-2 text-center">Kontak</th>
+          <th class="px-4 py-2 text-center">Media Layanan</th>
+          <th class="px-4 py-2 text-center">Jenis Layanan</th>
+          <th class="px-4 py-2 text-center">Petugas</th>
+          <th class="px-4 py-2 text-center">Tanggal</th>
+          <th class="px-4 py-2 text-center">Status</th>
+          <th class="px-4 py-2 text-center">Aksi</th>
         </tr>
       </thead>
       <tbody class="divide-y divide-gray-100">
         @foreach($riwayat as $p)
         <tr>
-          <td class="px-4 py-2">{{ $p->antrian->nomor_antrian ?? '-' }}</td>
-          <td class="px-4 py-2">{{ $p->nama_pengunjung }}</td>
-          <td class="px-4 py-2">
+          <td class="px-4 py-2 text-center">{{ $p->antrian->nomor_antrian ?? '-' }}</td>
+          <td class="px-4 py-2 text-center">{{ $p->nama_pengunjung }}</td>
+          <td class="px-4 py-2 text-center">
             {{ $p->no_hp ?? '-' }} <br>
             {{ $p->email ?? '-' }}
           </td>
-          <td class="px-4 py-2">{{ $p->jenisLayanan->nama_layanan ?? '-' }}</td>
-          <td class="px-4 py-2">{{ $p->petugas->username ?? '-' }}</td>
-          <td class="px-4 py-2">{{ \Carbon\Carbon::parse($p->waktu_mulai_sesi)->format('d-m-Y') }}</td>
-          <td class="px-4 py-2">
+          <td class="px-4 py-2 text-center">@if ($p->media_layanan)
+              {{ $p->media_layanan === 'whatsapp' ? 'WhatsApp' : ucfirst($p->media_layanan) }}
+            @else
+              -
+            @endif
+          </td>
+          <td class="px-4 py-2 text-center">{{ $p->jenisLayanan->nama_layanan ?? '-' }}</td>
+          <td class="px-4 py-2 text-center">{{ $p->petugas->username ?? '-' }}</td>
+          <td class="px-4 py-2 text-center">{{ \Carbon\Carbon::parse($p->waktu_mulai_sesi)->format('d-m-Y') }}</td>
+          <td class="px-4 py-2 text-center">
             @php
                 $status = $p->status_penyelesaian ?? 'Proses';
                 $bgColor = 'bg-gray-100 text-gray-500';
@@ -45,12 +50,6 @@
             @endphp
             <span class="px-2 py-1 text-xs rounded-full {{ $bgColor }}">{{ $status }}</span>
           </td>
-          <td class="px-4 py-2">{{ $p->survey_token }}</td>
-          @php
-              $skor = $p->surveyKepuasan->skor_kepuasan ?? null;
-              $rataRata = $skor ? round(array_sum($skor)/count($skor),1) : null;
-          @endphp
-          <td class="px-4 py-2">{{ $rataRata ? $rataRata.'/5' : 'Belum Mengisi' }}</td>
           <td class="px-4 py-2">
             <a href="{{ route('pelayanan.detail', $p->id) }}" class="px-3 py-1 rounded bg-gray-100 hover:bg-gray-300 text-black-800 text-xs font-medium mr-2">Lihat Detail</a>
         </tr>

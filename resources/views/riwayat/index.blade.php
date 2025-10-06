@@ -14,7 +14,12 @@
     <!-- Export CSV di pojok kanan atas -->
     <div>
       <a href="{{ route('riwayat.export', array_merge(request()->all(), ['tab' => $tab])) }}" 
-         class="px-4 py-2 bg-white border border-gray-300 text-black font-bold text-sm rounded-lg shadow">
+        class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white font-medium text-sm rounded-xl shadow hover:bg-emerald-700 hover:shadow-lg transition-all duration-200">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" 
+            stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round" 
+                d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+        </svg>
         Export CSV
       </a>
     </div>
@@ -71,11 +76,13 @@
       </div>
 
       <div>
-        <label class="block text-sm text-gray-600 mb-1">Jenis Layanan</label>
-        <select name="jenis_layanan" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm">
-          <option value="">Semua jenis</option>
-          @foreach(\App\Models\JenisLayanan::all() as $jenis)
-          <option value="{{ $jenis->id }}" {{ request('jenis_layanan') == $jenis->id ? 'selected' : '' }}>{{ $jenis->nama_layanan }}</option>
+        <label class="block text-sm text-gray-600 mb-1">Media Layanan</label>
+        <select name="media_layanan" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm">
+          <option value="">Semua media</option>
+          @foreach(\App\Models\Pelayanan::select('media_layanan')->distinct()->get() as $item)
+            <option value="{{ $item->media_layanan }}" {{ request('media_layanan') == $item->media_layanan ? 'selected' : '' }}>
+              {{ $item->media_layanan === 'whatsapp' ? 'WhatsApp' : ucfirst($item->media_layanan) }}
+            </option>
           @endforeach
         </select>
       </div>
