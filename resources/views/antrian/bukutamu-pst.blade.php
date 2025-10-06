@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -22,11 +23,13 @@
     </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+
         body {
             font-family: 'Inter', 'Segoe UI', sans-serif;
         }
     </style>
 </head>
+
 <body class="bg-bps-primary min-h-screen flex flex-col">
 
     <!-- Header -->
@@ -138,27 +141,27 @@
 
                         <!-- Jenis Layanan -->
                         <div>
-                        <label class="block text-sm font-medium text-gray-700">Media Layanan</label>
-                        <div class="mt-1 flex gap-4">
-                            <label class="flex-1">
-                                <input type="radio" name="media_layanan" value="langsung" onclick="toggleLayanan(true)" class="peer hidden" {{ old('media_layanan') == 'langsung' ? 'checked' : '' }}>
-                                <div class="h-12 border rounded-lg flex items-center justify-center cursor-pointer whitespace-nowrap px-6 peer-checked:bg-bps-primary peer-checked:text-white">
-                                Layanan Langsung
-                                </div>
-                            </label>
-                            <label class="flex-1">
-                                <input type="radio" name="media_layanan" value="whatsapp" onclick="toggleLayanan(false)" class="peer hidden" {{ old('media_layanan') == 'whatsapp' ? 'checked' : '' }}>
-                                <div class="h-12 border rounded-lg flex items-center justify-center cursor-pointer whitespace-nowrap px-6 peer-checked:bg-green-600 peer-checked:text-white">
-                                WhatsApp
-                                </div>
-                            </label>
-                            <label class="flex-1">
-                                <input type="radio" name="media_layanan" value="email" onclick="toggleLayanan(false)" class="peer hidden" {{ old('media_layanan') == 'email' ? 'checked' : '' }}>
-                                <div class="h-12 border rounded-lg flex items-center justify-center cursor-pointer whitespace-nowrap px-6 peer-checked:bg-orange-500 peer-checked:text-white">
-                                Email
-                                </div>
-                            </label>
-                        </div>
+                            <label class="block text-sm font-medium text-gray-700">Media Layanan</label>
+                            <div class="mt-1 flex gap-4">
+                                <label class="flex-1">
+                                    <input type="radio" name="media_layanan" value="langsung" onclick="toggleLayanan(true)" class="peer hidden" {{ old('media_layanan') == 'langsung' ? 'checked' : '' }}>
+                                    <div class="h-12 border rounded-lg flex items-center justify-center cursor-pointer whitespace-nowrap px-6 peer-checked:bg-bps-primary peer-checked:text-white">
+                                        Layanan Langsung
+                                    </div>
+                                </label>
+                                <label class="flex-1">
+                                    <input type="radio" name="media_layanan" value="whatsapp" onclick="toggleLayanan(false)" class="peer hidden" {{ old('media_layanan') == 'whatsapp' ? 'checked' : '' }}>
+                                    <div class="h-12 border rounded-lg flex items-center justify-center cursor-pointer whitespace-nowrap px-6 peer-checked:bg-green-600 peer-checked:text-white">
+                                        WhatsApp
+                                    </div>
+                                </label>
+                                <label class="flex-1">
+                                    <input type="radio" name="media_layanan" value="email" onclick="toggleLayanan(false)" class="peer hidden" {{ old('media_layanan') == 'email' ? 'checked' : '' }}>
+                                    <div class="h-12 border rounded-lg flex items-center justify-center cursor-pointer whitespace-nowrap px-6 peer-checked:bg-orange-500 peer-checked:text-white">
+                                        Email
+                                    </div>
+                                </label>
+                            </div>
                         </div>
 
                         <!-- Sub Layanan -->
@@ -188,7 +191,7 @@
             </div>
         </div>
     </main>
-    
+
     @if (session('success'))
     <div x-data="{ showModal: true }"
         x-show="showModal"
@@ -208,8 +211,8 @@
             <h2 class="text-2xl font-bold text-gray-800 mb-2">Nomor Antrian Anda</h2>
 
             @php
-                $nomor = explode(': ', session('success'))[1] ?? '';
-                $mediaLayanan = strtolower(session('media_layanan') ?? '');
+            $nomor = explode(': ', session('success'))[1] ?? '';
+            $mediaLayanan = strtolower(session('media_layanan') ?? '');
             @endphp
 
             <p class="text-6xl font-bold text-bps-orange my-4 bg-gray-100 p-4 rounded-lg">
@@ -225,20 +228,20 @@
                     Silakan tunggu, petugas akan melayani Anda sesuai urutan antrian melalui WhatsApp.
                 </p>
             @elseif($mediaLayanan === 'email')
-                <p class="text-gray-600 mt-3 text-sm">
-                    Silakan tunggu, petugas akan menghubungi Anda melalui email sesuai antrian.
-                </p>
+            <p class="text-gray-600 mt-3 text-sm">
+                Silakan tunggu, petugas akan menghubungi Anda melalui email sesuai antrian.
+            </p>
             @endif
 
-            <button @click="showModal = false" 
-                    class="mt-6 w-full bg-bps-primary text-white font-bold py-3 px-6 rounded-lg hover:bg-bps-dark transition-colors duration-300">
+            <button @click="showModal = false"
+                class="mt-6 w-full bg-bps-primary text-white font-bold py-3 px-6 rounded-lg hover:bg-bps-dark transition-colors duration-300">
                 Tutup
             </button>
         </div>
     </div>
     @endif
 
-    
+
     <script>
         function toggleLayanan(show) {
             document.getElementById('subLayanan').classList.toggle('hidden', !show);
@@ -247,4 +250,5 @@
         }
     </script>
 </body>
+
 </html>
