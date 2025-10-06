@@ -27,6 +27,10 @@
         body {
             font-family: 'Inter', 'Segoe UI', sans-serif;
         }
+
+        [x-cloak] {
+            display: none !important;
+        }
     </style>
 </head>
 
@@ -79,7 +83,9 @@
                             </label>
                             <input type="text" name="nama_pengunjung" id="nama" value="{{ old('nama_pengunjung') }}" required
                                 class="h-12 mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-bps-primary focus:border-bps-primary">
-                            @error('nama_pengunjung')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                            @error('nama_pengunjung')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <!-- Instansi -->
@@ -87,6 +93,9 @@
                             <label for="instansi" class="block text-sm font-medium text-gray-700">Instansi/Organisasi</label>
                             <input type="text" name="instansi_pengunjung" id="instansi" value="{{ old('instansi_pengunjung') }}"
                                 class="h-12 mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-bps-primary focus:border-bps-primary">
+                            @error('instansi_pengunjung')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <!-- Pendidikan -->
@@ -108,6 +117,9 @@
                             <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
                             <input type="email" name="email" id="email" value="{{ old('email') }}"
                                 class="h-12 mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-bps-primary focus:border-bps-primary">
+                            @error('email')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
 
@@ -130,6 +142,9 @@
                                     </div>
                                 </label>
                             </div>
+                            @error('jenis_kelamin')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <!-- No HP -->
@@ -137,6 +152,9 @@
                             <label for="hp" class="block text-sm font-medium text-gray-700">No. HP</label>
                             <input type="text" name="no_hp" id="hp" value="{{ old('no_hp') }}"
                                 class="h-12 mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-bps-primary focus:border-bps-primary">
+                            @error('no_hp')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <!-- Jenis Layanan -->
@@ -162,6 +180,9 @@
                                     </div>
                                 </label>
                             </div>
+                            @error('media_layanan')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <!-- Sub Layanan -->
@@ -174,6 +195,9 @@
                                 <option value="3" {{ old('jenis_layanan_id') == '3' ? 'selected' : '' }}>Rekomendasi Statistik</option>
                                 <option value="1" {{ old('jenis_layanan_id') == '1' ? 'selected' : '' }}>Perpustakaan</option>
                             </select>
+                            @error('jenis_layanan_id')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
 
@@ -218,15 +242,15 @@
             <p class="text-6xl font-bold text-bps-orange my-4 bg-gray-100 p-4 rounded-lg">
                 {{ $nomor }}
             </p>
-            
+
             @if($mediaLayanan === 'langsung')
-                <p class="text-gray-600 mt-3 text-sm">
-                    Silakan tunggu, petugas akan melayani Anda sesuai urutan antrian.
-                </p>
+            <p class="text-gray-600 mt-3 text-sm">
+                Silakan tunggu, petugas akan melayani Anda sesuai urutan antrian.
+            </p>
             @elseif($mediaLayanan === 'whatsapp')
-                <p class="text-gray-600 mt-3 text-sm">
-                    Silakan tunggu, petugas akan melayani Anda sesuai urutan antrian melalui WhatsApp.
-                </p>
+            <p class="text-gray-600 mt-3 text-sm">
+                Silakan tunggu, petugas akan melayani Anda sesuai urutan antrian melalui WhatsApp.
+            </p>
             @elseif($mediaLayanan === 'email')
             <p class="text-gray-600 mt-3 text-sm">
                 Silakan tunggu, petugas akan menghubungi Anda melalui email sesuai antrian.
@@ -241,13 +265,20 @@
     </div>
     @endif
 
-
     <script>
         function toggleLayanan(show) {
             document.getElementById('subLayanan').classList.toggle('hidden', !show);
             // Optional: reset jenis_layanan_id jika WA/email dipilih
             if (!show) document.getElementById('sub_layanan').value = '';
         }
+
+        // Inisialisasi status sub-layanan berdasarkan pilihan media yang sudah ada
+        document.addEventListener('DOMContentLoaded', function() {
+            const mediaLangsung = document.querySelector('input[name="media_layanan"][value="langsung"]');
+            if (mediaLangsung && mediaLangsung.checked) {
+                toggleLayanan(true);
+            }
+        });
     </script>
 </body>
 

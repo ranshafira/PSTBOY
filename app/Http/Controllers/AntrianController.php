@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\JenisLayanan; // PASTIKAN BARIS INI ADA
+use App\Models\JenisLayanan;
 use App\Models\Antrian;
 use Illuminate\Http\Request;
 use App\Models\Pelayanan;
@@ -11,29 +11,32 @@ class AntrianController extends Controller
 {
     public function index()
     {
-        // Mengambil semua data jenis layanan dari database
         $jenisLayanan = JenisLayanan::all();
-
-        // Mengirim data tersebut ke view 'antrian.index'
         return view('antrian.index', compact('jenisLayanan'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'nama_pengunjung'  => 'required|string|max:255',
-            'jenis_layanan_id' => 'nullable|exists:jenis_layanan,id',
+            'nama_pengunjung'  => 'required|string|max:255|regex:/^[\pL\s\'-]+$/u',
+            'jenis_layanan_id' => 'nullable|integer|exists:jenis_layanan,id',
             'media_layanan'    => 'nullable|string|in:whatsapp,email,langsung',
-            'instansi_pengunjung'         => 'nullable|string|max:255',
+            'instansi_pengunjung' => 'nullable|string|max:255|regex:/^[\pL\s0-9]+$/u',
             'pendidikan'       => 'nullable|string|max:50',
             'email'            => 'nullable|email|max:255',
-            'jenis_kelamin'           => 'nullable|string|in:Laki-laki,Perempuan',
-            'no_hp'               => 'nullable|string|max:20',
+            'jenis_kelamin'    => 'nullable|string|in:Laki-laki,Perempuan',
+            'no_hp'            => 'nullable|string|min:10|max:15|regex:/^[0-9]+$/',
+        ], [
+            'nama_pengunjung.regex' => 'Nama hanya boleh berisi huruf, spasi, tanda petik satu, dan tanda hubung.',
+            'instansi_pengunjung.regex' => 'Instansi hanya boleh berisi huruf, angka, dan spasi.',
+            'no_hp.regex' => 'Nomor HP hanya boleh berisi angka.',
+            'no_hp.min' => 'Nomor HP harus terdiri dari 10 hingga 15 digit.',
+            'no_hp.max' => 'Nomor HP harus terdiri dari 10 hingga 15 digit.',
         ]);
 
         // Tentukan kode antrian
         if ($request->media_layanan && $request->media_layanan !== 'langsung') {
-            $kode = match($request->media_layanan) {
+            $kode = match ($request->media_layanan) {
                 'whatsapp' => 'WA-',
                 'email'    => 'EML-',
                 default    => 'X',
@@ -47,13 +50,14 @@ class AntrianController extends Controller
 
         // Generate nomor antrian unik per kode per hari
         $nomorAntrian = $this->generateNomorAntrian($kode);
-        
+
         // Membuat record antrian dahulu
         $antrian = Antrian::create([
             'nomor_antrian' => $nomorAntrian,
             'status'        => 'menunggu',
             'jenis_layanan_id' => $request->jenis_layanan_id,
         ]);
+
         // Simpan ke tabel pelayanan
         $pelayanan = Pelayanan::create([
             'nama_pengunjung'         => $request->nama_pengunjung,
@@ -71,9 +75,9 @@ class AntrianController extends Controller
         ]);
 
         return redirect()->back()
-                        ->with('success', 'Nomor antrian Anda adalah: ' . $nomorAntrian)
-                        ->with('nomor_antrian', $nomorAntrian)
-                        ->with('media_layanan', $request->input('media_layanan'));
+            ->with('success', 'Nomor antrian Anda adalah: ' . $nomorAntrian)
+            ->with('nomor_antrian', $nomorAntrian)
+            ->with('media_layanan', $request->input('media_layanan'));
     }
 
     private function generateNomorAntrian($kodeAntrian)
@@ -81,8 +85,8 @@ class AntrianController extends Controller
         $tanggal = date('Y-m-d');
 
         $antrianTerakhir = Antrian::whereDate('created_at', $tanggal)
-                                ->orderBy('id', 'desc')
-                                ->first();
+            ->orderBy('id', 'desc')
+            ->first();
 
         $nomorUrut = 1;
         if ($antrianTerakhir) {
@@ -111,7 +115,6 @@ class AntrianController extends Controller
         return back()->with('success', $message);
     }
 
-
     public function batal($id)
     {
         $antrian = \App\Models\Antrian::find($id);
@@ -122,8 +125,4 @@ class AntrianController extends Controller
 
         return back()->with('success', "Antrian {$antrian->nomor_antrian} dikembalikan ke menunggu.");
     }
-
-
-
-
 }
