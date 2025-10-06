@@ -48,7 +48,7 @@
                 x-transition:enter-end="opacity-100 translate-x-0"
                 class="flex items-center group">
 
-                <img src="https://4.bp.blogspot.com/-w45pPrU450Q/WitcqmIyloI/AAAAAAAAF3Q/k4pgHadbWvslcDQNTxLOezOK2cOaypPSACLcBGAs/s1600/BPS.png" alt="BPS Logo" class="h-10 mr-4 group-hover:opacity-80 transition-opacity">
+                <img src="{{ asset('build/assets/images/BPS.png') }}" alt="BPS Logo" class="h-10 mr-4 group-hover:opacity-80 transition-opacity">
                 <strong class="text-xl text-white hidden sm:block font-semibold group-hover:text-gray-300 transition-colors">
                     BPS Kabupaten Boyolali
                 </strong>
