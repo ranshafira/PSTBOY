@@ -27,6 +27,10 @@
         body {
             font-family: 'Inter', 'Segoe UI', sans-serif;
         }
+
+        [x-cloak] {
+            display: none !important;
+        }
     </style>
 </head>
 
@@ -36,7 +40,7 @@
     <header class="bg-gradient-to-r from-bps-dark to-bps-primary shadow-lg border-b border-white/10">
         <div class="container mx-auto px-6 py-4 flex justify-between items-center">
             <a href="https://boyolalikab.bps.go.id/" target="_blank" rel="noopener noreferrer" class="flex items-center group">
-                <img src="https://4.bp.blogspot.com/-w45pPrU450Q/WitcqmIyloI/AAAAAAAAF3Q/k4pgHadbWvslcDQNTxLOezOK2cOaypPSACLcBGAs/s1600/BPS.png" alt="BPS Logo" class="h-10 mr-4 group-hover:opacity-80 transition-opacity">
+                <img src="{{ asset('build/assets/images/BPS.png') }}" alt="BPS Logo" class="h-10 mr-4 group-hover:opacity-80 transition-opacity">
                 <span class="text-xl text-white hidden sm:block font-semibold group-hover:text-gray-300 transition-colors">
                     BPS Kabupaten Boyolali
                 </span>
@@ -50,7 +54,7 @@
 
             <!-- Header Card -->
             <div class="bg-gradient-to-r from-bps-dark to-bps-primary p-6 text-center">
-                <img src="https://4.bp.blogspot.com/-w45pPrU450Q/WitcqmIyloI/AAAAAAAAF3Q/k4pgHadbWvslcDQNTxLOezOK2cOaypPSACLcBGAs/s1600/BPS.png" alt="BPS Logo" class="mx-auto w-14 h-14 mb-2">
+                <img src="{{ asset('build/assets/images/BPS.png') }}" alt="BPS Logo" class="mx-auto w-14 h-14 mb-2">
                 <h1 class="text-2xl font-bold text-white">Pelayanan PST</h1>
                 <p class="text-blue-100 text-sm">Buku Tamu Digital</p>
             </div>
@@ -79,7 +83,9 @@
                             </label>
                             <input type="text" name="nama_pengunjung" id="nama" value="{{ old('nama_pengunjung') }}" required
                                 class="h-12 mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-bps-primary focus:border-bps-primary">
-                            @error('nama_pengunjung')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                            @error('nama_pengunjung')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <!-- Instansi -->
@@ -87,6 +93,9 @@
                             <label for="instansi" class="block text-sm font-medium text-gray-700">Instansi/Organisasi</label>
                             <input type="text" name="instansi_pengunjung" id="instansi" value="{{ old('instansi_pengunjung') }}"
                                 class="h-12 mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-bps-primary focus:border-bps-primary">
+                            @error('instansi_pengunjung')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <!-- Pendidikan -->
@@ -108,6 +117,9 @@
                             <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
                             <input type="email" name="email" id="email" value="{{ old('email') }}"
                                 class="h-12 mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-bps-primary focus:border-bps-primary">
+                            @error('email')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
 
@@ -130,6 +142,9 @@
                                     </div>
                                 </label>
                             </div>
+                            @error('jenis_kelamin')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <!-- No HP -->
@@ -137,6 +152,9 @@
                             <label for="hp" class="block text-sm font-medium text-gray-700">No. HP</label>
                             <input type="text" name="no_hp" id="hp" value="{{ old('no_hp') }}"
                                 class="h-12 mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-bps-primary focus:border-bps-primary">
+                            @error('no_hp')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <!-- Jenis Layanan -->
@@ -162,6 +180,9 @@
                                     </div>
                                 </label>
                             </div>
+                            @error('media_layanan')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <!-- Sub Layanan -->
@@ -174,6 +195,9 @@
                                 <option value="3" {{ old('jenis_layanan_id') == '3' ? 'selected' : '' }}>Rekomendasi Statistik</option>
                                 <option value="1" {{ old('jenis_layanan_id') == '1' ? 'selected' : '' }}>Perpustakaan</option>
                             </select>
+                            @error('jenis_layanan_id')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
 
@@ -219,7 +243,11 @@
                 {{ $nomor }}
             </p>
 
-            @if($mediaLayanan === 'whatsapp')
+            @if($mediaLayanan === 'langsung')
+            <p class="text-gray-600 mt-3 text-sm">
+                Silakan tunggu, petugas akan melayani Anda sesuai urutan antrian.
+            </p>
+            @elseif($mediaLayanan === 'whatsapp')
             <p class="text-gray-600 mt-3 text-sm">
                 Silakan tunggu, petugas akan melayani Anda sesuai urutan antrian melalui WhatsApp.
             </p>
@@ -237,13 +265,20 @@
     </div>
     @endif
 
-
     <script>
         function toggleLayanan(show) {
             document.getElementById('subLayanan').classList.toggle('hidden', !show);
             // Optional: reset jenis_layanan_id jika WA/email dipilih
             if (!show) document.getElementById('sub_layanan').value = '';
         }
+
+        // Inisialisasi status sub-layanan berdasarkan pilihan media yang sudah ada
+        document.addEventListener('DOMContentLoaded', function() {
+            const mediaLangsung = document.querySelector('input[name="media_layanan"][value="langsung"]');
+            if (mediaLangsung && mediaLangsung.checked) {
+                toggleLayanan(true);
+            }
+        });
     </script>
 </body>
 
