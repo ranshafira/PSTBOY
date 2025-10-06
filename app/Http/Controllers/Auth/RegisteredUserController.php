@@ -70,10 +70,18 @@ class RegisteredUserController extends Controller
             'password.confirmed' => 'Konfirmasi password tidak sesuai.',
         ]);
 
+        // BUAT USER BARU - INI YANG PERLU DITAMBAHKAN
+        $user = User::create([
+            'nama_lengkap' => $request->nama_lengkap,
+            'nip' => $request->nip,
+            'username' => $request->username,
+            'email' => $request->email,
+            'no_hp' => $request->no_hp,
+            'password' => Hash::make($request->password),
+            'role_id' => 2, // Default role untuk petugas PST, sesuaikan dengan kebutuhan
+        ]);
 
         // event(new Registered($user));
-
-        // Auth::login($user);
 
         return redirect()->route('admin.petugas.index')->with('success', 'User berhasil didaftarkan.');
     }
