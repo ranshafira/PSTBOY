@@ -60,8 +60,6 @@
                 </svg>
             </div>
 
-
-
             <!-- Text -->
             <h3 class="text-lg font-semibold text-gray-800">Memproses...</h3>
             <p class="text-gray-500 text-sm mt-1">Sedang membuat jadwal bulanan</p>
@@ -83,13 +81,6 @@
             </h3>
 
             <div class="flex items-center">
-                <button id="toggleLegendBtn" class="flex items-center text-sm text-gray-600 hover:text-orange-500 transition-colors duration-200 mr-4">
-                    <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    Tampilkan Legenda
-                </button>
-
                 <!-- Tombol Ekspor CSV -->
                 <button id="exportCsvBtn" class="flex items-center text-sm bg-green-600 text-white hover:bg-green-700 transition-colors duration-200 rounded-md px-3 py-2 mr-4">
                     <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -113,17 +104,6 @@
                         </button>
                     </form>
                 </div>
-            </div>
-        </div>
-
-        <!-- User Color Legend -->
-        <div id="userLegend" class="hidden mb-6 p-4 bg-orange-50 rounded-lg border border-orange-100 shadow-sm">
-            <h4 class="text-sm font-medium text-gray-700 mb-3 flex items-center">
-                <span class="inline-block w-2 h-4 bg-orange-500 rounded-sm mr-2"></span>
-                Warna Petugas:
-            </h4>
-            <div id="legendContent" class="grid grid-cols-2 md:grid-cols-4 gap-2">
-                <!-- Will be populated by JavaScript -->
             </div>
         </div>
 
@@ -676,7 +656,6 @@
         let statusIndex = 0;
         let statusInterval;
         let loadingStartTime;
-        let userColors = {};
 
         // Get current date for default values
         const currentDate = new Date();
@@ -930,8 +909,6 @@
                     viewYear: viewYear
                 });
 
-                userColors = {};
-
                 // Gunakan fungsi loading yang diperbaiki
                 setCalendarLoading(true);
 
@@ -971,22 +948,10 @@
                                 return null;
                             }
 
-                            if (event.user_id || event.extendedProps?.userId) {
-                                const userId = event.user_id || event.extendedProps.userId;
-                                userColors[userId] = {
-                                    name: event.title || event.user_name || event.extendedProps?.userName,
-                                    color: event.backgroundColor || event.color || '#888888',
-                                    shift: event.shift || event.extendedProps?.shift
-                                };
-                            }
-
                             return event;
                         }).filter(event => event !== null);
 
                         successCallback(processedEvents);
-
-                        // Update legend setelah delay yang cukup
-                        setTimeout(updateLegend, 500);
 
                         // Hide loading dengan delay yang sesuai
                         setTimeout(() => {
@@ -1027,8 +992,6 @@
                 if (tahunInput) tahunInput.value = viewYear;
                 if (filterBulan) filterBulan.value = viewMonth;
                 if (filterTahun) filterTahun.value = viewYear;
-
-                userColors = {};
             },
 
             eventDisplay: 'block',
@@ -1040,21 +1003,6 @@
             },
 
             eventDidMount: function(info) {
-                const shift = info.event.extendedProps.shift;
-
-                if (info.event.extendedProps.userId) {
-                    const userId = info.event.extendedProps.userId;
-                    const userName = info.event.extendedProps.userName || info.event.extendedProps.petugas;
-
-                    if (!userColors[userId]) {
-                        userColors[userId] = {
-                            name: userName,
-                            color: info.event.backgroundColor,
-                            shift: shift
-                        };
-                    }
-                }
-
                 info.el.style.color = 'white';
                 info.el.style.borderRadius = '6px';
                 info.el.style.border = '2px solid';
@@ -1083,96 +1031,11 @@
 
         calendar.render();
 
-        // Toggle legenda
-        document.getElementById('toggleLegendBtn').addEventListener('click', function() {
-            const legend = document.getElementById('userLegend');
-            if (legend.classList.contains('hidden')) {
-                legend.classList.remove('hidden');
-                this.innerHTML = '<svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> Sembunyikan Legenda';
-                updateLegend();
-            } else {
-                legend.classList.add('hidden');
-                this.innerHTML = '<svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> Tampilkan Legenda';
-            }
-        });
-
-        // Update legenda warna user
-        function updateLegend() {
-            const legendContent = document.getElementById('legendContent');
-            if (!legendContent) {
-                console.error('Legend content element not found');
-                return;
-            }
-
-            console.log('Updating legend with user colors:', userColors);
-            legendContent.innerHTML = '';
-
-            const legendHeader = document.createElement('div');
-            legendHeader.className = 'col-span-full mb-2 pb-2 border-b border-gray-200';
-            legendHeader.innerHTML = `
-            <h4 class="text-sm font-semibold text-gray-800">Legenda Petugas</h4>
-            <p class="text-xs text-gray-500">Warna unik untuk setiap petugas</p>
-        `;
-            legendContent.appendChild(legendHeader);
-
-            const usersContainer = document.createElement('div');
-            usersContainer.className = 'grid grid-cols-2 md:grid-cols-3 gap-2';
-
-            const uniqueUsers = {};
-
-            Object.keys(userColors).forEach(userId => {
-                const userInfo = userColors[userId];
-
-                if (typeof userInfo === 'string') {
-                    const events = calendar.getEvents();
-                    let userName = null;
-
-                    for (let i = 0; i < events.length; i++) {
-                        if (events[i].extendedProps && events[i].extendedProps.userId == userId) {
-                            userName = events[i].extendedProps.userName || events[i].extendedProps.petugas;
-                            break;
-                        }
-                    }
-
-                    uniqueUsers[userId] = {
-                        name: userName || `Petugas ${userId}`,
-                        color: userInfo
-                    };
-                } else if (typeof userInfo === 'object' && userInfo !== null) {
-                    if (!uniqueUsers[userId]) {
-                        uniqueUsers[userId] = {
-                            name: userInfo.name || `Petugas ${userId}`,
-                            color: userInfo.color || '#888888'
-                        };
-                    }
-                }
-            });
-
-            console.log('Unique users for legend:', uniqueUsers);
-
-            Object.values(uniqueUsers).forEach(user => {
-                const legendItem = document.createElement('div');
-                legendItem.className = 'flex items-start p-1 rounded hover:bg-gray-100';
-                legendItem.innerHTML = `
-                <span class="inline-block w-4 h-4 rounded-full mr-2 mt-1" style="background-color: ${user.color}; border: 1px solid rgba(0,0,0,0.1);"></span>
-                <span class="text-xs font-medium text-black" style="white-space: pre-wrap;">${user.name.replace(/ \(/, '\n(')}</span>
-            `;
-                usersContainer.appendChild(legendItem);
-            });
-
-            legendContent.appendChild(usersContainer);
-
-            if (Object.keys(uniqueUsers).length === 0) {
-                legendContent.innerHTML = '<p class="text-xs text-gray-500 col-span-full p-2">Tidak ada data jadwal untuk ditampilkan</p>';
-            }
-        }
-
         // Refresh calendar setelah generate jadwal dengan delay
         @if(session('success'))
         setTimeout(function() {
             console.log('Refreshing calendar after successful generation');
             calendar.refetchEvents();
-            setTimeout(updateLegend, 1000);
         }, 1000);
         @endif
 
@@ -1219,8 +1082,6 @@
                 currentMonth,
                 currentYear
             });
-
-            userColors = {};
 
             const targetDate = new Date(tahun, bulan - 1, 15);
 
