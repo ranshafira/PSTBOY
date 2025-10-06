@@ -8,12 +8,10 @@ use App\Models\JenisLayanan;
 use App\Models\Pelayanan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 class PelayananController extends Controller
 {
-    /**
-     * Menampilkan halaman utama dashboard pelayanan petugas.
-     */
     public function index()
     {
         $riwayatAntrian = Antrian::with('jenisLayanan', 'pelayanan')
@@ -35,9 +33,6 @@ class PelayananController extends Controller
         return view('pelayanan.index', compact('riwayatAntrian', 'riwayatBukuTamu', 'statistik'));
     }
 
-    /**
-     * LANGKAH 1: Menampilkan form identitas pengunjung.
-     */
     public function createStep1($antrian_id)
     {
         $antrian = Antrian::findOrFail($antrian_id);
@@ -47,9 +42,6 @@ class PelayananController extends Controller
         return view('pelayanan.langkah1', compact('antrian', 'jenisLayanan', 'pelayanan'));
     }
 
-    /**
-     * LANGKAH 1: Menyimpan data identitas & memulai sesi pelayanan.
-     */
     public function storeStep1(Request $request)
     {
         $validated = $request->validate([
@@ -68,9 +60,10 @@ class PelayananController extends Controller
         $antrian->save();
 
         $pelayanan = Pelayanan::updateOrCreate(
-            ['antrian_id' => $validated['antrian_id']],
+            ['antrian_id' => $antrian->id],
             [
                 'petugas_id' => auth()->id(),
+                'antrian_id' => $antrian->id,
                 'waktu_mulai_sesi' => now(),
                 'jenis_layanan_id' => $validated['jenis_layanan_id'],
                 'nama_pengunjung' => $validated['nama_pengunjung'],
@@ -78,25 +71,19 @@ class PelayananController extends Controller
                 'no_hp' => $validated['no_hp'],
                 'email' => $validated['email'],
                 'jenis_kelamin' => $validated['jenis_kelamin'],
-                'pendidikan' => $validated['pendidikan'],
+                'pendidikan' => $validated['pendidikan']
             ]
         );
 
         return redirect()->route('pelayanan.langkah2.create', $pelayanan->id);
     }
 
-    /**
-     * LANGKAH 2: Menampilkan form hasil pelayanan.
-     */
     public function createStep2(Pelayanan $pelayanan)
     {
         $pelayanan->load('antrian');
         return view('pelayanan.langkah2', compact('pelayanan'));
     }
 
-    /**
-     * LANGKAH 2: Menyimpan data hasil pelayanan.
-     */
     public function storeStep2(Request $request, Pelayanan $pelayanan)
     {
         $data = $request->validate([
@@ -119,48 +106,47 @@ class PelayananController extends Controller
         }
         $data['perlu_tindak_lanjut'] = $request->has('perlu_tindak_lanjut');
 
-        if (empty($pelayanan->survey_token)) {
-            do {
-                $token = strtoupper(Str::random(3) . '-' . Str::random(3));
-            } while (Pelayanan::where('survey_token', $token)->exists());
-            $data['survey_token'] = $token;
-        }
 
         $pelayanan->update($data);
-        $pelayanan->antrian->update(['status' => 'selesai']);
-
-        return redirect()->route('survei.internal.show', $pelayanan->survey_token);
+        $pelayanan->refresh();
+        return redirect()->route('survei.internal.show', $pelayanan->id);
     }
 
-    /**
-     * Halaman "Terima Kasih" setelah alur pelayanan selesai.
-     */
     public function terimakasih(Pelayanan $pelayanan)
     {
         $pelayanan->load('antrian');
+        if ($pelayanan->antrian && $pelayanan->surveyInternal && $pelayanan->antrian->status !== 'selesai') {
+            $pelayanan->antrian->update(['status' => 'selesai']);
+            $pelayanan->update(['waktu_selesai_sesi' => now()]);
+        }
         return view('pelayanan.terimakasih', compact('pelayanan'));
     }
 
-    /**
-     * Fitur untuk melanjutkan sesi pelayanan yang belum selesai.
-     */
     public function lanjutkan($id)
     {
-        $pelayanan = Pelayanan::findOrFail($id);
-        if (!$pelayanan->deskripsi_hasil) {
+        $pelayanan = Pelayanan::with('antrian', 'surveyInternal')->findOrFail($id);
+
+        if (empty($pelayanan->deskripsi_hasil)) {
             return redirect()->route('pelayanan.langkah2.create', $pelayanan->id);
         }
+
+        if (!$pelayanan->surveiInternalSudahDiisi()) {
+            return redirect()->route('survei.internal.show', $pelayanan->id);
+        }
+
         return redirect()->route('pelayanan.detail', $pelayanan->id);
     }
 
-    /**
-     * Menampilkan halaman detail untuk riwayat pelayanan.
-     */
+
     public function detail($id)
     {
-        // CATATAN: Pastikan Anda memiliki file 'detail.blade.php' di dalam folder 'pelayanan'.
-        $pelayanan = Pelayanan::with(['jenisLayanan', 'antrian', 'petugas', 'surveyKepuasan'])
-            ->findOrFail($id);
+        $pelayanan = Pelayanan::with([
+            'jenisLayanan',
+            'antrian',
+            'petugas',
+            'surveyInternal'
+        ])->findOrFail($id);
+
         return view('pelayanan.detail', compact('pelayanan'));
     }
 }

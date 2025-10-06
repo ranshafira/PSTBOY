@@ -33,7 +33,7 @@ class AntrianController extends Controller
 
         // Tentukan kode antrian
         if ($request->media_layanan && $request->media_layanan !== 'langsung') {
-            $kode = match($request->media_layanan) {
+            $kode = match ($request->media_layanan) {
                 'whatsapp' => 'WA-',
                 'email'    => 'EML-',
                 default    => 'X',
@@ -47,7 +47,7 @@ class AntrianController extends Controller
 
         // Generate nomor antrian unik per kode per hari
         $nomorAntrian = $this->generateNomorAntrian($kode);
-        
+
         // Membuat record antrian dahulu
         $antrian = Antrian::create([
             'nomor_antrian' => $nomorAntrian,
@@ -71,9 +71,9 @@ class AntrianController extends Controller
         ]);
 
         return redirect()->back()
-                        ->with('success', 'Nomor antrian Anda adalah: ' . $nomorAntrian)
-                        ->with('nomor_antrian', $nomorAntrian)
-                        ->with('media_layanan', $request->input('media_layanan'));
+            ->with('success', 'Nomor antrian Anda adalah: ' . $nomorAntrian)
+            ->with('nomor_antrian', $nomorAntrian)
+            ->with('media_layanan', $request->input('media_layanan'));
     }
 
     private function generateNomorAntrian($kodeAntrian)
@@ -81,8 +81,8 @@ class AntrianController extends Controller
         $tanggal = date('Y-m-d');
 
         $antrianTerakhir = Antrian::whereDate('created_at', $tanggal)
-                                ->orderBy('id', 'desc')
-                                ->first();
+            ->orderBy('id', 'desc')
+            ->first();
 
         $nomorUrut = 1;
         if ($antrianTerakhir) {
@@ -122,8 +122,4 @@ class AntrianController extends Controller
 
         return back()->with('success', "Antrian {$antrian->nomor_antrian} dikembalikan ke menunggu.");
     }
-
-
-
-
 }

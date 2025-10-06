@@ -12,7 +12,7 @@
         </div>
 
         {{-- Form --}}
-        <form action="{{ route('survei.internal.store', $pelayanan->survey_token) }}" method="POST" class="space-y-6">
+        <form action="{{ route('survei.internal.store', $pelayanan->id) }}" method="POST" class="space-y-6">
             @csrf
             <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-8">
                 <div class="space-y-8">
@@ -46,21 +46,21 @@
                     @endfor
                 </div>
             </div>
-
+            <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-8" x-show=" (ratingKeseluruhan > 0 && ratingKeseluruhan < 4) || (ratingPetugas > 0 && ratingPetugas < 4) " x-transition>
+                <h3 class="text-lg font-semibold text-gray-900">Kritik & Saran</h3>
+                <div class="mt-4">
+                    <label for="saran" class="sr-only">Kritik & Saran</label>
+                    <textarea name="saran" id="saran" rows="4" class="antialiased w-full rounded-lg border-gray-300 focus:ring-2 focus:ring-orange-500 py-2.5 px-4 text-base transition" placeholder="Tuliskan masukan Anda di sini..."></textarea>
+                </div>
+            </div>
     </div>
 </div>
 
-{{-- Kartu Kritik & Saran (Kondisional) --}}
-<div class="bg-white border border-gray-200 rounded-xl shadow-sm p-8" x-show=" (ratingKeseluruhan > 0 && ratingKeseluruhan < 4) || (ratingPetugas > 0 && ratingPetugas < 4) " x-transition>
-    <h3 class="text-lg font-semibold text-gray-900">Kritik & Saran</h3>
-    <div class="mt-4">
-        <label for="saran" class="sr-only">Kritik & Saran</label>
-        <textarea name="saran" id="saran" rows="4" class="w-full rounded-lg border-gray-300 focus:ring-2 focus:ring-orange-500 py-2.5 px-4 text-base transition" placeholder="Tuliskan masukan Anda di sini..."></textarea>
-    </div>
-</div>
 
-<div class="flex justify-end pt-4">
-    <button type="submit" class="w-full sm:w-auto px-8 py-3 bg-orange-500 text-white text-sm font-semibold rounded-lg hover:bg-orange-600">
+
+<div class="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4">
+    <a href="{{ route('pelayanan.langkah2.create', $pelayanan->id) }}" class="w-full sm:w-auto px-6 py-3 border rounded-lg text-sm font-semibold text-gray-800 hover:bg-gray-100 text-center">Halaman Sebelumnya</a>
+    <button type="submit" class="w-full sm:w-auto px-8 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600">
         Kirim Penilaian
     </button>
 </div>

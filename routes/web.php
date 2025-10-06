@@ -142,19 +142,6 @@ Route::get('/dashboardKepala', [DashboardKepalaController::class, 'index'])
     ->middleware('isKepala')
     ->name('dashboard.kepala');
 
-// ROUTE BARU UNTUK SURVEI (Tidak perlu login)
-Route::get('/survei', [SurveyController::class, 'entry'])->name('survei.entry');
-Route::post('/survei/cari', [SurveyController::class, 'find'])->name('survei.find');
-Route::get('/survei/{token}', [SurveyController::class, 'show'])->name('survei.show');
-Route::post('/survei/{token}', [SurveyController::class, 'store'])->name('survei.store');
-
 // Rute Survei Internal - bagian dari alur pelayanan
-Route::get('/survei-internal/{token}', [SurveyInternalController::class, 'show'])->name('survei.internal.show');
-Route::post('/survei-internal/{token}', [SurveyInternalController::class, 'store'])->name('survei.internal.store');
-
-// == [BARU] Rute Survei SKD (diakses dengan token) ==
-Route::get('/survei-skd', [SurveySkdController::class, 'entry'])->name('survei.skd.entry');
-Route::post('/survei-skd/cari', [SurveySkdController::class, 'find'])->name('survei.skd.find');
-Route::get('/survei-skd/{token}', [SurveySkdController::class, 'show'])->name('survei.skd.show');
-Route::post('/survei-skd/{token}', [SurveySkdController::class, 'store'])->name('survei.skd.store');
-Route::get('/survei-skd-terimakasih', [SurveySkdController::class, 'terimakasih'])->name('survei.skd.terimakasih');
+Route::get('/survei-internal/{id}', [SurveyInternalController::class, 'show'])->name('survei.internal.show');
+Route::post('/survei-internal/{id}', [SurveyInternalController::class, 'store'])->name('survei.internal.store');
