@@ -40,7 +40,9 @@ class DashboardController extends Controller
         $sisaAntrian = \App\Models\Antrian::whereDate('created_at', today())
             ->where('status', 'pending')->count();
 
-        $antrianBerjalan = \App\Models\Antrian::whereIn('status', ['dipanggil', 'sedang_dilayani'])->first();
+        $antrianBerjalan = \App\Models\Antrian::whereIn('status', ['dipanggil', 'sedang_dilayani'])
+            ->whereDate('created_at', today())
+            ->first();
 
         $riwayatAntrian = \App\Models\Antrian::with('jenisLayanan', 'pelayanan')
             ->whereDate('created_at', today())

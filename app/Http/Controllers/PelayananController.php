@@ -26,7 +26,10 @@ class PelayananController extends Controller
         $statistik = [
             'totalAntrianHariIni' => Antrian::whereDate('created_at', today())->whereIn('status', ['menunggu', 'lewati', 'dipanggil', 'sedang_dilayani'])->count(),
             'sudahDilayani' => Antrian::whereDate('created_at', today())->where('status', 'selesai')->count(),
-            'antrianBerjalan' => Antrian::whereIn('status', ['dipanggil', 'sedang_dilayani'])->latest('updated_at')->first(),
+            'antrianBerjalan' => Antrian::whereIn('status', ['dipanggil', 'sedang_dilayani'])
+                ->whereDate('created_at', today())
+                ->latest('updated_at')
+                ->first(),
             'bukuTamuCount' => BukuTamu::whereDate('waktu_kunjungan', today())->count(),
         ];
 
