@@ -19,7 +19,14 @@
                 </div>
             </div>
         </div>
-        <form action="{{ route('pelayanan.langkah1.store') }}" method="POST">
+        @if(isset($pelayanan) && $pelayanan->exists && empty($modeMulai))
+            {{-- Mode edit --}}
+            <form action="{{ route('pelayanan.langkah1.update', $pelayanan->id) }}" method="POST">
+                @method('PUT')
+        @else
+            {{-- Mode mulai pelayanan (lanjutan dari buku tamu) --}}
+            <form action="{{ route('pelayanan.langkah1.store') }}" method="POST">
+        @endif
             @csrf
             <input type="hidden" name="antrian_id" value="{{ $antrian->id }}">
             <div class="space-y-6">
@@ -94,13 +101,21 @@
                         </div>
                     </div>
                 </div>
-
+                @php
+                    $modeMulai = $modeMulai ?? false; 
+                @endphp
                 {{-- Buttons --}}
                 <div class="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4">
                     <a href="{{ route('pelayanan.index') }}" class="w-full sm:w-auto px-6 py-3 border border-gray-300 rounded-lg text-sm font-semibold text-gray-800 hover:bg-gray-100 transition text-center">Batal</a>
-                    <button type="submit" class="w-full sm:w-auto px-8 py-3 bg-orange-500 text-white text-sm font-semibold rounded-lg hover:bg-orange-600">
-                        Lanjutkan ke Detail Pelayanan
-                    </button>
+                    @if($modeMulai)
+                        <button type="submit" class="w-full sm:w-auto px-8 py-3 bg-orange-500 text-white text-sm font-semibold rounded-lg hover:bg-orange-600">
+                            Lanjutkan ke Detail Pelayanan
+                        </button>
+                    @else
+                        <button type="submit" class="w-full sm:w-auto px-8 py-3 bg-orange-500 text-white text-sm font-semibold rounded-lg hover:bg-orange-600">
+                            Simpan Perubahan
+                        </button>
+                    @endif
                 </div>
             </div>
         </form>

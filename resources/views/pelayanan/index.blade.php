@@ -94,7 +94,7 @@
                                         Panggil Ulang
                                     </button>
                                 </form>
-                                <a href="{{ route('pelayanan.langkah1.create', $item->id) }}"
+                               <a href="{{ route('pelayanan.langkah1.create', ['antrian_id' => $item->id, 'mode' => 'mulai']) }}"
                                     class="px-3 py-1 rounded bg-green-100 hover:bg-green-300 text-green-800 text-xs font-medium mr-2">
                                     Mulai
                                 </a>

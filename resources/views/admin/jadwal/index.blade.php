@@ -638,6 +638,11 @@
             event.preventDefault();
             return false;
         }
+
+        // Kalau user klik "Ya"
+        showLoadingOverlay('Sedang menggenerate jadwal bulanan...');
+        const generateButton = document.getElementById('generateButton');
+        setButtonLoading(generateButton, true, 'Memproses...');
         return true;
     }
 
@@ -783,7 +788,7 @@
             `;
                 toast.classList.add('toast-success', 'toast-enter');
                 toastIcon.className = 'flex-shrink-0 bg-green-500 rounded-full p-2 shadow-sm';
-                toastMessage.className = 'text-sm font-medium text-white ml-3 w-0 flex-1';
+                toastMessage.className = 'text-sm font-medium text-white ml-3 min-w-0 flex-1';
             } else if (type === 'error') {
                 toastIcon.innerHTML = `
                 <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -792,7 +797,7 @@
             `;
                 toast.classList.add('toast-error', 'toast-enter');
                 toastIcon.className = 'flex-shrink-0 bg-red-500 rounded-full p-2 shadow-sm';
-                toastMessage.className = 'text-sm font-medium text-white ml-3 w-0 flex-1';
+                toastMessage.className = 'text-sm font-medium text-white ml-3 min-w-0 flex-1';
             } else {
                 toastIcon.innerHTML = `
                 <svg class="h-6 w-6 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -801,7 +806,7 @@
             `;
                 toast.classList.add('border-l-4', 'border-orange-500', 'bg-orange-50');
                 toastIcon.className = 'flex-shrink-0 bg-white rounded-full p-1 shadow-sm';
-                toastMessage.className = 'text-sm font-medium text-gray-900 ml-3 w-0 flex-1';
+                toastMessage.className = 'text-sm font-medium text-gray-900 ml-3 min-w-0 flex-1';
             }
 
             // Show toast
@@ -847,13 +852,6 @@
         // Setup loading animation untuk generate form
         const generateForm = document.getElementById('generateForm');
         const generateButton = document.getElementById('generateButton');
-
-        if (generateForm) {
-            generateForm.addEventListener('submit', function(e) {
-                showLoadingOverlay('Sedang menggenerate jadwal bulanan...');
-                setButtonLoading(generateButton, true, 'Memproses...');
-            });
-        }
 
         // Initialize Calendar
         var calendarEl = document.getElementById('calendar');

@@ -41,8 +41,9 @@ class PelayananController extends Controller
         $antrian = Antrian::findOrFail($antrian_id);
         $jenisLayanan = JenisLayanan::all();
         $pelayanan = Pelayanan::where('antrian_id', $antrian->id)->latest()->first();
+        $modeMulai = request()->query('mode') === 'mulai';
 
-        return view('pelayanan.langkah1', compact('antrian', 'jenisLayanan', 'pelayanan'));
+        return view('pelayanan.langkah1', compact('antrian', 'jenisLayanan', 'pelayanan','modeMulai'));
     }
 
     public function storeStep1(Request $request)
@@ -123,6 +124,69 @@ class PelayananController extends Controller
             $pelayanan->update(['waktu_selesai_sesi' => now()]);
         }
         return view('pelayanan.terimakasih', compact('pelayanan'));
+    }
+    
+    // ==== EDIT DATA PENGUNJUNG (Langkah 1) ====
+    public function editStep1(Pelayanan $pelayanan)
+    {
+        $antrian = $pelayanan->antrian;
+        $jenisLayanan = JenisLayanan::all();
+        return view('pelayanan.langkah1', compact('antrian', 'jenisLayanan', 'pelayanan'));
+    }
+
+    public function updateStep1(Request $request, Pelayanan $pelayanan)
+    {
+        $validated = $request->validate([
+            'jenis_layanan_id' => 'required|exists:jenis_layanan,id',
+            'nama_pengunjung' => 'required|string|max:255',
+            'instansi_pengunjung' => 'nullable|string|max:255',
+            'no_hp' => 'nullable|string|max:20',
+            'email' => 'nullable|email|max:255',
+            'jenis_kelamin' => 'nullable|in:Laki-laki,Perempuan',
+            'pendidikan' => 'nullable|string|max:50',
+        ]);
+
+        $pelayanan->update($validated);
+
+        return redirect()->route('pelayanan.detail', $pelayanan->id)
+            ->with('success', 'Data pengunjung berhasil diperbarui.');
+    }
+
+
+
+    // ==== EDIT HASIL PELAYANAN (Langkah 2) ====
+    public function editStep2(Pelayanan $pelayanan)
+    {
+        $pelayanan->load('antrian');
+        return view('pelayanan.langkah2', compact('pelayanan'));
+    }
+
+    public function updateStep2(Request $request, Pelayanan $pelayanan)
+    {
+        $data = $request->validate([
+            'kebutuhan_pengunjung' => 'required|string',
+            'path_surat_pengantar' => 'nullable|file|mimes:pdf,jpg,png,doc,docx|max:5120',
+            'status_penyelesaian' => 'required|string',
+            'deskripsi_hasil' => 'required|string',
+            'jenis_output' => 'nullable|array',
+            'path_dokumen_hasil' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,csv|max:10240',
+            'perlu_tindak_lanjut' => 'nullable|boolean',
+            'tanggal_tindak_lanjut' => 'required_if:perlu_tindak_lanjut,1|nullable|date',
+            'catatan_tindak_lanjut' => 'required_if:perlu_tindak_lanjut,1|nullable|string',
+        ]);
+
+        if ($request->hasFile('path_surat_pengantar')) {
+            $data['path_surat_pengantar'] = $request->file('path_surat_pengantar')->store('surat_pengantar', 'public');
+        }
+        if ($request->hasFile('path_dokumen_hasil')) {
+            $data['path_dokumen_hasil'] = $request->file('path_dokumen_hasil')->store('dokumen_hasil', 'public');
+        }
+
+        $data['perlu_tindak_lanjut'] = $request->has('perlu_tindak_lanjut');
+        $pelayanan->update($data);
+
+        return redirect()->route('pelayanan.detail', $pelayanan->id)
+            ->with('success', 'Data hasil pelayanan berhasil diperbarui.');
     }
 
     public function lanjutkan($id)

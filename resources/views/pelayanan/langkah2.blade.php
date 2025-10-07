@@ -20,7 +20,13 @@
             </div>
         </div>
 
-        <form action="{{ route('pelayanan.langkah2.store', $pelayanan->id) }}" method="POST" enctype="multipart/form-data">
+        @if(isset($pelayanan) && request()->routeIs('pelayanan.langkah2.edit'))
+            <form action="{{ route('pelayanan.langkah2.update', $pelayanan->id) }}" method="POST" enctype="multipart/form-data">
+            @method('PUT')
+        @else
+            <form action="{{ route('pelayanan.langkah2.store', $pelayanan->id) }}" method="POST" enctype="multipart/form-data">
+        @endif
+
             @csrf
             <div class="space-y-6">
 
@@ -105,12 +111,26 @@
                 </div>
 
                 {{-- Tombol Aksi --}}
-                <div class="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4">
-                    <a href="{{ route('pelayanan.langkah1.create', $pelayanan->antrian_id) }}" class="w-full sm:w-auto px-6 py-3 border rounded-lg text-sm font-semibold text-gray-800 hover:bg-gray-100 text-center">Halaman Sebelumnya</a>
-                    <button type="submit" class="w-full sm:w-auto px-8 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600">
-                        Lanjutkan ke Survei Internal
-                    </button>
+                <div class="flex flex-col sm:flex-row {{ request()->routeIs('pelayanan.langkah2.edit') ? 'justify-end' : 'justify-between' }} items-center gap-4 pt-4">
+                    @unless(request()->routeIs('pelayanan.langkah2.edit'))
+                        <a href="{{ route('pelayanan.langkah1.create', $pelayanan->antrian_id) }}?mode=mulai"
+                        class="w-full sm:w-auto px-6 py-3 border rounded-lg text-sm font-semibold text-gray-800 hover:bg-gray-100 text-center">
+                            Halaman Sebelumnya
+                        </a>
+                    @endunless
+
+                    {{-- Tombol submit --}}
+                    @if(request()->routeIs('pelayanan.langkah2.edit'))
+                        <button type="submit" class="w-full sm:w-auto px-8 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600">
+                            Simpan Perubahan
+                        </button>
+                    @else
+                        <button type="submit" class="w-full sm:w-auto px-8 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600">
+                            Lanjutkan ke Survei Internal
+                        </button>
+                    @endif
                 </div>
+
             </div>
         </form>
     </div>
