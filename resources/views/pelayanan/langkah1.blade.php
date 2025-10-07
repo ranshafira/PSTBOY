@@ -77,9 +77,9 @@
                             <div>
                                 <label for="pendidikan" class="block text-sm font-medium text-gray-700 mb-1.5">Pendidikan</label>
                                 <select name="pendidikan" class="w-full rounded-lg border-gray-300 focus:ring-2 focus:ring-orange-500 py-2.5 px-4 text-base transition">
-                                    @foreach (['<=SMA','Diploma','S1','S2','S3'] as $option)
-                                        <option value="{{ $option }}" {{ old('pendidikan', $pelayanan?->pendidikan) == $option ? 'selected' : '' }}>{{ $option }}</option>
-                                        @endforeach
+                                    @foreach (['SMA Sederajat atau ke bawah','Diploma','S1','S2','S3'] as $option)
+                                    <option value="{{ $option }}" {{ old('pendidikan', $pelayanan?->pendidikan) == $option ? 'selected' : '' }}>{{ $option }}</option>
+                                    @endforeach
                                 </select>
                             </div>
                             <div>

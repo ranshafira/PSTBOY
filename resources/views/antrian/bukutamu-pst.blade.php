@@ -104,7 +104,7 @@
                             <select name="pendidikan" id="pendidikan"
                                 class="h-12 mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-bps-primary focus:border-bps-primary">
                                 <option value="" disabled {{ old('pendidikan') ? '' : 'selected' }}>Pilih Jenjang</option>
-                                <option value="SMA" {{ old('pendidikan') == 'SMA' ? 'selected' : '' }}>SMA</option>
+                                <option value="SMA Sederajat atau ke bawah" {{ old('pendidikan') == 'SMA Sederajat atau ke bawah' ? 'selected' : '' }}>SMA Sederajat atau ke bawah</option>
                                 <option value="Diploma" {{ old('pendidikan') == 'Diploma' ? 'selected' : '' }}>Diploma</option>
                                 <option value="S1" {{ old('pendidikan') == 'S1' ? 'selected' : '' }}>S1</option>
                                 <option value="S2" {{ old('pendidikan') == 'S2' ? 'selected' : '' }}>S2</option>
