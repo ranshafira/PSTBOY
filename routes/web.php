@@ -82,6 +82,14 @@ Route::middleware(['auth', 'isPetugas'])->group(function () {
     // Fitur Lanjutan & Detail
     Route::get('/pelayanan/{id}/lanjut', [PelayananController::class, 'lanjutkan'])->name('pelayanan.lanjut');
     Route::get('/pelayanan/{id}/detail', [PelayananController::class, 'detail'])->name('pelayanan.detail');
+    
+    // Edit data pengunjung (langkah 1)
+    Route::get('/pelayanan/{pelayanan}/edit-step1', [PelayananController::class, 'editStep1'])->name('pelayanan.langkah1.edit');
+    Route::put('/pelayanan/{pelayanan}/update-step1', [PelayananController::class, 'updateStep1'])->name('pelayanan.langkah1.update');
+
+    // Edit hasil pelayanan (langkah 2)
+    Route::get('/pelayanan/{pelayanan}/edit-step2', [PelayananController::class, 'editStep2'])->name('pelayanan.langkah2.edit');
+    Route::put('/pelayanan/{pelayanan}/update-step2', [PelayananController::class, 'updateStep2'])->name('pelayanan.langkah2.update');
 
     // Dashboard Umum - arahkan berdasarkan role
     Route::get('/dashboard', function () {
