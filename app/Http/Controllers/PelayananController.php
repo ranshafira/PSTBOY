@@ -43,7 +43,7 @@ class PelayananController extends Controller
         $pelayanan = Pelayanan::where('antrian_id', $antrian->id)->latest()->first();
         $modeMulai = request()->query('mode') === 'mulai';
 
-        return view('pelayanan.langkah1', compact('antrian', 'jenisLayanan', 'pelayanan','modeMulai'));
+        return view('pelayanan.langkah1', compact('antrian', 'jenisLayanan', 'pelayanan', 'modeMulai'));
     }
 
     public function storeStep1(Request $request)
@@ -59,28 +59,36 @@ class PelayananController extends Controller
             'pendidikan' => 'nullable|string|max:50',
         ]);
 
-        $antrian = Antrian::find($validated['antrian_id']);
-        $antrian->status = 'sedang_dilayani';
-        $antrian->save();
+        $antrian = Antrian::findOrFail($validated['antrian_id']);
+        $antrian->update(['status' => 'sedang_dilayani']);
 
-        $pelayanan = Pelayanan::updateOrCreate(
-            ['antrian_id' => $antrian->id],
-            [
-                'petugas_id' => auth()->id(),
-                'antrian_id' => $antrian->id,
-                'waktu_mulai_sesi' => now(),
-                'jenis_layanan_id' => $validated['jenis_layanan_id'],
-                'nama_pengunjung' => $validated['nama_pengunjung'],
-                'instansi_pengunjung' => $validated['instansi_pengunjung'],
-                'no_hp' => $validated['no_hp'],
-                'email' => $validated['email'],
-                'jenis_kelamin' => $validated['jenis_kelamin'],
-                'pendidikan' => $validated['pendidikan']
-            ]
-        );
+        $pelayanan = Pelayanan::firstOrNew(['antrian_id' => $antrian->id]);
+
+        // Set petugas_id & waktu_mulai_sesi jika belum ada
+        if (!$pelayanan->petugas_id) {
+            $pelayanan->petugas_id = auth()->id();
+        }
+        if (!$pelayanan->waktu_mulai_sesi) {
+            $pelayanan->waktu_mulai_sesi = now();
+        }
+        if (!$pelayanan->kode_unik) {
+            $pelayanan->kode_unik = Str::upper(Str::random(6));
+        }
+
+        // Update field lain
+        $pelayanan->jenis_layanan_id = $validated['jenis_layanan_id'];
+        $pelayanan->nama_pengunjung = $validated['nama_pengunjung'];
+        $pelayanan->instansi_pengunjung = $validated['instansi_pengunjung'];
+        $pelayanan->no_hp = $validated['no_hp'];
+        $pelayanan->email = $validated['email'];
+        $pelayanan->jenis_kelamin = $validated['jenis_kelamin'];
+        $pelayanan->pendidikan = $validated['pendidikan'];
+
+        $pelayanan->save();
 
         return redirect()->route('pelayanan.langkah2.create', $pelayanan->id);
     }
+
 
     public function createStep2(Pelayanan $pelayanan)
     {
@@ -90,6 +98,12 @@ class PelayananController extends Controller
 
     public function storeStep2(Request $request, Pelayanan $pelayanan)
     {
+        if (empty($pelayanan->kode_unik)) {
+            $pelayanan->update([
+                'kode_unik' => Str::upper(Str::random(6)),
+            ]);
+        }
+
         $data = $request->validate([
             'kebutuhan_pengunjung' => 'required|string',
             'path_surat_pengantar' => 'nullable|file|mimes:pdf,jpg,png,doc,docx|max:5120',
@@ -113,19 +127,22 @@ class PelayananController extends Controller
 
         $pelayanan->update($data);
         $pelayanan->refresh();
-        return redirect()->route('survei.internal.show', $pelayanan->id);
+        //return redirect()->route('survei.internal.show', $pelayanan->id);
+        return redirect()->route('survei.public.show', $pelayanan->kode_unik);
     }
 
-    public function terimakasih(Pelayanan $pelayanan)
+    public function terimakasih($kode_unik)
     {
+        $pelayanan = Pelayanan::where('kode_unik', $kode_unik)->firstOrFail();
         $pelayanan->load('antrian');
-        if ($pelayanan->antrian && $pelayanan->surveyInternal && $pelayanan->antrian->status !== 'selesai') {
+
+        if ($pelayanan->antrian && ($pelayanan->surveyPublic) && $pelayanan->antrian->status !== 'selesai') {
             $pelayanan->antrian->update(['status' => 'selesai']);
             $pelayanan->update(['waktu_selesai_sesi' => now()]);
         }
+
         return view('pelayanan.terimakasih', compact('pelayanan'));
     }
-    
     // ==== EDIT DATA PENGUNJUNG (Langkah 1) ====
     public function editStep1(Pelayanan $pelayanan)
     {
