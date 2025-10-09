@@ -1,5 +1,5 @@
-@extends('layouts.app')
-@section('title', 'Pelayanan Selesai')
+@extends('layouts.survei')
+@section('title', 'Survei Kebutuhan Data')
 
 @section('content')
 <div class="antialiased bg-gray-50 min-h-screen flex items-center justify-center py-12 px-4">
@@ -11,9 +11,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                 </svg>
             </div>
-
             <h2 class="text-2xl sm:text-2xl font-bold text-gray-900">Pelayanan Telah Selesai</h2>
-
             @if(session('success'))
             <div class="bg-green-50 border border-green-200 text-green-800 text-sm rounded-lg p-3 my-5">
                 {{ session('success') }}

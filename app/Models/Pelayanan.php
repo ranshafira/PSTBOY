@@ -12,6 +12,7 @@ class Pelayanan extends Model
     protected $table = 'pelayanan';
 
     protected $fillable = [
+        'kode_unik',
         'petugas_id',
         'antrian_id',
         'jenis_layanan_id',
@@ -73,12 +74,18 @@ class Pelayanan extends Model
 
         return $survei->skor_keseluruhan !== null && $survei->skor_petugas !== null;
     }
-
-
-
-
-    public function surveySkd()
+    public function surveyPublic()
     {
-        return $this->hasOne(SurveySkd::class, 'pelayanan_id');
+        return $this->hasOne(SurveyInternal::class, 'pelayanan_id');
     }
+
+    public function pelayanan()
+    {
+        return $this->hasMany(Pelayanan::class, 'petugas_id');
+    }
+
+    // public function surveySkd()
+    // {
+    //     return $this->hasOne(SurveySkd::class, 'pelayanan_id');
+    // }
 }

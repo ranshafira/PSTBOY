@@ -13,11 +13,12 @@ use App\Http\Controllers\RiwayatController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\PelayananController;
-use App\Http\Controllers\SurveyController;
+use App\Http\Controllers\SurveiController;
 use App\Http\Controllers\JadwalController;
 use App\Http\Controllers\PetugasJadwalController;
 use App\Http\Controllers\SurveySkdController;
 use App\Http\Controllers\SurveyInternalController;
+//use App\Http\Controllers\SurveyInternalController;
 
 // == Route untuk Halaman Publik (Sistem Antrian) ==
 Route::get('/', [AntrianController::class, 'index'])->name('antrian.index');
@@ -47,6 +48,11 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/profile/edit', [ProfileController::class, 'update'])->name('profile.update');
     Route::patch('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.updatePassword');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+
+    Route::get('/admin/dashboard', [DashboardAdminController::class, 'index'])->name('admin.dashboard');
+    Route::get('/admin/dashboard/data', [DashboardAdminController::class, 'getDashboardData'])->name('admin.dashboard.data');
+    Route::get('dashboard/data', [DashboardAdminController::class, 'getDashboardData'])->name('admin.dashboard.data');
 });
 
 // Route khusus untuk petugas PST yang harus login dan memiliki role petugas
@@ -70,9 +76,6 @@ Route::middleware(['auth', 'isPetugas'])->group(function () {
     // Langkah 2: Input hasil pelayanan
     Route::get('/pelayanan/{pelayanan}/hasil', [PelayananController::class, 'createStep2'])->name('pelayanan.langkah2.create');
     Route::post('/pelayanan/{pelayanan}/hasil', [PelayananController::class, 'storeStep2'])->name('pelayanan.langkah2.store');
-
-    // Halaman Terima Kasih (setelah selesai pelayanan)
-    Route::get('/pelayanan/{pelayanan}/terimakasih', [PelayananController::class, 'terimakasih'])->name('pelayanan.terimakasih');
 
     // Fitur Lanjutan & Detail
     Route::get('/pelayanan/{id}/lanjut', [PelayananController::class, 'lanjutkan'])->name('pelayanan.lanjut');
@@ -105,8 +108,9 @@ Route::middleware(['auth', 'isPetugas'])->group(function () {
 // Route khusus admin yang memerlukan login dan role admin
 Route::middleware(['auth', 'isAdmin'])->prefix('admin')->group(function () {
     // Dashboard admin
-    Route::get('/dashboard', [DashboardAdminController::class, 'index'])->name('admin.dashboard');
-    Route::get('/dashboard/export-survei', [DashboardAdminController::class, 'exportSurvei'])->name('admin.dashboard.exportSurvei');
+    Route::get('admin/dashboard', [DashboardAdminController::class, 'index'])->name('dashboard.index');
+    Route::get('admin/dashboard/data', [DashboardAdminController::class, 'getDashboardData'])->name('dashboard.data');
+    Route::get('admin/dashboard/export', [DashboardAdminController::class, 'exportCSV'])->name('dashboard.export');
 
     // Halaman admin untuk daftar user petugas PST
     Route::get('/petugas', [UserManagementController::class, 'index'])->name('admin.petugas.index');
@@ -151,5 +155,12 @@ Route::get('/dashboardKepala', [DashboardKepalaController::class, 'index'])
     ->name('dashboard.kepala');
 
 // Rute Survei Internal - bagian dari alur pelayanan
-Route::get('/survei-internal/{id}', [SurveyInternalController::class, 'show'])->name('survei.internal.show');
-Route::post('/survei-internal/{id}', [SurveyInternalController::class, 'store'])->name('survei.internal.store');
+//Route::get('/survei-internal/{id}', [SurveyInternalController::class, 'show'])->name('survei.internal.show');
+//Route::post('/survei-internal/{id}', [SurveyInternalController::class, 'store'])->name('survei.internal.store');
+Route::get('/survei/{kode_unik}', [SurveiController::class, 'showPublic'])->name('survei.public.show');
+Route::post('/survei/{kode_unik}', [SurveiController::class, 'storePublic'])->name('survei.public.store');
+//Route::get('/pelayanan/{pelayanan}/terimakasih', [PelayananController::class, 'terimakasih'])->name('pelayanan.terimakasih');
+Route::get('/survei/{kode_unik}/terimakasih', [PelayananController::class, 'terimakasih'])
+    ->name('pelayanan.terimakasih');
+Route::get('admin/dashboard/export', [DashboardAdminController::class, 'exportCSV'])->name('dashboard.export');
+Route::get('admin/dashboard/data', [DashboardAdminController::class, 'getDashboardData'])->name('dashboard.data');
