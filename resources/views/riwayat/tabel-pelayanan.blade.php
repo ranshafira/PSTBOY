@@ -40,7 +40,7 @@
             @endif
           </td>
           <td class="px-4 py-2 text-center">{{ $p->jenisLayanan->nama_layanan ?? '-' }}</td>
-          <td class="px-4 py-2 text-center">{{ $p->petugas->username ?? '-' }}</td>
+          <td class="px-4 py-2 text-center">{{ $p->petugas->nama_lengkap ?? '-' }}</td>
           <td class="px-4 py-2 text-center">{{ \Carbon\Carbon::parse($p->waktu_mulai_sesi)->format('d-m-Y') }}</td>
           <td class="px-4 py-2 text-center">
             @php
