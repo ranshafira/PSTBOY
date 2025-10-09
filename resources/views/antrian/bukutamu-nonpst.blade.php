@@ -49,8 +49,8 @@
             <!-- Header Card -->
             <div class="bg-gradient-to-r from-bps-dark to-bps-primary p-6 text-center">
                 <img src="{{ asset('build/assets/images/BPS.png') }}" alt="BPS Logo" class="mx-auto w-14 h-14 mb-2">
-                <h1 class="text-2xl font-bold text-white">Buku Tamu Digital</h1>
-                <p class="text-blue-100 text-sm">Pelayanan Non-PST</p>
+                <h1 class="text-2xl font-bold text-white">Pelayanan Non-PST</h1>
+                <p class="text-blue-100 text-sm">Buku Tamu Digital</p>
             </div>
 
             <!-- Body Card -->

@@ -83,7 +83,7 @@
   <!-- KIRI: area chart (ambil 2 kolom) -->
 <div class="col-span-2 grid grid-cols-2 gap-4">
   
-  <!-- Chart 1: Antrian Per Layanan (kanan bawah) -->
+  <!-- Chart 1: Antrian Per Layanan -->
   <div class="bg-white rounded-lg shadow-sm p-4 border border-gray-100">
     <h3 class="text-base font-semibold text-gray-800 mb-3">Antrian Per Layanan Hari Ini</h3>
     <div class="space-y-2">
@@ -101,25 +101,25 @@
     </div>
   </div>
 
-  <!-- Chart 2: Trend (kiri atas) -->
+  <!-- Chart 2: Bar Harian -->
   <div class="bg-white rounded-lg shadow-sm p-4 border border-gray-100">
-    <h3 class="text-base font-semibold text-gray-800 mb-3">Trend Antrian Bulan Ini</h3>
+    <h3 class="text-base font-semibold text-gray-800 mb-3">Total Layanan oleh {{ $user->username }} Bulan Ini</h3>
     <div class="relative h-48">
       <canvas id="trendChart"></canvas>
     </div>
   </div>
 
-  <!-- Chart 3: Bar Jenis Layanan (kanan atas) -->
+  <!-- Chart 3: Bar Jenis Layanan  -->
   <div class="bg-white rounded-lg shadow-sm p-4 border border-gray-100">
-    <h3 class="text-base font-semibold text-gray-800 mb-3">Jumlah per Jenis Layanan Bulan Ini</h3>
+    <h3 class="text-base font-semibold text-gray-800 mb-3">Jenis Layanan oleh {{ $user->username }} Bulan Ini</h3>
     <div class="relative h-48">
       <canvas id="chartJenisLayanan"></canvas>
     </div>
   </div>
 
-  <!-- Chart 4: Pie (kiri bawah) -->
+  <!-- Chart 4: Pie -->
   <div class="bg-white rounded-lg shadow-sm p-4 border border-gray-100">
-    <h3 class="text-base font-semibold text-gray-800 mb-3">Proporsi Layanan Bulan Ini</h3>
+    <h3 class="text-base font-semibold text-gray-800 mb-3">Proporsi Layanan oleh {{ $user->username }} Bulan Ini</h3>
     <div class="relative h-48 w-full flex justify-center items-center">
       <canvas id="pieChart" class="max-h-56 max-w-80"></canvas>
     </div>
@@ -206,37 +206,58 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     /* =======================
-       1. LINE CHART TREND
+       1. Bar CHART TREND
     ======================= */
-    const trendData = @json($trendHarian);
+    const trendData = @json($trendHarian); // data sudah per pegawai login
     const dates = Object.keys(trendData);
     const totals = Object.values(trendData);
 
     new Chart(document.getElementById('trendChart'), {
-        type: 'line',
+        type: 'bar', // ganti line -> bar
         data: {
             labels: dates.map(d => {
                 const date = new Date(d);
                 return `${date.getDate()}/${date.getMonth() + 1}`;
             }),
             datasets: [{
-                label: 'Jumlah Antrian',
+                label: 'Jumlah Layanan',
                 data: totals,
-                borderColor: 'rgba(249, 115, 22, 1)',  // orange-500
-                backgroundColor: 'rgba(249, 115, 22, 0.1)',
-                tension: 0.4,
-                fill: true,
-                borderWidth: 2
+                backgroundColor: totals.map(v => v > 0 ? 'rgba(249, 115, 22, 0.8)' : 'rgba(203, 213, 225, 0.5)'), // oranye jika ada layanan, abu-abu jika 0
+                borderColor: 'rgba(249, 115, 22, 1)',
+                borderWidth: 1
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: context => `${context.raw} layanan`
+                    }
+                },
+                datalabels: {
+                    anchor: 'end',      // posisi label
+                    align: 'end',
+                    offset: -4,
+                    color: '#000',
+                    font: { weight: 'bold', size: 12 },
+                    formatter: value => value
+                }
+            },
             scales: {
-                y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                y: { 
+                    beginAtZero: true,
+                    suggestedMax: Math.max(...totals) + 2,
+                    ticks: { stepSize: 1 }
+                },
+                x: {
+                    ticks: { color: 'rgb(107, 114, 128)' }
+                }
             }
-        }
+        },
+        plugins: [ChartDataLabels]
     });
 
 
