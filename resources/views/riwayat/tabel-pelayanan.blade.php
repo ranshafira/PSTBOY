@@ -52,14 +52,23 @@
             @endphp
             <span class="px-2 py-1 text-xs rounded-full {{ $bgColor }}">{{ $status }}</span>
           </td>
-          @if (auth()->user()->role_id != 3)
-            <td class="px-4 py-2 text-center">
-                <a href="{{ route('pelayanan.detail', $p->id) }}"
-                  class="px-3 py-1 rounded bg-gray-100 hover:bg-gray-300 text-black text-xs font-medium mr-2">
-                    Lihat Detail
-                </a>
-            </td>
-          @endif
+         @if (auth()->user()->role_id != 3)
+          <td class="px-4 py-2 text-center">
+              @if (auth()->user()->role_id == 1)
+                  {{-- Admin --}}
+                  <a href="{{ route('admin.pelayanan.detail', $p->id) }}"
+                    class="px-3 py-1 rounded bg-gray-100 hover:bg-gray-300 text-black text-xs font-medium mr-2">
+                      Lihat Detail
+                  </a>
+              @elseif (auth()->user()->role_id == 2)
+                  {{-- Petugas --}}
+                  <a href="{{ route('petugas.pelayanan.detail', $p->id) }}"
+                    class="px-3 py-1 rounded bg-gray-100 hover:bg-gray-300 text-black text-xs font-medium mr-2">
+                      Lihat Detail
+                  </a>
+              @endif
+          </td>
+      @endif
         </tr>
         @endforeach
       </tbody>

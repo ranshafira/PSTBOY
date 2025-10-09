@@ -148,7 +148,7 @@ class PelayananController extends Controller
 
         $pelayanan->update($validated);
 
-        return redirect()->route('pelayanan.detail', $pelayanan->id)
+        return redirect()->route('petugas.pelayanan.detail', $pelayanan->id)
             ->with('success', 'Data pengunjung berhasil diperbarui.');
     }
 
@@ -185,7 +185,7 @@ class PelayananController extends Controller
         $data['perlu_tindak_lanjut'] = $request->has('perlu_tindak_lanjut');
         $pelayanan->update($data);
 
-        return redirect()->route('pelayanan.detail', $pelayanan->id)
+        return redirect()->route('petugas.pelayanan.detail', $pelayanan->id)
             ->with('success', 'Data hasil pelayanan berhasil diperbarui.');
     }
 
@@ -201,7 +201,7 @@ class PelayananController extends Controller
             return redirect()->route('survei.internal.show', $pelayanan->id);
         }
 
-        return redirect()->route('pelayanan.detail', $pelayanan->id);
+        return redirect()->route('petugas.pelayanan.detail', $pelayanan->id);
     }
 
 

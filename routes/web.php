@@ -81,7 +81,7 @@ Route::middleware(['auth', 'isPetugas'])->group(function () {
 
     // Fitur Lanjutan & Detail
     Route::get('/pelayanan/{id}/lanjut', [PelayananController::class, 'lanjutkan'])->name('pelayanan.lanjut');
-    Route::get('/pelayanan/{id}/detail', [PelayananController::class, 'detail'])->name('pelayanan.detail');
+    Route::get('/pelayanan/{id}/detail', [PelayananController::class, 'detail'])->name('petugas.pelayanan.detail');
     
     // Edit data pengunjung (langkah 1)
     Route::get('/pelayanan/{pelayanan}/edit-step1', [PelayananController::class, 'editStep1'])->name('pelayanan.langkah1.edit');
@@ -138,7 +138,7 @@ Route::middleware(['auth', 'isAdmin'])->prefix('admin')->group(function () {
     Route::get('/jadwal/events', [JadwalController::class, 'getEvents'])->name('admin.jadwal.events');
     
     //Detail
-    Route::get('/pelayanan/{id}/detail', [PelayananController::class, 'detail'])->name('pelayanan.detail');
+    Route::get('/pelayanan/{id}/detail', [PelayananController::class, 'detail'])->name('admin.pelayanan.detail');
 });
 
 // Dashboard Petugas PST (hanya perlu login dan role petugas)

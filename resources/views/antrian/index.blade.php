@@ -75,7 +75,7 @@
     <main class="flex-grow container mx-auto px-6 pt-12 md:pt-20 pb-16">
         <div class="text-center">
             <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-2">
-                Sistem Antrian Digital Pelayanan Statistik Terpadu
+                Sistem Antrian Digital
             </h1>
             <p class="text-lg text-gray-300 leading-relaxed mb-6">
                 Selamat datang di Pelayanan Statistik Terpadu. Silakan pilih jenis layanan di bawah.
@@ -101,7 +101,7 @@
                 </div>
 
                 <!-- Nama Layanan -->
-                <h3 class="text-lg font-semibold mb-1 text-center">Pelayanan PST</h3>
+                <h3 class="text-lg font-semibold mb-1 text-center">Pelayanan Statistik Terpadu (PST)</h3>
                 <p class="text-sm text-gray-600 mb-4 text-center flex-grow">
                     Layanan Statistik Terpadu
                 </p>
