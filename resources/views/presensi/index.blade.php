@@ -5,7 +5,7 @@
 @section('content')
 {{-- Judul Halaman --}}
 <div class="mb-8">
-    <h1 class="text-3xl font-bold">Presensi Admin PST</h1>
+    <h1 class="text-3xl font-bold">Presensi Petugas PST</h1>
     <p class="text-gray-500">Sistem pencatatan kehadiran dan kepulangan harian</p>
 </div>
 
@@ -55,24 +55,20 @@
                 </div>
             </div>
 
-            @if($presensiHariIni && is_null($presensiHariIni->waktu_pulang))
+            @if($presensiHariIni)
             <form action="{{ route('presensi.checkout') }}" method="POST">
                 @csrf
                 <button type="submit" class="bg-red-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-600 transition">
                     Check out
                 </button>
             </form>
-            @elseif(is_null($presensiHariIni))
+            @else
             <form action="{{ route('presensi.checkin') }}" method="POST">
                 @csrf
                 <button type="submit" class="bg-orange-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-orange-600 transition">
                     Check in
                 </button>
             </form>
-            @else
-            <p class="text-sm font-semibold text-green-600 bg-green-100 px-4 py-2 rounded-lg inline-block">
-                Presensi hari ini sudah selesai
-            </p>
             @endif
         </div>
 

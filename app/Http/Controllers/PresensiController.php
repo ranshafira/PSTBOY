@@ -93,31 +93,32 @@ class PresensiController extends Controller
     }
 
     public function checkOut(Request $request)
-    {
-        $user = Auth::user();
-        $today = Carbon::today();
+{
+    $user = Auth::user();
+    $today = Carbon::today();
 
-        // Cek apakah petugas dijadwalkan hari ini
-        $terjadwalHariIni = Jadwal::where('user_id', $user->id)
-            ->where('tanggal', $today)
-            ->exists();
+    // Cek apakah petugas dijadwalkan hari ini
+    $terjadwalHariIni = Jadwal::where('user_id', $user->id)
+        ->where('tanggal', $today)
+        ->exists();
 
-        if (!$terjadwalHariIni) {
-            return redirect()->route('presensi.index')->with('error', 'Anda tidak dijadwalkan hari ini. Presensi tidak diperbolehkan.');
-        }
-
-        // Update presensi jika belum check-out
-        $updated = Presensi::where('petugas_id', $user->id)
-            ->whereDate('tanggal', $today)
-            ->whereNull('waktu_pulang')
-            ->update([
-                'waktu_pulang' => now()
-            ]);
-
-        if ($updated) {
-            return redirect()->route('presensi.index')->with('success', 'Berhasil Check Out. Terima kasih!');
-        }
-
-        return redirect()->route('presensi.index')->with('error', 'Gagal melakukan check-out atau Anda belum check-in.');
+    if (!$terjadwalHariIni) {
+        return redirect()->route('presensi.index')->with('error', 'Anda tidak dijadwalkan hari ini. Presensi tidak diperbolehkan.');
     }
+
+    // Update presensi hari ini, meskipun sudah check-out sebelumnya
+    $presensi = Presensi::where('petugas_id', $user->id)
+        ->whereDate('tanggal', $today)
+        ->first();
+
+    if ($presensi) {
+        $presensi->waktu_pulang = now();
+        $presensi->save();
+
+        return redirect()->route('presensi.index')->with('success', 'Berhasil Check Out. Terima kasih!');
+    }
+
+    return redirect()->route('presensi.index')->with('error', 'Gagal melakukan check-out atau Anda belum check-in.');
+}
+
 }

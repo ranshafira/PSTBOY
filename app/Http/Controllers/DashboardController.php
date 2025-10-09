@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\BukuTamu;
 use App\Models\Pelayanan;
@@ -76,10 +77,16 @@ class DashboardController extends Controller
         $riwayatGabungan = $riwayatAntrian->concat($riwayatBukuTamu)
             ->sortByDesc('waktu');
 
-
-        $trendHarian = \App\Models\Antrian::selectRaw('DATE(created_at) as tanggal, COUNT(*) as total')
+        $userId = Auth::id();
+        $user = \App\Models\User::find($userId); 
+        
+        $trendHarian = \App\Models\Pelayanan::query()
+            ->select(DB::raw('DATE(created_at) as tanggal')) // masih pakai DB::raw untuk DATE()
+            ->selectRaw('COUNT(*) as total')                 // hitung jumlah layanan
+            ->where('petugas_id', $userId)
             ->whereMonth('created_at', now()->month)
-            ->groupBy('tanggal')
+            ->groupBy(DB::raw('DATE(created_at)'))          // grup berdasarkan tanggal
+            ->orderBy('tanggal')
             ->pluck('total', 'tanggal');
         
         $bukuTamuCount = BukuTamu::whereDate('waktu_kunjungan', today())->count();
@@ -94,6 +101,7 @@ class DashboardController extends Controller
         // Ambil data pelayanan bulan ini
         $pelayananBulanIni = \App\Models\Pelayanan::with('jenisLayanan')
             ->whereNotNull('jenis_layanan_id')
+            ->where('petugas_id', $userId)
             ->whereMonth('created_at', $bulan)
             ->whereIn('jenis_layanan_id', $filterJenisLayanan)
             ->get()
@@ -106,7 +114,8 @@ class DashboardController extends Controller
         });
 
         // Ambil data per media_layanan bulan ini
-        $mediaLayanan = \App\Models\Pelayanan::whereMonth('created_at', $bulan)
+        $mediaLayanan = \App\Models\Pelayanan::where('petugas_id', Auth::id())
+            ->whereMonth('created_at', now()->month)
             ->get()
             ->groupBy('media_layanan')
             ->map(fn($group) => $group->count());
@@ -134,6 +143,7 @@ class DashboardController extends Controller
             'bukuTamuCount',
             'riwayatGabungan',
             'pieLayananPersen',
+            'user',
         ));
     }
 }

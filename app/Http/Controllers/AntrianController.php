@@ -6,13 +6,26 @@ use App\Models\JenisLayanan;
 use App\Models\Antrian;
 use Illuminate\Http\Request;
 use App\Models\Pelayanan;
+use Carbon\Carbon;
+use App\Models\Jadwal;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class AntrianController extends Controller
 {
+
     public function index()
     {
         $jenisLayanan = JenisLayanan::all();
-        return view('antrian.index', compact('jenisLayanan'));
+        $today = Carbon::today();
+
+        // ambil semua jadwal untuk hari ini (bisa 2 shift)
+        $jadwalHariIni = Jadwal::whereDate('tanggal', $today)
+            ->with('user') // pastikan relasi user ada di model Jadwal
+            ->get();
+
+        // kirim semua jadwal hari ini ke view
+        return view('antrian.index', compact('jenisLayanan', 'jadwalHariIni'));
     }
 
     public function store(Request $request)

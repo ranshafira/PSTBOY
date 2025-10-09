@@ -75,7 +75,7 @@
     <main class="flex-grow container mx-auto px-6 pt-12 md:pt-20 pb-16">
         <div class="text-center">
             <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-2">
-                Sistem Antrian Digital PST
+                Sistem Antrian Digital Pelayanan Statistik Terpadu
             </h1>
             <p class="text-lg text-gray-300 leading-relaxed mb-6">
                 Selamat datang di Pelayanan Statistik Terpadu. Silakan pilih jenis layanan di bawah.
@@ -87,7 +87,7 @@
         </div>
 
        <!-- Grid Layanan -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 justify-center mb-12 max-w-3xl mx-auto">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 justify-center mb-6 max-w-3xl mx-auto">
             
             <!-- Card Pelayanan PST -->
             <a href="{{ route('bukutamu.pst') }}"
@@ -139,26 +139,64 @@
 
         </div>
 
-        <!-- Informasi Pelayanan -->
-        <div class="bg-white/10 backdrop-blur-lg text-white p-6 rounded-xl shadow-inner max-w-2xl mx-auto text-left border border-white/20">
-            <h3 class="text-lg font-bold mb-3">Informasi Pelayanan</h3>
-            <div class="grid sm:grid-cols-2 gap-6 text-sm">
-                <div>
-                    <p class="font-semibold">Jam Operasional:</p>
-                    <ul class="list-disc ml-5">
-                        <li>Senin - Jumat</li>
-                        <li>08:00 - 15:30 WIB</li>
-                    </ul>
+        <div class=" text-white p-6 rounded-xl shadow-inner max-w-4xl mx-auto ">
+
+            <div class="grid sm:grid-cols-2 gap-6">
+                <!-- Kolom kiri: Informasi Pelayanan -->
+                <div class="bg-white/5 rounded-lg p-4 border border-white/10">
+                    <h4 class="text-lg font-semibold mb-3 text-center text-white">Informasi Pelayanan</h4>
+                    <div class="text-sm space-y-3">
+                        <div>
+                            <p class="font-semibold mb-1">Jam Operasional:</p>
+                            <ul class="ml-5 list-disc text-gray-300">
+                                <li>Senin - Jumat</li>
+                                <li>08:00 - 15:30 WIB</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <p class="font-semibold mb-1">Ketentuan Antrian:</p>
+                            <ul class="ml-5 list-disc text-gray-300">
+                                <li>Nomor antrian berlaku untuk hari ini</li>
+                                <li>Harap datang sesuai waktu layanan</li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <p class="font-semibold">Ketentuan Antrian:</p>
-                    <ul class="list-disc ml-5">
-                        <li>Nomor antrian berlaku untuk hari ini</li>
-                        <li>Harap datang sesuai waktu layanan</li>
-                    </ul>
+
+                <!-- Kolom kanan: Petugas PST Hari Ini -->
+                <div class="bg-white/5 rounded-lg p-4 border border-white/10">
+                    <h4 class="text-lg font-semibold mb-3 text-white text-center">Petugas PST Hari Ini</h4>
+
+                    @if ($jadwalHariIni->count() > 0)
+                        <div class="space-y-3 overflow-y-auto max-h-[150px] pr-1">
+                            @foreach ($jadwalHariIni as $jadwal)
+                                <div class="flex items-center space-x-3 bg-white/5 p-3 rounded-lg border border-white/10">
+                                    {{-- Avatar bulat (inisial nama) --}}
+                                    <div class="w-10 h-10 rounded-full bg-orange-400 text-white flex items-center justify-center font-semibold text-lg">
+                                        {{ strtoupper(substr($jadwal->user->nama_lengkap ?? 'U', 0, 1)) }}
+                                    </div>
+
+                                    <div>
+                                        <p class="font-medium text-white text-sm">
+                                            {{ $jadwal->user->nama_lengkap ?? 'Nama tidak tersedia' }}
+                                        </p>
+                                        <p class="text-xs text-gray-300">
+                                            Shift <span class="capitalize">{{ $jadwal->shift ?? '-' }}</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <p class="text-sm text-gray-300 text-center">Belum ada petugas yang dijadwalkan hari ini</p>
+                    @endif
                 </div>
             </div>
         </div>
+    </div>
+
+</div>
+
 
     </main>
 

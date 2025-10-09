@@ -52,6 +52,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/absensi', [AbsensiController::class, 'index'])->name('absensi.index');
     Route::post('/absensi/check-in', [AbsensiController::class, 'checkIn'])->name('absensi.checkin');
     Route::post('/absensi/check-out', [AbsensiController::class, 'checkOut'])->name('absensi.checkout');
+
+    Route::get('/pelayanan/{id}/detail', [PelayananController::class, 'detail'])->name('pelayanan.detail');
 });
 
 // Route khusus untuk petugas PST yang harus login dan memiliki role petugas
@@ -81,7 +83,7 @@ Route::middleware(['auth', 'isPetugas'])->group(function () {
 
     // Fitur Lanjutan & Detail
     Route::get('/pelayanan/{id}/lanjut', [PelayananController::class, 'lanjutkan'])->name('pelayanan.lanjut');
-    Route::get('/pelayanan/{id}/detail', [PelayananController::class, 'detail'])->name('pelayanan.detail');
+    
     
     // Edit data pengunjung (langkah 1)
     Route::get('/pelayanan/{pelayanan}/edit-step1', [PelayananController::class, 'editStep1'])->name('pelayanan.langkah1.edit');

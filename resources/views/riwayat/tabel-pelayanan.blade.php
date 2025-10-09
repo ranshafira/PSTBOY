@@ -19,7 +19,9 @@
           <th class="px-4 py-2 text-center">Petugas</th>
           <th class="px-4 py-2 text-center">Tanggal</th>
           <th class="px-4 py-2 text-center">Status</th>
-          <th class="px-4 py-2 text-center">Aksi</th>
+          @if(auth()->user()->role_id != 3)
+              <th class="px-4 py-2 text-center">Aksi</th>
+          @endif
         </tr>
       </thead>
       <tbody class="divide-y divide-gray-100">
@@ -50,8 +52,14 @@
             @endphp
             <span class="px-2 py-1 text-xs rounded-full {{ $bgColor }}">{{ $status }}</span>
           </td>
-          <td class="px-4 py-2">
-            <a href="{{ route('pelayanan.detail', $p->id) }}" class="px-3 py-1 rounded bg-gray-100 hover:bg-gray-300 text-black-800 text-xs font-medium mr-2">Lihat Detail</a>
+          @if (auth()->user()->role_id != 3)
+            <td class="px-4 py-2 text-center">
+                <a href="{{ route('pelayanan.detail', $p->id) }}"
+                  class="px-3 py-1 rounded bg-gray-100 hover:bg-gray-300 text-black text-xs font-medium mr-2">
+                    Lihat Detail
+                </a>
+            </td>
+          @endif
         </tr>
         @endforeach
       </tbody>
