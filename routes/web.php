@@ -4,7 +4,6 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\AntrianController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\AbsensiController;
 use App\Http\Controllers\BukuTamuController;
 use App\Http\Controllers\PresensiController;
 use App\Http\Controllers\DashboardController;
@@ -16,6 +15,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\PelayananController;
 use App\Http\Controllers\SurveyController;
 use App\Http\Controllers\JadwalController;
+use App\Http\Controllers\PetugasJadwalController;
 use App\Http\Controllers\SurveySkdController;
 use App\Http\Controllers\SurveyInternalController;
 
@@ -47,11 +47,6 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/profile/edit', [ProfileController::class, 'update'])->name('profile.update');
     Route::patch('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.updatePassword');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
-    // Absensi
-    Route::get('/absensi', [AbsensiController::class, 'index'])->name('absensi.index');
-    Route::post('/absensi/check-in', [AbsensiController::class, 'checkIn'])->name('absensi.checkin');
-    Route::post('/absensi/check-out', [AbsensiController::class, 'checkOut'])->name('absensi.checkout');
 });
 
 // Route khusus untuk petugas PST yang harus login dan memiliki role petugas
@@ -82,7 +77,7 @@ Route::middleware(['auth', 'isPetugas'])->group(function () {
     // Fitur Lanjutan & Detail
     Route::get('/pelayanan/{id}/lanjut', [PelayananController::class, 'lanjutkan'])->name('pelayanan.lanjut');
     Route::get('/pelayanan/{id}/detail', [PelayananController::class, 'detail'])->name('petugas.pelayanan.detail');
-    
+
     // Edit data pengunjung (langkah 1)
     Route::get('/pelayanan/{pelayanan}/edit-step1', [PelayananController::class, 'editStep1'])->name('pelayanan.langkah1.edit');
     Route::put('/pelayanan/{pelayanan}/update-step1', [PelayananController::class, 'updateStep1'])->name('pelayanan.langkah1.update');
@@ -136,7 +131,7 @@ Route::middleware(['auth', 'isAdmin'])->prefix('admin')->group(function () {
 
     // API endpoint for calendar events
     Route::get('/jadwal/events', [JadwalController::class, 'getEvents'])->name('admin.jadwal.events');
-    
+
     //Detail
     Route::get('/pelayanan/{id}/detail', [PelayananController::class, 'detail'])->name('admin.pelayanan.detail');
 });
@@ -144,8 +139,10 @@ Route::middleware(['auth', 'isAdmin'])->prefix('admin')->group(function () {
 // Dashboard Petugas PST (hanya perlu login dan role petugas)
 Route::middleware(['auth', 'isPetugas'])->prefix('petugas')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('petugas.dashboard');
-    Route::get('/jadwal', [JadwalController::class, 'indexPetugas'])->name('petugas.jadwal.index');
-    Route::get('/jadwal/events', [JadwalController::class, 'eventsPetugas'])->name('petugas.jadwal.events');
+    Route::get('/jadwal', [PetugasJadwalController::class, 'index'])->name('petugas.jadwal.index');
+    Route::get('/jadwal/events', [PetugasJadwalController::class, 'events'])->name('petugas.jadwal.events');
+    Route::get('/jadwal/available-petugas', [PetugasJadwalController::class, 'getAvailablePetugas'])->name('petugas.jadwal.available-petugas');
+    Route::post('/jadwal/swap-request', [PetugasJadwalController::class, 'submitSwapRequest'])->name('petugas.jadwal.swap-request');
 });
 
 // Dashboard Kepala (middleware khusus kepala)

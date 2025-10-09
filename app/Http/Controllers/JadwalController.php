@@ -29,7 +29,7 @@ class JadwalController extends Controller
         return view('admin.jadwal.generate');
     }
 
-    // Proses generate jadwal
+    // Proses generate jadwal dengan pengecekan hari libur
     public function generateJadwal(Request $request)
     {
         $bulan = $request->input('bulan');
@@ -47,22 +47,23 @@ class JadwalController extends Controller
                 return redirect()->back()->with('error', 'Tidak ada petugas ditemukan.');
             }
 
-            // Ambil data hari libur dari API
-            $response = Http::get('https://api-harilibur.vercel.app/api', [
-                'month' => $bulan,
-                'year' => $tahun,
-            ]);
-            $liburData = $response->successful() ? $response->json() : [];
-            $liburTanggal = array_map(fn($item) => $item['date'] ?? $item['holiday_date'] ?? null, $liburData);
-            $libur = array_filter($liburTanggal);
+            // Ambil hari libur menggunakan helper
+            $libur = getHolidaysIndonesia($tahun);
 
-            // Hapus jadwal yang sudah ada untuk bulan dan tahun yang dipilih
+            // DEBUG: Log hari libur yang didapat
+            Log::info("=== DEBUG GENERATE JADWAL ===");
+            Log::info("Tahun: {$tahun}, Bulan: {$bulan}");
+            Log::info("Total hari libur dari API: " . count($libur));
+            Log::info("Daftar hari libur: " . json_encode($libur));
+
+            // Hapus jadwal yang sudah ada
             $startDate = "$tahun-$bulan-01";
             $endDate = Carbon::create($tahun, $bulan, 1)->endOfMonth()->format('Y-m-d');
 
-            Jadwal::whereBetween('tanggal', [$startDate, $endDate])->delete();
+            $deletedCount = Jadwal::whereBetween('tanggal', [$startDate, $endDate])->delete();
+            Log::info("Deleted {$deletedCount} existing schedules");
 
-            // Inisialisasi array untuk menghitung jumlah shift per user
+            // Inisialisasi counter
             $userShiftCount = [];
             foreach ($petugas as $user) {
                 $userShiftCount[$user->id] = [
@@ -72,74 +73,133 @@ class JadwalController extends Controller
                 ];
             }
 
-            $jadwalData = [];
             $workingDays = [];
+            $skippedDays = [];
 
             $start = Carbon::create($tahun, $bulan, 1);
             $end = $start->copy()->endOfMonth();
 
-            // Kumpulkan semua hari kerja terlebih dahulu
+            // Loop untuk identifikasi hari kerja
+            Log::info("=== ANALYZING DAYS ===");
             for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
-                if ($date->isWeekend() || in_array($date->format('Y-m-d'), $libur)) {
-                    continue;
+                $dateStr = $date->format('Y-m-d');
+                $dayName = $date->locale('id')->isoFormat('dddd, D MMMM Y');
+
+                // Cek apakah weekend
+                $isWeekend = $date->isWeekend();
+
+                // Cek apakah hari libur nasional
+                $isNationalHoliday = in_array($dateStr, $libur);
+
+                // DEBUG: Log setiap hari
+                Log::info("Checking {$dateStr} ({$dayName}): Weekend={$isWeekend}, NationalHoliday={$isNationalHoliday}");
+
+                if ($isWeekend || $isNationalHoliday) {
+                    $reason = $isWeekend ? 'Weekend' : 'Hari Libur Nasional';
+                    if ($isNationalHoliday) {
+                        $holidayName = getHolidayName($date);
+                        $reason .= " ({$holidayName})";
+                    }
+
+                    $skippedDays[] = [
+                        'date' => $dateStr,
+                        'day' => $dayName,
+                        'reason' => $reason
+                    ];
+
+                    Log::info("  → SKIPPED: {$reason}");
+                } else {
+                    $workingDays[] = $dateStr;
+                    Log::info("  → WORKING DAY");
                 }
-                $workingDays[] = $date->format('Y-m-d');
             }
 
-            // Proses untuk shift pagi
+            Log::info("=== SUMMARY ===");
+            Log::info("Total days in month: " . $end->day);
+            Log::info("Working days: " . count($workingDays));
+            Log::info("Skipped days: " . count($skippedDays));
+
+            // Jika tidak ada hari kerja sama sekali
+            if (empty($workingDays)) {
+                return redirect()->back()->with('error', 'Tidak ada hari kerja di bulan ini (semua hari adalah weekend atau libur).');
+            }
+
+            // Generate jadwal untuk hari kerja
+            Log::info("=== GENERATING SCHEDULES ===");
+            $generatedCount = 0;
+
             foreach ($workingDays as $currentDate) {
                 $date = Carbon::parse($currentDate);
-                $isJumat = $date->dayOfWeek === Carbon::FRIDAY;
+                $dayName = $date->locale('id')->isoFormat('dddd, D MMMM Y');
 
-                // Pilih user dengan jumlah shift pagi paling sedikit
+                Log::info("Generating for {$currentDate} ({$dayName})");
+
+                // Shift Pagi
                 $eligibleUsers = $petugas->shuffle()->sortBy(function ($user) use ($userShiftCount) {
                     return $userShiftCount[$user->id]['pagi'];
                 });
 
-                $selectedUser = $eligibleUsers->first();
+                $selectedUserPagi = $eligibleUsers->first();
 
                 Jadwal::create([
-                    'user_id' => $selectedUser->id,
+                    'user_id' => $selectedUserPagi->id,
                     'tanggal' => $currentDate,
                     'shift' => 'pagi'
                 ]);
 
-                // Update counter
-                $userShiftCount[$selectedUser->id]['pagi']++;
-                $userShiftCount[$selectedUser->id]['total']++;
+                $userShiftCount[$selectedUserPagi->id]['pagi']++;
+                $userShiftCount[$selectedUserPagi->id]['total']++;
+                $generatedCount++;
 
-                // Pilih user dengan jumlah shift siang paling sedikit, tapi bukan yang sudah terjadwal pagi
-                $eligibleUsers = $petugas->shuffle()->filter(function ($user) use ($selectedUser) {
-                    return $user->id != $selectedUser->id;
-                })->sortBy(function ($user) use ($userShiftCount) {
-                    return $userShiftCount[$user->id]['siang'];
-                });
+                Log::info("  → Pagi: {$selectedUserPagi->nama_lengkap}");
 
-                $selectedUser = $eligibleUsers->first();
+                // Shift Siang (pastikan beda dengan pagi)
+                $eligibleUsers = $petugas->shuffle()
+                    ->filter(function ($user) use ($selectedUserPagi) {
+                        return $user->id != $selectedUserPagi->id;
+                    })
+                    ->sortBy(function ($user) use ($userShiftCount) {
+                        return $userShiftCount[$user->id]['siang'];
+                    });
+
+                $selectedUserSiang = $eligibleUsers->first();
 
                 Jadwal::create([
-                    'user_id' => $selectedUser->id,
+                    'user_id' => $selectedUserSiang->id,
                     'tanggal' => $currentDate,
                     'shift' => 'siang'
                 ]);
 
-                // Update counter
-                $userShiftCount[$selectedUser->id]['siang']++;
-                $userShiftCount[$selectedUser->id]['total']++;
+                $userShiftCount[$selectedUserSiang->id]['siang']++;
+                $userShiftCount[$selectedUserSiang->id]['total']++;
+                $generatedCount++;
+
+                Log::info("  → Siang: {$selectedUserSiang->nama_lengkap}");
             }
 
-            // Hitung statistik distribusi untuk log
-            $stats = [];
+            // Log distribusi final
+            Log::info("=== DISTRIBUTION ===");
             foreach ($userShiftCount as $userId => $counts) {
                 $userName = $petugas->where('id', $userId)->first()->nama_lengkap;
-                $stats[] = "$userName: {$counts['pagi']} pagi, {$counts['siang']} siang, {$counts['total']} total";
+                Log::info("{$userName}: Pagi={$counts['pagi']}, Siang={$counts['siang']}, Total={$counts['total']}");
             }
 
-            Log::info('Jadwal generated with distribution: ' . implode(' | ', $stats));
+            Log::info("=== GENERATION COMPLETE ===");
+            Log::info("Total schedules generated: {$generatedCount}");
 
-            return redirect()->route('admin.jadwal.index')->with('success', 'Jadwal berhasil dibuat dengan distribusi seimbang.');
+            // Buat pesan sukses
+            $monthName = Carbon::create($tahun, $bulan, 1)->locale('id')->translatedFormat('F');
+            $message = "✅ Jadwal berhasil dibuat untuk bulan {$monthName} {$tahun}!\n\n";
+            $message .= "📊 Total hari kerja: " . count($workingDays) . " hari\n";
+            $message .= "🚫 Hari libur/weekend: " . count($skippedDays) . " hari\n";
+            $message .= "📝 Total jadwal dibuat: {$generatedCount} shift";
+
+            return redirect()->route('admin.jadwal.index')->with('success', $message);
         } catch (\Exception $e) {
-            Log::error('Error generating jadwal: ' . $e->getMessage());
+            Log::error('=== ERROR GENERATING JADWAL ===');
+            Log::error('Error: ' . $e->getMessage());
+            Log::error('Trace: ' . $e->getTraceAsString());
+
             return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
@@ -389,7 +449,6 @@ EOT;
             foreach ($jadwal as $item) {
                 $start = Carbon::parse($item->tanggal);
                 $end = Carbon::parse($item->tanggal);
-                $isJumat = $start->dayOfWeek === Carbon::FRIDAY;
 
                 if ($item->shift === 'pagi') {
                     $start->setTime(8, 0);
@@ -401,10 +460,9 @@ EOT;
 
                 $color = $this->getUserColor($item->user_id, $item->shift);
 
-                // PERUBAHAN: Hapus (pagi) dan (siang) dari title
                 $events[] = [
                     'id' => $item->id,
-                    'title' => $item->user->nama_lengkap, // Hanya nama petugas saja
+                    'title' => $item->user->nama_lengkap,
                     'start' => $start->toDateTimeString(),
                     'end' => $end->toDateTimeString(),
                     'backgroundColor' => $color,
@@ -428,11 +486,10 @@ EOT;
         }
     }
 
-    // Di JadwalController atau controller terkait
+    // PERBAIKAN: Tambah marker hari libur di calendar
     public function events(Request $request)
     {
         try {
-            // Filter jadwal berdasarkan bulan dan tahun yang dipilih
             $month = $request->input('month', date('m'));
             $year = $request->input('year', date('Y'));
             $startDate = $request->get('start');
@@ -451,11 +508,11 @@ EOT;
 
             $events = [];
 
+            // Tambahkan event jadwal petugas
             foreach ($jadwal as $item) {
                 $start = Carbon::parse($item->tanggal);
                 $end = Carbon::parse($item->tanggal);
 
-                // Tentukan waktu berdasarkan shift
                 if ($item->shift === 'pagi') {
                     $start->setTime(8, 0);
                     $end->setTime(11, 30);
@@ -466,10 +523,9 @@ EOT;
 
                 $color = $this->getUserColor($item->user_id, $item->shift);
 
-                // PERUBAHAN: Hapus (pagi) dan (siang) dari title
                 $events[] = [
                     'id' => $item->id,
-                    'title' => $item->user->nama_lengkap, // Hanya nama petugas saja
+                    'title' => $item->user->nama_lengkap,
                     'start' => $start->toDateTimeString(),
                     'end' => $end->toDateTimeString(),
                     'backgroundColor' => $color,
@@ -485,6 +541,34 @@ EOT;
                 ];
             }
 
+            // TAMBAHAN: Tambahkan marker untuk hari libur nasional
+            if ($month && $year) {
+                $holidays = getHolidaysIndonesia($year);
+
+                foreach ($holidays as $holidayDate) {
+                    $date = Carbon::parse($holidayDate);
+
+                    // Hanya tampilkan jika dalam bulan yang dipilih
+                    if ($date->month == $month) {
+                        $holidayName = getHolidayName($date);
+
+                        $events[] = [
+                            'id' => 'holiday_' . $holidayDate,
+                            'title' => '🏖️ ' . $holidayName,
+                            'start' => $date->format('Y-m-d'),
+                            'end' => $date->format('Y-m-d'),
+                            'display' => 'background',
+                            'backgroundColor' => '#FEE2E2',
+                            'borderColor' => '#EF4444',
+                            'extendedProps' => [
+                                'type' => 'holiday',
+                                'holiday_name' => $holidayName,
+                            ]
+                        ];
+                    }
+                }
+            }
+
             return response()->json($events);
         } catch (\Exception $e) {
             Log::error('Error in events: ' . $e->getMessage());
@@ -495,10 +579,7 @@ EOT;
     //Method untuk MENAMPILKAN HALAMAN jadwal khusus petugas
     public function indexPetugas()
     {
-        // Kita hanya perlu mengirim user yang sedang login ke view
         $user = auth()->user();
-
-        // Pastikan Anda punya view di resources/views/jadwal/index.blade.php
         return view('jadwal.index', compact('user'));
     }
 
@@ -535,10 +616,9 @@ EOT;
 
                 $color = $this->getUserColor($item->user_id, $item->shift);
 
-                // PERUBAHAN: Hapus (pagi) dan (siang) dari title
                 $events[] = [
                     'id' => $item->id,
-                    'title' => 'Jadwal Anda', // Judul lebih simpel tanpa shift
+                    'title' => 'Jadwal Anda',
                     'start' => $start->toDateTimeString(),
                     'end' => $end->toDateTimeString(),
                     'backgroundColor' => $color,
@@ -562,105 +642,106 @@ EOT;
     }
 
     public function exportCsv(Request $request)
-{
-    try {
-        $bulan = $request->input('bulan', date('m'));
-        $tahun = $request->input('tahun', date('Y'));
+    {
+        try {
+            $bulan = $request->input('bulan', date('m'));
+            $tahun = $request->input('tahun', date('Y'));
 
-        // Validasi input
-        if (!is_numeric($bulan) || $bulan < 1 || $bulan > 12) {
-            return redirect()->back()->with('error', 'Bulan tidak valid.');
-        }
-
-        if (!is_numeric($tahun) || $tahun < 2000 || $tahun > 2100) {
-            return redirect()->back()->with('error', 'Tahun tidak valid.');
-        }
-
-        // Query jadwal berdasarkan filter
-        $jadwal = Jadwal::with('user')
-            ->whereMonth('tanggal', $bulan)
-            ->whereYear('tanggal', $tahun)
-            ->orderBy('tanggal', 'asc')
-            ->orderBy('shift', 'asc')
-            ->get();
-
-        // Nama file CSV
-        $fileName = 'jadwal_pst_' . $bulan . '_' . $tahun . '.csv';
-
-        // Headers untuk response CSV
-        $headers = [
-            'Content-Type' => 'text/csv; charset=utf-8',
-            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
-        ];
-
-        // Callback untuk generate CSV
-        $callback = function () use ($jadwal, $bulan, $tahun) {
-            $file = fopen('php://output', 'w');
-            
-            // Add BOM for UTF-8
-            fwrite($file, "\xEF\xBB\xBF");
-            
-            // Header CSV - GUNAKAN CARBON untuk nama bulan
-            $monthName = Carbon::createFromDate($tahun, $bulan, 1)->locale('id')->translatedFormat('F');
-            fputcsv($file, [
-                'JADWAL PETUGAS PST',
-                'Bulan: ' . $monthName . ' ' . $tahun
-            ]);
-            fputcsv($file, []); // Empty row
-            
-            // Column headers
-            fputcsv($file, [
-                'No',
-                'Tanggal', 
-                'Hari', 
-                'Shift', 
-                'Waktu', 
-                'Petugas',
-                'Status'
-            ]);
-
-            // Data rows
-            $counter = 1;
-            foreach ($jadwal as $item) {
-                $tanggal = Carbon::parse($item->tanggal);
-                $hari = $tanggal->locale('id')->isoFormat('dddd');
-                
-                $shift = ucfirst($item->shift);
-                $waktu = $item->shift == 'pagi' ? '08:00 - 11:30' : '11:30 - 15:30';
-                
-                // Tentukan status berdasarkan hari libur
-                $isWeekend = $tanggal->isWeekend();
-                $status = $isWeekend ? 'Libur' : 'Kerja';
-
-                fputcsv($file, [
-                    $counter++,
-                    $tanggal->format('d-m-Y'),
-                    $hari,
-                    $shift,
-                    $waktu,
-                    $item->user->nama_lengkap,
-                    $status
-                ]);
+            // Validasi input
+            if (!is_numeric($bulan) || $bulan < 1 || $bulan > 12) {
+                return redirect()->back()->with('error', 'Bulan tidak valid.');
             }
-            
-            // Empty row
-            fputcsv($file, []);
-            
-            // Summary
-            fputcsv($file, ['SUMMARY:']);
-            fputcsv($file, ['Total Jadwal:', count($jadwal)]);
-            fputcsv($file, ['Shift Pagi:', $jadwal->where('shift', 'pagi')->count()]);
-            fputcsv($file, ['Shift Siang:', $jadwal->where('shift', 'siang')->count()]);
-            
-            fclose($file);
-        };
 
-        return response()->stream($callback, 200, $headers);
+            if (!is_numeric($tahun) || $tahun < 2000 || $tahun > 2100) {
+                return redirect()->back()->with('error', 'Tahun tidak valid.');
+            }
 
-    } catch (\Exception $e) {
-        Log::error('Error exporting CSV: ' . $e->getMessage());
-        return redirect()->back()->with('error', 'Gagal mengekspor CSV: ' . $e->getMessage());
+            // Query jadwal berdasarkan filter
+            $jadwal = Jadwal::with('user')
+                ->whereMonth('tanggal', $bulan)
+                ->whereYear('tanggal', $tahun)
+                ->orderBy('tanggal', 'asc')
+                ->orderBy('shift', 'asc')
+                ->get();
+
+            // Nama file CSV
+            $fileName = 'jadwal_pst_' . $bulan . '_' . $tahun . '.csv';
+
+            // Headers untuk response CSV
+            $headers = [
+                'Content-Type' => 'text/csv; charset=utf-8',
+                'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+            ];
+
+            // Callback untuk generate CSV
+            $callback = function () use ($jadwal, $bulan, $tahun) {
+                $file = fopen('php://output', 'w');
+
+                // Add BOM for UTF-8
+                fwrite($file, "\xEF\xBB\xBF");
+
+                // Header CSV
+                $monthName = Carbon::createFromDate($tahun, $bulan, 1)->locale('id')->translatedFormat('F');
+                fputcsv($file, [
+                    'JADWAL PETUGAS PST',
+                    'Bulan: ' . $monthName . ' ' . $tahun
+                ]);
+                fputcsv($file, []); // Empty row
+
+                // Column headers
+                fputcsv($file, [
+                    'No',
+                    'Tanggal',
+                    'Hari',
+                    'Shift',
+                    'Waktu',
+                    'Petugas',
+                    'Status'
+                ]);
+
+                // Data rows
+                $counter = 1;
+                foreach ($jadwal as $item) {
+                    $tanggal = Carbon::parse($item->tanggal);
+                    $hari = $tanggal->locale('id')->isoFormat('dddd');
+
+                    $shift = ucfirst($item->shift);
+                    $waktu = $item->shift == 'pagi' ? '08:00 - 11:30' : '11:30 - 15:30';
+
+                    // PERBAIKAN: Gunakan helper untuk cek status hari libur
+                    $status = 'Kerja';
+                    if (isHoliday($tanggal)) {
+                        $holidayName = getHolidayName($tanggal);
+                        $status = 'Libur' . ($holidayName ? " ({$holidayName})" : '');
+                    }
+
+                    fputcsv($file, [
+                        $counter++,
+                        $tanggal->format('d-m-Y'),
+                        $hari,
+                        $shift,
+                        $waktu,
+                        $item->user->nama_lengkap,
+                        $status
+                    ]);
+                }
+
+                // Empty row
+                fputcsv($file, []);
+
+                // Summary
+                fputcsv($file, ['SUMMARY:']);
+                fputcsv($file, ['Total Jadwal:', count($jadwal)]);
+                fputcsv($file, ['Shift Pagi:', $jadwal->where('shift', 'pagi')->count()]);
+                fputcsv($file, ['Shift Siang:', $jadwal->where('shift', 'siang')->count()]);
+
+                fclose($file);
+            };
+
+            return response()->stream($callback, 200, $headers);
+        } catch (\Exception $e) {
+            Log::error('Error exporting CSV: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal mengekspor CSV: ' . $e->getMessage());
+        }
     }
-}
-
 }

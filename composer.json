@@ -34,7 +34,8 @@
             "Database\\Seeders\\": "database/seeders/"
         },
         "files": [
-            "app/Helpers/FonnteHelper.php"
+            "app/Helpers/FonnteHelper.php",
+            "app/Helpers/HolidayHelper.php"
         ]
     },
     "autoload-dev": {

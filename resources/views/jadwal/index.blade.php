@@ -3,7 +3,6 @@
 @section('content')
 <div class="space-y-6">
     <!-- Welcome Card -->
-    <!-- Subtle Background Elements -->
     <div class="flex items-center mb-4">
         <div>
             <h2 class="text-2xl font-bold text-gray-800">Selamat Datang, {{ $user->nama_lengkap }}!</h2>
@@ -91,8 +90,92 @@
                 </div>
             </div>
             <div class="bg-gray-50 px-6 py-4 sm:flex sm:flex-row-reverse">
-                <button type="button" onclick="hideEventModal()" class="inline-flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2 sm:w-auto transition-all duration-200">
+                <button type="button" onclick="showSwapModal()" class="inline-flex w-full justify-center rounded-lg border border-transparent bg-orange-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 sm:w-auto sm:ml-3 transition-all duration-200">
+                    Tukar Jadwal
+                </button>
+                <button type="button" onclick="hideEventModal()" class="mt-3 inline-flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2 sm:mt-0 sm:w-auto transition-all duration-200">
                     Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tukar Jadwal Modal - ORANGE THEME -->
+<div id="swapModalBackdrop" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 transition-opacity z-40 backdrop-blur-sm"></div>
+<div id="swapModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+    <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+        <div id="swapModalDialog" class="relative transform overflow-hidden rounded-xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg opacity-0 scale-95">
+            <div class="bg-white px-6 pt-6 pb-4">
+                <div class="flex items-start">
+                    <div class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-orange-100 sm:mx-0">
+                        <svg class="h-6 w-6 text-orange-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                        </svg>
+                    </div>
+                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                        <h3 class="text-lg font-semibold leading-6 text-gray-900">Tukar Jadwal</h3>
+                        <div class="mt-6 space-y-4">
+                            <div class="bg-orange-50 rounded-lg p-4 border border-orange-200">
+                                <h4 class="text-sm font-medium text-orange-800">Jadwal Anda</h4>
+                                <div class="mt-2 space-y-2">
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-orange-600">Tanggal:</span>
+                                        <span class="text-sm font-medium text-orange-800" id="swapMyDate">-</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-orange-600">Shift:</span>
+                                        <span class="text-sm font-medium text-orange-800" id="swapMyShift">-</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Pilih Petugas untuk Ditukar</label>
+                                <select id="petugasSelect" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                                    <option value="">Pilih petugas...</option>
+                                </select>
+                                <div id="petugasLoading" class="hidden text-sm text-orange-600 mt-1">
+                                    <div class="flex items-center">
+                                        <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-orange-600 mr-2"></div>
+                                        Memuat daftar petugas...
+                                    </div>
+                                </div>
+                                <div id="petugasError" class="hidden text-sm text-red-600 mt-1"></div>
+                            </div>
+
+                            <div id="petugasJadwalInfo" class="hidden bg-orange-50 rounded-lg p-4 border border-orange-200">
+                                <h4 class="text-sm font-medium text-orange-800">Jadwal Petugas Terpilih</h4>
+                                <div class="mt-2 space-y-2">
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-orange-600">Tanggal:</span>
+                                        <span class="text-sm font-medium text-orange-800" id="swapTheirDate">-</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-orange-600">Shift:</span>
+                                        <span class="text-sm font-medium text-orange-800" id="swapTheirShift">-</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="swapWarning" class="hidden bg-amber-50 border border-amber-200 rounded-lg p-3">
+                                <div class="flex">
+                                    <svg class="h-5 w-5 text-amber-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                    </svg>
+                                    <p class="text-sm text-amber-700" id="swapWarningText"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-6 py-4 sm:flex sm:flex-row-reverse">
+                <button type="button" onclick="submitSwapRequest()" class="inline-flex w-full justify-center rounded-lg border border-transparent bg-orange-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 sm:w-auto sm:ml-3 transition-all duration-200">
+                    <span class="btn-text">Ajukan Tukar Jadwal</span>
+                </button>
+                <button type="button" onclick="hideSwapModal()" class="mt-3 inline-flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2 sm:mt-0 sm:w-auto transition-all duration-200">
+                    Batal
                 </button>
             </div>
         </div>
@@ -184,50 +267,14 @@
         opacity: 0;
     }
 
-    /* Calendar Loading */
-    .calendar-loading-modern {
-        position: relative;
-    }
-
-    .calendar-loading-modern::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(249, 115, 22, 0.05));
-        backdrop-filter: blur(8px);
-        z-index: 20;
-        border-radius: 0.5rem;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .calendar-loading-modern::after {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        border: 3px solid rgba(249, 115, 22, 0.2);
-        border-top-color: #f97316;
-        z-index: 21;
-        animation: modernSpin 1s linear infinite;
-    }
-
-    /* Enhanced Calendar Styles */
+    /* Enhanced Calendar Styles - ORANGE THEME */
     .fc-theme-standard .fc-scrollgrid {
         border-radius: 8px;
         border: 1px solid #e5e7eb;
     }
 
     .fc-col-header-cell {
-        background: linear-gradient(135deg, #fc8f41ff 0%, #ff620dff 100%) !important;
+        background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
         color: white !important;
         font-weight: 600;
         text-transform: uppercase;
@@ -271,22 +318,13 @@
         font-size: 0.75rem;
         font-weight: 500;
         padding: 2px 6px;
+        background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
     }
 
     .fc-event:hover {
         transform: translateY(-1px);
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15) !important;
-    }
-
-    .fc-toolbar {
-        margin-bottom: 1rem !important;
-        padding: 0 8px;
-    }
-
-    .fc-toolbar-title {
-        color: #374151 !important;
-        font-weight: 700 !important;
-        font-size: 1.25rem !important;
+        background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%) !important;
     }
 
     .fc-button-primary {
@@ -298,8 +336,7 @@
         font-weight: 500 !important;
         padding: 0.625rem 1rem !important;
         border-radius: 12px !important;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06),
-            0 1px 3px rgba(0, 0, 0, 0.1) !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.1) !important;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
         margin: 0 2px !important;
     }
@@ -308,8 +345,7 @@
         background: rgba(255, 255, 255, 0.95) !important;
         border: 1px solid rgba(0, 0, 0, 0.1) !important;
         color: #111827 !important;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1),
-            0 2px 6px rgba(0, 0, 0, 0.06) !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 2px 6px rgba(0, 0, 0, 0.06) !important;
         transform: translateY(-2px) !important;
     }
 
@@ -323,6 +359,37 @@
     .fc-button-primary:focus {
         outline: none !important;
         box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2) !important;
+    }
+
+    /* Calendar Loading */
+    .calendar-loading-modern::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 3px solid rgba(249, 115, 22, 0.2);
+        border-top-color: #f97316;
+        z-index: 21;
+        animation: modernSpin 1s linear infinite;
+    }
+
+    /* Swap Modal Orange Theme */
+    .swap-orange-theme {
+        border-left: 4px solid #f97316;
+        background: linear-gradient(135deg, #fef3e2 0%, #fef7ed 100%);
+    }
+
+    .swap-orange-theme #toastIcon {
+        background-color: #f97316;
+    }
+
+    /* Button Loading dengan Orange */
+    .btn-loading::before {
+        border-top: 2px solid #f97316;
     }
 
     /* Styling untuk toolbar */
@@ -358,6 +425,16 @@
 
     .toast-error #toastIcon {
         background-color: #ef4444;
+    }
+
+    /* Swap Modal Styles */
+    .toast-info {
+        border-left: 4px solid #3b82f6;
+        background: linear-gradient(135deg, #eff6ff 0%, #f0f9ff 100%);
+    }
+
+    .toast-info #toastIcon {
+        background-color: #3b82f6;
     }
 
     /* Responsive Design */
@@ -453,7 +530,7 @@
             }
         }
 
-        // Enhanced toast notification
+        // Enhanced toast notification - ORANGE THEME
         function showToast(message, type = 'success', duration = 5000) {
             const toast = document.getElementById('toast');
             const toastMessage = document.getElementById('toastMessage');
@@ -461,7 +538,6 @@
 
             if (!toast || !toastMessage || !toastIcon) return;
 
-            // pastikan newline (\n) tidak bikin pecah baris
             toastMessage.textContent = message.replace(/\n/g, ' ');
 
             // Reset classes
@@ -469,27 +545,32 @@
 
             if (type === 'success') {
                 toastIcon.innerHTML = `
-                <svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>`;
-                toast.classList.add('toast-success');
-                toastIcon.className = 'flex-shrink-0 rounded-full p-2';
-                toastMessage.className = 'text-sm font-medium text-gray-900 flex-1 whitespace-normal break-words';
+        <svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>`;
+                toast.classList.add('swap-orange-theme');
+                toastIcon.className = 'flex-shrink-0 rounded-full p-2 bg-orange-500';
             } else if (type === 'error') {
                 toastIcon.innerHTML = `
-                <svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>`;
+        <svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>`;
                 toast.classList.add('toast-error');
-                toastIcon.className = 'flex-shrink-0 rounded-full p-2';
-                toastMessage.className = 'text-sm font-medium text-gray-900 flex-1 whitespace-normal break-words';
+                toastIcon.className = 'flex-shrink-0 rounded-full p-2 bg-red-500';
+            } else if (type === 'info') {
+                toastIcon.innerHTML = `
+        <svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>`;
+                toast.classList.add('swap-orange-theme');
+                toastIcon.className = 'flex-shrink-0 rounded-full p-2 bg-orange-500';
             }
 
-            // Show toast
-            toast.classList.remove('hidden', 'translate-y-2', 'opacity-0');
-            toast.classList.add('translate-y-0', 'opacity-100');
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('translate-y-0', 'opacity-100');
+            }, 100);
 
-            // Auto hide
             setTimeout(() => {
                 hideToast();
             }, duration);
@@ -499,12 +580,11 @@
             const toast = document.getElementById('toast');
             if (!toast) return;
 
-            toast.classList.add('translate-y-2', 'opacity-0');
             toast.classList.remove('translate-y-0', 'opacity-100');
+            toast.classList.add('translate-y-2', 'opacity-0');
 
             setTimeout(() => {
                 toast.classList.add('hidden');
-                toast.classList.remove('toast-success', 'toast-error');
             }, 300);
         }
 
@@ -580,16 +660,6 @@
 
                 userColors = {};
                 setCalendarLoading(true);
-
-                // Validate input
-                if (!viewMonth || isNaN(viewMonth) || viewMonth < 1 || viewMonth > 12) {
-                    console.error('Invalid month value:', viewMonth);
-                    viewMonth = new Date().getMonth() + 1;
-                }
-                if (!viewYear || isNaN(viewYear)) {
-                    console.error('Invalid year value:', viewYear);
-                    viewYear = new Date().getFullYear();
-                }
 
                 const startDateStr = formatDate(startDate);
                 const endDateStr = formatDate(endDate);
@@ -784,6 +854,8 @@
         window.setCalendarLoading = setCalendarLoading;
         window.showToast = showToast;
         window.hideToast = hideToast;
+        window.formatDate = formatDate;
+        window.setButtonLoading = setButtonLoading;
     });
 
     // Modal elements
@@ -791,18 +863,35 @@
     const eventModal = document.getElementById('eventModal');
     const modalDialog = document.getElementById('modalDialog');
 
+    // Modal elements for swap
+    const swapModalBackdrop = document.getElementById('swapModalBackdrop');
+    const swapModal = document.getElementById('swapModal');
+    const swapModalDialog = document.getElementById('swapModalDialog');
+
     let currentJadwalId = null;
+    let currentEventData = null;
 
     function showEventModal(event) {
         currentJadwalId = event.extendedProps.jadwal_id;
+        currentEventData = {
+            id: event.extendedProps.jadwal_id,
+            tanggal: event.start,
+            shift: event.extendedProps.shift,
+            petugas: event.title
+        };
 
-        document.getElementById('modalPetugas').textContent = event.title;
+        // HILANGKAN (PAGI/SIANG) DARI TITLE
+        const petugasName = event.title.replace(/ \(.*\)$/, '');
+        document.getElementById('modalPetugas').textContent = petugasName;
+
         document.getElementById('modalDate').textContent = event.start.toLocaleDateString('id-ID', {
             weekday: 'long',
             year: 'numeric',
             month: 'long',
             day: 'numeric'
         });
+
+        // Tetap tampilkan shift di modal detail (opsional)
         const shiftText = event.extendedProps.shift ? event.extendedProps.shift.charAt(0).toUpperCase() + event.extendedProps.shift.slice(1) : '-';
         document.getElementById('modalShift').textContent = shiftText;
 
@@ -833,10 +922,343 @@
             modalBackdrop.classList.add('hidden');
             eventModal.classList.add('hidden');
             currentJadwalId = null;
+            currentEventData = null;
         }, 300);
     }
 
-    // Event listener untuk menutup modal saat mengklik backdrop
+    function showSwapModal() {
+        if (!currentEventData) {
+            showToast('Data jadwal tidak valid', 'error');
+            return;
+        }
+
+        // Set data jadwal sendiri
+        document.getElementById('swapMyDate').textContent = currentEventData.tanggal.toLocaleDateString('id-ID', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        document.getElementById('swapMyShift').textContent = currentEventData.shift.charAt(0).toUpperCase() + currentEventData.shift.slice(1);
+
+        // Load daftar petugas
+        loadAvailablePetugas();
+
+        swapModalBackdrop.classList.remove('hidden');
+        swapModal.classList.remove('hidden');
+        setTimeout(() => {
+            swapModalBackdrop.classList.remove('opacity-0');
+            swapModalDialog.classList.remove('opacity-0', 'scale-95');
+            swapModalDialog.classList.add('opacity-100', 'scale-100');
+        }, 10);
+    }
+
+    function hideSwapModal() {
+        swapModalBackdrop.classList.add('opacity-0');
+        swapModalDialog.classList.remove('opacity-100', 'scale-100');
+        swapModalDialog.classList.add('opacity-0', 'scale-95');
+        setTimeout(() => {
+            swapModalBackdrop.classList.add('hidden');
+            swapModal.classList.add('hidden');
+
+            // Reset form
+            document.getElementById('petugasSelect').value = '';
+            document.getElementById('petugasJadwalInfo').classList.add('hidden');
+            document.getElementById('swapWarning').classList.add('hidden');
+        }, 300);
+    }
+
+    function loadAvailablePetugas() {
+        const selectEl = document.getElementById('petugasSelect');
+        const loadingEl = document.getElementById('petugasLoading');
+        const errorEl = document.getElementById('petugasError');
+
+        // Reset state
+        selectEl.innerHTML = '<option value="">Memuat petugas...</option>';
+        selectEl.disabled = true;
+        loadingEl.classList.remove('hidden');
+        errorEl.classList.add('hidden');
+        errorEl.textContent = '';
+
+        try {
+            // Validasi data sebelum request
+            if (!currentEventData || !currentJadwalId) {
+                throw new Error('Data jadwal tidak valid');
+            }
+
+            const tanggal = formatDate(currentEventData.tanggal);
+            if (!tanggal) {
+                throw new Error('Format tanggal tidak valid');
+            }
+
+            console.log('Loading petugas for:', {
+                tanggal: tanggal,
+                shift: currentEventData.shift,
+                exclude_jadwal: currentJadwalId
+            });
+
+            // Build URL
+            const baseUrl = '{{ route("petugas.jadwal.available-petugas") }}';
+            const params = new URLSearchParams({
+                tanggal: tanggal,
+                shift: currentEventData.shift,
+                exclude_jadwal: currentJadwalId
+            });
+
+            const url = `${baseUrl}?${params}`;
+
+            console.log('Fetching from URL:', url);
+
+            fetch(url, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    console.log('Response received:', response.status);
+
+                    if (response.status === 500) {
+                        throw new Error('Server mengalami masalah. Silakan coba lagi.');
+                    }
+
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            let errorMsg = `Error ${response.status}`;
+                            try {
+                                const jsonData = JSON.parse(text);
+                                errorMsg = jsonData.error || jsonData.message || errorMsg;
+                            } catch (e) {
+                                errorMsg = text || errorMsg;
+                            }
+                            throw new Error(errorMsg);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Data received:', data);
+
+                    loadingEl.classList.add('hidden');
+                    selectEl.disabled = false;
+
+                    // Handle different response formats
+                    if (data && data.error) {
+                        throw new Error(data.error);
+                    }
+
+                    if (!data || !Array.isArray(data)) {
+                        throw new Error('Format response tidak valid');
+                    }
+
+                    selectEl.innerHTML = '<option value="">Pilih petugas...</option>';
+
+                    if (data.length === 0) {
+                        selectEl.innerHTML = '<option value="">Tidak ada petugas tersedia</option>';
+                        showToast('Tidak ada petugas PST lain yang tersedia untuk shift ini', 'info', 3000);
+                    } else {
+                        console.log('Processing', data.length, 'petugas');
+
+                        data.forEach((petugas, index) => {
+                            console.log('Petugas', index, ':', petugas);
+
+                            // Validasi data petugas lebih lengkap
+                            if (petugas.id && petugas.nama_lengkap) {
+                                const option = document.createElement('option');
+                                option.value = petugas.id;
+
+                                // Tampilkan status yang berbeda dengan icon
+                                let statusText = '';
+                                if (petugas.status === 'sudah_ada_jadwal') {
+                                    statusText = ' ⚡'; // Petugas sudah punya jadwal
+                                } else if (petugas.status === 'tersedia') {
+                                    statusText = ' ✅'; // Petugas tersedia
+                                }
+
+                                // Format tampilan
+                                let displayText = `${petugas.nama_lengkap}${statusText}`;
+                                if (petugas.email) {
+                                    displayText += ` (${petugas.email})`;
+                                }
+
+                                option.textContent = displayText;
+                                option.setAttribute('data-jadwal-id', petugas.jadwal_id || '');
+                                option.setAttribute('data-shift', petugas.shift || '');
+                                option.setAttribute('data-tanggal', petugas.tanggal || '');
+                                option.setAttribute('data-status', petugas.status || '');
+                                selectEl.appendChild(option);
+
+                                console.log('Added option:', displayText);
+                            } else {
+                                console.warn('Invalid petugas data skipped:', petugas);
+                            }
+                        });
+
+                        console.log('Total options added:', selectEl.options.length - 1); // Exclude first option
+
+                        if (selectEl.options.length === 1) { // Only "Pilih petugas..."
+                            selectEl.innerHTML = '<option value="">Data petugas tidak valid</option>';
+                            showToast('Data petugas tidak valid', 'error');
+                        } else {
+                            showToast(`Ditemukan ${selectEl.options.length - 1} petugas tersedia`, 'success', 2000);
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+
+                    loadingEl.classList.add('hidden');
+                    selectEl.disabled = false;
+
+                    let userMessage = 'Gagal memuat daftar petugas';
+
+                    if (error.message.includes('Server mengalami masalah')) {
+                        userMessage = error.message;
+                    } else if (error.message.includes('Network')) {
+                        userMessage = 'Koneksi internet bermasalah. Periksa koneksi Anda.';
+                    } else if (error.message.includes('Format response')) {
+                        userMessage = 'Server mengembalikan data tidak valid.';
+                    } else {
+                        userMessage = error.message || 'Terjadi kesalahan tidak terduga';
+                    }
+
+                    selectEl.innerHTML = `<option value="">${userMessage}</option>`;
+                    errorEl.textContent = userMessage;
+                    errorEl.classList.remove('hidden');
+
+                    showToast(userMessage, 'error', 5000);
+                });
+
+        } catch (error) {
+            console.error('Initialization error:', error);
+            loadingEl.classList.add('hidden');
+            selectEl.innerHTML = `<option value="">${error.message}</option>`;
+            errorEl.textContent = error.message;
+            errorEl.classList.remove('hidden');
+            showToast(error.message, 'error');
+        }
+    }
+
+    function showPetugasJadwalInfo(option) {
+        const jadwalId = option.getAttribute('data-jadwal-id');
+        const shift = option.getAttribute('data-shift');
+        const tanggal = option.getAttribute('data-tanggal');
+
+        // Format tanggal untuk display
+        const dateObj = new Date(tanggal);
+        const formattedDate = dateObj.toLocaleDateString('id-ID', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+
+        document.getElementById('swapTheirDate').textContent = formattedDate;
+        document.getElementById('swapTheirShift').textContent = shift.charAt(0).toUpperCase() + shift.slice(1);
+        document.getElementById('petugasJadwalInfo').classList.remove('hidden');
+
+        // Tampilkan warning jika shift berbeda
+        const warningEl = document.getElementById('swapWarning');
+        const warningTextEl = document.getElementById('swapWarningText');
+
+        if (currentEventData.shift !== shift) {
+            warningTextEl.textContent = `Perhatian: Anda bertukar dari shift ${currentEventData.shift} ke shift ${shift}`;
+            warningEl.classList.remove('hidden');
+        } else {
+            warningEl.classList.add('hidden');
+        }
+    }
+
+    function submitSwapRequest() {
+        const selectEl = document.getElementById('petugasSelect');
+        const selectedOption = selectEl.options[selectEl.selectedIndex];
+
+        if (!selectedOption.value) {
+            showToast('Pilih petugas terlebih dahulu', 'error');
+            return;
+        }
+
+        const targetPetugasId = selectedOption.value;
+        const targetPetugasName = selectedOption.textContent.split(' (')[0];
+        const status = selectedOption.getAttribute('data-status');
+
+        // Konfirmasi berdasarkan status
+        let confirmMessage = '';
+        if (status === 'sudah_ada_jadwal') {
+            confirmMessage = `Anda akan bertukar jadwal dengan ${targetPetugasName}. Apakah Anda yakin?`;
+        } else {
+            confirmMessage = `Anda akan mengalihkan jadwal ini ke ${targetPetugasName}. Apakah Anda yakin?`;
+        }
+
+        if (!confirm(confirmMessage)) {
+            return;
+        }
+
+        const submitBtn = document.querySelector('#swapModal button[onclick="submitSwapRequest()"]');
+        setButtonLoading(submitBtn, true, 'Memproses...');
+
+        // Hanya kirim jadwal_asal_id dan petugas_tujuan_id
+        fetch('{{ route("petugas.jadwal.swap-request") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    jadwal_asal_id: currentJadwalId,
+                    petugas_tujuan_id: targetPetugasId
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    showToast(data.message, 'success');
+                    hideSwapModal();
+                    hideEventModal();
+
+                    // Refresh calendar untuk menampilkan perubahan
+                    if (window.calendarInstance) {
+                        setTimeout(() => {
+                            window.calendarInstance.refetchEvents();
+                            showSuccessAnimation(data.message);
+                        }, 1000);
+                    }
+                } else {
+                    throw new Error(data.message || 'Terjadi kesalahan');
+                }
+            })
+            .catch(error => {
+                console.error('Error submitting swap request:', error);
+                showToast(error.message || 'Gagal memproses permintaan tukar jadwal', 'error');
+            })
+            .finally(() => {
+                setButtonLoading(submitBtn, false);
+            });
+    }
+
+    // Event listener untuk menutup modal detail jadwal saat mengklik backdrop
     modalBackdrop.addEventListener('click', hideEventModal);
+
+    // Event listener untuk menutup modal tukar jadwal saat mengklik backdrop
+    swapModalBackdrop.addEventListener('click', hideSwapModal);
+
+    // Add event listener untuk select petugas
+    document.addEventListener('change', function(e) {
+        if (e.target && e.target.id === 'petugasSelect') {
+            const selectedOption = e.target.options[e.target.selectedIndex];
+            if (selectedOption.value) {
+                showPetugasJadwalInfo(selectedOption);
+            } else {
+                document.getElementById('petugasJadwalInfo').classList.add('hidden');
+                document.getElementById('swapWarning').classList.add('hidden');
+            }
+        }
+    });
 </script>
 @endsection

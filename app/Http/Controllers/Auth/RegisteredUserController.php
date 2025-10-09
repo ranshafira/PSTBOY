@@ -39,7 +39,7 @@ class RegisteredUserController extends Controller
             ],
             'nip' => [
                 'required',
-                'digits:15',             // hanya angka & harus tepat 15 digit
+                'digits:18',             // hanya angka & harus tepat 15 digit
                 'unique:' . User::class,
             ],
             'username' => [
@@ -64,7 +64,7 @@ class RegisteredUserController extends Controller
             ],
         ], [
             'nama_lengkap.regex' => 'Nama hanya boleh berisi huruf dan spasi.',
-            'nip.digits' => 'NIP harus terdiri dari 15 angka.',
+            'nip.digits' => 'NIP harus terdiri dari 18 angka.',
             'no_hp.regex' => 'Nomor HP hanya boleh berisi angka (10–15 digit).',
             'password.min' => 'Password minimal 8 karakter.',
             'password.confirmed' => 'Konfirmasi password tidak sesuai.',

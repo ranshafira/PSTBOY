@@ -34,7 +34,7 @@ class ProfileController extends Controller
     /**
      * Tampilkan form edit password.
      */
-     public function editPassword(Request $request): View
+    public function editPassword(Request $request): View
     {
         return view('profile.password', [
             'user' => $request->user(),
