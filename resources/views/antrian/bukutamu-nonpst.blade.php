@@ -127,7 +127,7 @@
 
                     <!-- Tombol Aksi -->
                     <div class="md:col-span-2 flex justify-end space-x-3">
-                        <a href="/" class="px-5 py-2 border border-bps-primary text-bps-primary font-medium rounded-full hover:bg-bps-primary hover:text-white transition-colors">
+                        <a href="{{ url('/') }}" class="px-5 py-2 border border-bps-primary text-bps-primary font-medium rounded-full hover:bg-bps-primary hover:text-white transition-colors">
                             Kembali
                         </a>
                         <button type="submit"
