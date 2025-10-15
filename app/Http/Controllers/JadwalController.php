@@ -42,7 +42,7 @@ class JadwalController extends Controller
         ]);
 
         try {
-            $petugas = User::where('role_id', 2)->get();
+            $petugas = User::where('role_id', 2)->where('is_active', true)->get();
             if ($petugas->isEmpty()) {
                 return redirect()->back()->with('error', 'Tidak ada petugas ditemukan.');
             }
@@ -207,7 +207,7 @@ class JadwalController extends Controller
     public function edit($id)
     {
         $jadwal = Jadwal::with('user')->findOrFail($id);
-        $users = User::where('role_id', 2)->get();
+        $users = User::where('role_id', 2)->where('is_active', true)->get();
         return view('admin.jadwal.edit', compact('jadwal', 'users'));
     }
 

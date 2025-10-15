@@ -38,4 +38,20 @@ class UserManagementController extends Controller
 
         return redirect()->route('admin.petugas.index')->with('success', 'User berhasil dihapus.');
     }
+    public function toggle($id)
+    {
+        $user = User::findOrFail($id);
+
+        // Pastikan hanya petugas (role_id = 2) yang bisa diubah statusnya
+        if ($user->role_id != 2) {
+            return redirect()->back()->with('error', 'Hanya petugas yang bisa diaktifkan/nonaktifkan.');
+        }
+
+        $user->is_active = !$user->is_active;
+        $user->save();
+
+        $status = $user->is_active ? 'diaktifkan' : 'dinonaktifkan';
+        return redirect()->back()->with('success', "Petugas {$user->nama_lengkap} berhasil {$status}.");
+    }
+
 }
