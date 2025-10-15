@@ -77,6 +77,7 @@
                             <th class="px-4 py-3">Username</th>
                             <th class="px-4 py-3">Email</th>
                             <th class="px-4 py-3">No. HP</th>
+                            <th class="px-4 py-3">Status</th>
                             <th class="px-4 py-3 text-center">Aksi</th>
                         </tr>
                     </thead>
@@ -88,21 +89,45 @@
                                 <td class="px-4 py-3">{{ $user->username }}</td>
                                 <td class="px-4 py-3">{{ $user->email }}</td>
                                 <td class="px-4 py-3">{{ $user->no_hp }}</td>
+
+                                <!-- ✅ Kolom STATUS -->
                                 <td class="px-4 py-3 text-center">
-                                    <form action="{{ route('admin.petugas.destroy', $user->id) }}" method="POST" 
-                                          onsubmit="return confirm('Yakin ingin menghapus petugas ini?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" 
-                                                class="bg-red-100 text-red-700 px-3 py-1 rounded-lg hover:bg-red-200 text-xs font-medium">
-                                            Hapus
-                                        </button>
-                                    </form>
+                                    <span class="{{ $user->is_active ? 'text-green-600 font-semibold' : 'text-gray-400 italic' }}">
+                                        {{ $user->is_active ? 'Aktif' : 'Nonaktif' }}
+                                    </span>
+                                </td>
+
+                                <!-- ✅ Kolom AKSI -->
+                                <td class="px-4 py-3 text-center">
+                                    <div class="flex justify-center gap-2">
+                                        @if($user->role_id == 2)
+                                            <!-- Tombol toggle aktif/nonaktif -->
+                                            <form action="{{ route('admin.petugas.toggle', $user->id) }}" method="POST">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit"
+                                                    class="{{ $user->is_active ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200' : 'bg-green-100 text-green-700 hover:bg-green-200' }} px-3 py-1 rounded-lg text-xs font-medium">
+                                                    {{ $user->is_active ? 'Nonaktifkan' : 'Aktifkan' }}
+                                                </button>
+                                            </form>
+                                        @endif
+
+                                        <!-- Tombol hapus -->
+                                        <form action="{{ route('admin.petugas.destroy', $user->id) }}" method="POST"
+                                            onsubmit="return confirm('Yakin ingin menghapus petugas ini?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit"
+                                                    class="bg-red-100 text-red-700 px-3 py-1 rounded-lg hover:bg-red-200 text-xs font-medium">
+                                                Hapus
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center py-4 text-gray-500">Data petugas tidak ditemukan.</td>
+                                <td colspan="7" class="text-center py-4 text-gray-500">Data petugas tidak ditemukan.</td>
                             </tr>
                         @endforelse
                     </tbody>

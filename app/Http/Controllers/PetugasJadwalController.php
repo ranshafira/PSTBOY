@@ -120,6 +120,7 @@ class PetugasJadwalController extends Controller
 
             // Cari SEMUA petugas PST yang aktif
             $availableUsers = User::where('role_id', 2) // PST
+                ->where('is_active', true)
                 ->where('id', '!=', $jadwalAsal->user_id) // exclude current user
                 ->whereNotNull('nama_lengkap') // pastikan nama tidak null
                 ->get();

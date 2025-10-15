@@ -115,6 +115,8 @@ Route::middleware(['auth', 'isAdmin'])->prefix('admin')->group(function () {
     // Halaman admin untuk daftar user petugas PST
     Route::get('/petugas', [UserManagementController::class, 'index'])->name('admin.petugas.index');
     Route::delete('/petugas/{id}', [UserManagementController::class, 'destroy'])->name('admin.petugas.destroy');
+    Route::patch('/petugas/{id}/toggle', [UserManagementController::class, 'toggle'])->name('admin.petugas.toggle');
+
 
     // Register user baru khusus admin
     Route::get('/register', [RegisteredUserController::class, 'create'])->name('admin.register');
