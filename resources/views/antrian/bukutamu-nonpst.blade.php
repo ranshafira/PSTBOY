@@ -73,7 +73,7 @@
                         <label for="nama_tamu" class="block text-sm font-medium text-gray-700">
                             Nama Lengkap <span class="text-red-500">*</span>
                         </label>
-                        <input type="text" name="nama_tamu" id="nama_tamu" value="{{ old('nama_tamu') }}" required
+                        <input type="text" autocomplete="off" name="nama_tamu" id="nama_tamu" value="{{ old('nama_tamu') }}" required
                             class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-bps-primary focus:border-bps-primary">
                         @error('nama_tamu')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                     </div>
@@ -83,7 +83,7 @@
                         <label for="instansi_tamu" class="block text-sm font-medium text-gray-700">
                             Asal Instansi <span class="text-red-500">*</span>
                         </label>
-                        <input type="text" name="instansi_tamu" id="instansi_tamu" value="{{ old('instansi_tamu') }}" required
+                        <input type="text" autocomplete="off" name="instansi_tamu" id="instansi_tamu" value="{{ old('instansi_tamu') }}" required
                             class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-bps-primary focus:border-bps-primary">
                         @error('instansi_tamu')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                     </div>
@@ -93,7 +93,7 @@
                         <label for="kontak_tamu" class="block text-sm font-medium text-gray-700">
                             No. HP / Email <span class="text-red-500">*</span>
                         </label>
-                        <input type="text" name="kontak_tamu" id="kontak_tamu" value="{{ old('kontak_tamu') }}" required
+                        <input type="text" autocomplete="off" name="kontak_tamu" id="kontak_tamu" value="{{ old('kontak_tamu') }}" required
                             class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-bps-primary focus:border-bps-primary">
                         @error('kontak_tamu')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                     </div>
@@ -103,7 +103,7 @@
                         <label for="tujuan" class="block text-sm font-medium text-gray-700">
                             Keperluan Ditujukan Kepada <span class="text-red-500">*</span>
                         </label>
-                        <select name="tujuan" id="tujuan" required
+                        <select name="tujuan" autocomplete="off" id="tujuan" required
                             class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-bps-primary focus:border-bps-primary text-gray-700">
                             <option value="" disabled selected hidden>Pilih Tujuan</option>
                             <option value="Kepala BPS" {{ old('tujuan') == 'Kepala' ? 'selected' : '' }}>Kepala BPS</option>
@@ -120,7 +120,7 @@
                         <label for="keperluan" class="block text-sm font-medium text-gray-700">
                             Keperluan <span class="text-red-500">*</span>
                         </label>
-                        <textarea name="keperluan" id="keperluan" rows="4" required
+                        <textarea autocomplete="off" name="keperluan" id="keperluan" rows="4" required
                             class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-bps-primary focus:border-bps-primary">{{ old('keperluan') }}</textarea>
                         @error('keperluan')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                     </div>
