@@ -3,44 +3,24 @@
 @section('content')
 <div class="min-h-screen">
     <div class="max-w-7xl mx-auto px-4 py-8">
-        <!-- Header Section dengan Gradient -->
+        <!-- Header Section -->
         <div class="mb-8">
-            <div class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl shadow-xl p-8 text-white relative overflow-hidden">
-                <!-- Decorative Elements -->
-                <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32"></div>
-                <div class="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full -ml-24 -mb-24"></div>
-                
-                <div class="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                    <div>
-                        <div class="flex items-center gap-3 mb-2">
-                            <div class="bg-white/20 p-2 rounded-lg backdrop-blur-sm">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" 
-                                     stroke-width="2" stroke="currentColor" class="w-6 h-6">
-                                    <path stroke-linecap="round" stroke-linejoin="round" 
-                                          d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 
-                                             4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07
-                                             M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766
-                                             l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 
-                                             0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 
-                                             0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
-                                </svg>
-                            </div>
-                            <h1 class="text-3xl font-bold">Manajemen Petugas PST</h1>
-                        </div>
-                        <p class="text-orange-100 ml-14">Kelola data seluruh petugas yang terdaftar pada sistem</p>
-                    </div>
-                    <a href="{{ route('admin.register.store') }}" 
-                       class="group inline-flex items-center gap-2 bg-white text-orange-600 px-6 py-3 rounded-xl shadow-lg hover:shadow-xl hover:scale-100 transition-all duration-300 font-semibold">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" 
-                             stroke-width="2" stroke="currentColor" class="w-5 h-5">
-                            <path stroke-linecap="round" stroke-linejoin="round" 
-                                  d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 
-                                     3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 
-                                     12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
-                        </svg>
-                        Tambah Petugas
-                    </a>
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800">Manajemen Petugas PST</h1>
+                    <p class="text-gray-600 mt-2">Kelola data seluruh petugas yang terdaftar pada sistem</p>
                 </div>
+                <a href="{{ route('admin.register.store') }}" 
+                   class="group inline-flex items-center gap-2 bg-orange-500 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl hover:bg-orange-600 hover:scale-105 transition-all duration-300 font-semibold">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" 
+                         stroke-width="2" stroke="currentColor" class="w-5 h-5 ">
+                        <path stroke-linecap="round" stroke-linejoin="round" 
+                              d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 
+                                 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 
+                                 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
+                    </svg>
+                    Tambah Petugas
+                </a>
             </div>
         </div>
 
@@ -102,10 +82,10 @@
                                 <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ $user->nip }}</td>
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
-                                        <div class="w-10 h-10 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center text-white font-bold shadow-md">
+                                        <div class="w-10 h-10 min-w-[2.5rem] bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center text-white font-bold shadow-md flex-shrink-0">
                                             {{ strtoupper(substr($user->nama_lengkap, 0, 1)) }}
                                         </div>
-                                        <span class="text-sm font-medium text-gray-900">{{ $user->nama_lengkap }}</span>
+                                        <span class="text-sm font-medium text-gray-900 break-words">{{ $user->nama_lengkap }}</span>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 text-sm text-gray-700">{{ $user->username }}</td>
