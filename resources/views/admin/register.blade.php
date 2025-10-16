@@ -104,8 +104,13 @@
 
                     <div>
                         <label for="no_hp" class="block text-sm font-medium text-gray-700">No HP</label>
-                        <input id="no_hp" name="no_hp" type="text" required value="{{ old('no_hp') }}"
-                            class="input-field" placeholder="62xxxxxxxxxx" />
+                        <input id="no_hp" name="no_hp" type="text" required
+                            pattern="^62[8][0-9]{8,11}$"
+                            title="Nomor HP harus diawali dengan 62, contoh: 6281234567890"
+                            inputmode="numeric"
+                            value="{{ old('no_hp') }}"
+                            class="input-field" placeholder="628xxxxxxxxxx" />
+
                         @error('no_hp')
                         <p class="error-message">{{ $message }}</p>
                         @enderror
@@ -164,6 +169,21 @@
             </form>
         </div>
     </main>
+    <script>
+        // ambil elemen input no_hp
+        const noHpInput = document.getElementById('no_hp');
+
+        // saat form disubmit, cek validasinya
+        noHpInput.addEventListener('invalid', function(event) {
+            event.target.setCustomValidity('Nomor HP harus diawali dengan 62, contoh: 6281234567890');
+        });
+
+        // reset pesan kalau user ngetik lagi
+        noHpInput.addEventListener('input', function(event) {
+            event.target.setCustomValidity('');
+        });
+    </script>
+
 </body>
 
 </html>

@@ -71,7 +71,7 @@
                 @endif
 
                 <!-- Form Buku Tamu PST -->
-                <form action="{{ route('antrian.store') }}" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <form id="formAntrian" action="{{ route('antrian.store') }}" method="POST" autocomplete="off" class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     @csrf
 
                     <!-- Kiri -->
@@ -81,7 +81,7 @@
                             <label for="nama" class="block text-sm font-medium text-gray-700">
                                 Nama Lengkap <span class="text-red-500">*</span>
                             </label>
-                            <input type="text" name="nama_pengunjung" id="nama" value="{{ old('nama_pengunjung') }}" required
+                            <input type="text" autocomplete="off" name="nama_pengunjung" id="nama" value="{{ old('nama_pengunjung') }}" required
                                 class="h-12 mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-bps-primary focus:border-bps-primary">
                             @error('nama_pengunjung')
                             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -90,7 +90,7 @@
 
                         <!-- Instansi -->
                         <div>
-                            <label for="instansi" class="block text-sm font-medium text-gray-700">Instansi/Organisasi</label>
+                            <label for="instansi" autocomplete="off" class="block text-sm font-medium text-gray-700">Instansi/Organisasi</label>
                             <input type="text" name="instansi_pengunjung" id="instansi" value="{{ old('instansi_pengunjung') }}"
                                 class="h-12 mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-bps-primary focus:border-bps-primary">
                             @error('instansi_pengunjung')
@@ -101,7 +101,7 @@
                         <!-- Pendidikan -->
                         <div>
                             <label for="pendidikan" class="block text-sm font-medium text-gray-700">Pendidikan</label>
-                            <select name="pendidikan" id="pendidikan"
+                            <select name="pendidikan" id="pendidikan" autocomplete="off"
                                 class="h-12 mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-bps-primary focus:border-bps-primary">
                                 <option value="" disabled {{ old('pendidikan') ? '' : 'selected' }}>Pilih Jenjang</option>
                                 <option value="SMA Sederajat atau ke bawah" {{ old('pendidikan') == 'SMA Sederajat atau ke bawah' ? 'selected' : '' }}>SMA Sederajat atau ke bawah</option>
@@ -115,7 +115,7 @@
                         <!-- Email -->
                         <div>
                             <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                            <input type="email" name="email" id="email" value="{{ old('email') }}"
+                            <input type="email" autocomplete="off" name="email" id="email" value="{{ old('email') }}"
                                 class="h-12 mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-bps-primary focus:border-bps-primary">
                             @error('email')
                             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -130,13 +130,13 @@
                             <label class="block text-sm font-medium text-gray-700">Jenis Kelamin</label>
                             <div class="mt-1 flex gap-3">
                                 <label class="flex-1">
-                                    <input type="radio" name="jenis_kelamin" value="Laki-laki" class="peer hidden" {{ old('jenis_kelamin') == 'Laki-laki' ? 'checked' : '' }}>
+                                    <input type="radio" autocomplete="off" name="jenis_kelamin" value="Laki-laki" class="peer hidden" {{ old('jenis_kelamin') == 'Laki-laki' ? 'checked' : '' }}>
                                     <div class="h-12 border rounded-lg flex items-center justify-center cursor-pointer peer-checked:bg-bps-primary peer-checked:text-white">
                                         Laki-laki
                                     </div>
                                 </label>
                                 <label class="flex-1">
-                                    <input type="radio" name="jenis_kelamin" value="Perempuan" class="peer hidden" {{ old('jenis_kelamin') == 'Perempuan' ? 'checked' : '' }}>
+                                    <input type="radio" autocomplete="off" name="jenis_kelamin" value="Perempuan" class="peer hidden" {{ old('jenis_kelamin') == 'Perempuan' ? 'checked' : '' }}>
                                     <div class="h-12 border rounded-lg flex items-center justify-center cursor-pointer peer-checked:bg-bps-primary peer-checked:text-white">
                                         Perempuan
                                     </div>
@@ -150,7 +150,7 @@
                         <!-- No HP -->
                         <div>
                             <label for="hp" class="block text-sm font-medium text-gray-700">No. HP</label>
-                            <input type="text" name="no_hp" id="hp" value="{{ old('no_hp') }}"
+                            <input type="text" autocomplete="off" name="no_hp" id="hp" value="{{ old('no_hp') }}"
                                 class="h-12 mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-bps-primary focus:border-bps-primary">
                             @error('no_hp')
                             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -162,19 +162,19 @@
                             <label class="block text-sm font-medium text-gray-700">Media Layanan</label>
                             <div class="mt-1 flex gap-4">
                                 <label class="flex-1">
-                                    <input type="radio" name="media_layanan" value="langsung" onclick="toggleLayanan(true)" class="peer hidden" {{ old('media_layanan') == 'langsung' ? 'checked' : '' }}>
+                                    <input type="radio" autocomplete="off" name="media_layanan" value="langsung" onclick="toggleLayanan(true)" class="peer hidden" {{ old('media_layanan') == 'langsung' ? 'checked' : '' }}>
                                     <div class="h-12 border rounded-lg flex items-center justify-center cursor-pointer whitespace-nowrap px-6 peer-checked:bg-bps-primary peer-checked:text-white">
                                         Layanan Langsung
                                     </div>
                                 </label>
                                 <label class="flex-1">
-                                    <input type="radio" name="media_layanan" value="whatsapp" onclick="toggleLayanan(false)" class="peer hidden" {{ old('media_layanan') == 'whatsapp' ? 'checked' : '' }}>
+                                    <input type="radio" autocomplete="off" name="media_layanan" value="whatsapp" onclick="toggleLayanan(false)" class="peer hidden" {{ old('media_layanan') == 'whatsapp' ? 'checked' : '' }}>
                                     <div class="h-12 border rounded-lg flex items-center justify-center cursor-pointer whitespace-nowrap px-6 peer-checked:bg-green-600 peer-checked:text-white">
                                         WhatsApp
                                     </div>
                                 </label>
                                 <label class="flex-1">
-                                    <input type="radio" name="media_layanan" value="email" onclick="toggleLayanan(false)" class="peer hidden" {{ old('media_layanan') == 'email' ? 'checked' : '' }}>
+                                    <input type="radio" autocomplete="off" name="media_layanan" value="email" onclick="toggleLayanan(false)" class="peer hidden" {{ old('media_layanan') == 'email' ? 'checked' : '' }}>
                                     <div class="h-12 border rounded-lg flex items-center justify-center cursor-pointer whitespace-nowrap px-6 peer-checked:bg-orange-500 peer-checked:text-white">
                                         Email
                                     </div>
@@ -280,6 +280,34 @@
             }
         });
     </script>
+    <script>
+        const hpInput = document.getElementById('hp');
+        const form = document.getElementById('formAntrian');
+
+        // hanya boleh angka
+        hpInput.addEventListener('input', function() {
+            this.value = this.value.replace(/[^0-9]/g, '');
+            // hapus pesan error kalau sudah benar
+            if (this.value.startsWith('62')) {
+                this.setCustomValidity('');
+            }
+        });
+
+        // validasi sebelum submit
+        form.addEventListener('submit', function(e) {
+            const value = hpInput.value.trim();
+            if (!value.startsWith('62')) {
+                e.preventDefault(); // hentikan kirim form
+                hpInput.setCustomValidity('Nomor HP harus diawali dengan 62 (contoh: 628123456789)');
+                hpInput.reportValidity(); // munculkan popup bawaan browser
+            } else {
+                hpInput.setCustomValidity(''); // hapus pesan kalau sudah valid
+            }
+        });
+    </script>
+
+
+
 </body>
 
 </html>
