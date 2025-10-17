@@ -1168,6 +1168,7 @@
             warningEl.classList.add('hidden');
         }
     }
+    // 
 
     function submitSwapRequest() {
         const selectEl = document.getElementById('petugasSelect');
@@ -1179,8 +1180,23 @@
         }
 
         const targetPetugasId = selectedOption.value;
-        const targetPetugasName = selectedOption.textContent.split(' (')[0];
+        const targetPetugasName = selectedOption.textContent.split(' ⚡')[0].split(' ✅')[0].split(' (')[0].trim();
         const status = selectedOption.getAttribute('data-status');
+
+        // Debug log
+        console.log('Submit Swap Request - Data:', {
+            currentJadwalId: currentJadwalId,
+            targetPetugasId: targetPetugasId,
+            targetPetugasName: targetPetugasName,
+            status: status
+        });
+
+        // Validasi data sebelum submit
+        if (!currentJadwalId) {
+            showToast('Data jadwal tidak valid', 'error');
+            console.error('currentJadwalId is null or undefined');
+            return;
+        }
 
         // Konfirmasi berdasarkan status
         let confirmMessage = '';
@@ -1197,40 +1213,52 @@
         const submitBtn = document.querySelector('#swapModal button[onclick="submitSwapRequest()"]');
         setButtonLoading(submitBtn, true, 'Memproses...');
 
+        const requestData = {
+            jadwal_asal_id: currentJadwalId,
+            petugas_tujuan_id: targetPetugasId
+        };
+
+        console.log('Sending request data:', requestData);
+
         // Hanya kirim jadwal_asal_id dan petugas_tujuan_id
         fetch('{{ route("petugas.jadwal.swap-request") }}', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest'
                 },
-                body: JSON.stringify({
-                    jadwal_asal_id: currentJadwalId,
-                    petugas_tujuan_id: targetPetugasId
-                })
+                body: JSON.stringify(requestData)
             })
             .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
+                console.log('Response status:', response.status);
+                return response.json().then(data => ({
+                    status: response.status,
+                    ok: response.ok,
+                    data: data
+                }));
             })
-            .then(data => {
-                if (data.success) {
-                    showToast(data.message, 'success');
+            .then(result => {
+                console.log('Response data:', result);
+
+                if (!result.ok) {
+                    throw new Error(result.data.message || 'Terjadi kesalahan pada server');
+                }
+
+                if (result.data.success) {
+                    showToast(result.data.message || 'Jadwal berhasil diperbarui', 'success');
                     hideSwapModal();
                     hideEventModal();
 
-                    // Refresh calendar untuk menampilkan perubahan
+                    // Refresh kalender supaya jadwal langsung update
                     if (window.calendarInstance) {
                         setTimeout(() => {
                             window.calendarInstance.refetchEvents();
-                            showSuccessAnimation(data.message);
-                        }, 1000);
+                        }, 500);
                     }
                 } else {
-                    throw new Error(data.message || 'Terjadi kesalahan');
+                    showToast(result.data.message || 'Terjadi kesalahan saat memperbarui jadwal', 'error');
                 }
             })
             .catch(error => {
@@ -1241,24 +1269,5 @@
                 setButtonLoading(submitBtn, false);
             });
     }
-
-    // Event listener untuk menutup modal detail jadwal saat mengklik backdrop
-    modalBackdrop.addEventListener('click', hideEventModal);
-
-    // Event listener untuk menutup modal tukar jadwal saat mengklik backdrop
-    swapModalBackdrop.addEventListener('click', hideSwapModal);
-
-    // Add event listener untuk select petugas
-    document.addEventListener('change', function(e) {
-        if (e.target && e.target.id === 'petugasSelect') {
-            const selectedOption = e.target.options[e.target.selectedIndex];
-            if (selectedOption.value) {
-                showPetugasJadwalInfo(selectedOption);
-            } else {
-                document.getElementById('petugasJadwalInfo').classList.add('hidden');
-                document.getElementById('swapWarning').classList.add('hidden');
-            }
-        }
-    });
 </script>
 @endsection

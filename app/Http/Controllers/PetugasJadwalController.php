@@ -167,6 +167,95 @@ class PetugasJadwalController extends Controller
         }
     }
 
+    // public function submitSwapRequest(Request $request)
+    // {
+    //     $request->validate([
+    //         'jadwal_asal_id' => 'required|exists:jadwal,id',
+    //         'petugas_tujuan_id' => 'required|exists:users,id'
+    //     ]);
+
+    //     DB::beginTransaction();
+
+    //     try {
+    //         $user = Auth::user();
+    //         $jadwalAsal = Jadwal::findOrFail($request->jadwal_asal_id);
+    //         $petugasTujuan = User::findOrFail($request->petugas_tujuan_id);
+
+    //         // Validasi kepemilikan jadwal
+    //         if ($jadwalAsal->user_id !== $user->id) {
+    //             return response()->json([
+    //                 'success' => false,
+    //                 'message' => 'Anda tidak memiliki akses untuk menukar jadwal ini.'
+    //             ], 403);
+    //         }
+
+    //         // Format tanggal untuk notifikasi
+    //         $tanggalFormatted = Carbon::parse($jadwalAsal->tanggal)->translatedFormat('l, d F Y');
+    //         $shift = $jadwalAsal->shift;
+
+    //         // Cari jadwal tujuan yang sudah ada
+    //         $jadwalTujuan = Jadwal::where('user_id', $petugasTujuan->id)
+    //             ->where('tanggal', $jadwalAsal->tanggal)
+    //             ->where('shift', $jadwalAsal->shift)
+    //             ->first();
+
+    //         if ($jadwalTujuan) {
+    //             // Jika petugas tujuan sudah punya jadwal, langsung tukar
+    //             $tempUserAsal = $jadwalAsal->user_id;
+    //             $tempUserTujuan = $jadwalTujuan->user_id;
+
+    //             // Tukar jadwal
+    //             $jadwalAsal->user_id = $tempUserTujuan;
+    //             $jadwalTujuan->user_id = $tempUserAsal;
+
+    //             $jadwalAsal->save();
+    //             $jadwalTujuan->save();
+
+    //             $message = "Jadwal berhasil ditukar dengan {$petugasTujuan->nama_lengkap}";
+    //         } else {
+    //             // Jika petugas tujuan belum punya jadwal, assign jadwal baru
+    //             $jadwalAsal->user_id = $petugasTujuan->id;
+    //             $jadwalAsal->save();
+
+    //             $message = "Jadwal berhasil dialihkan ke {$petugasTujuan->nama_lengkap}";
+    //         }
+
+    //         // ✅ KIRIM NOTIFIKASI EMAIL
+    //         try {
+    //             $petugasTujuan->notify(new JadwalDitukar(
+    //                 $jadwalAsal,
+    //                 $user, // petugas asal
+    //                 $petugasTujuan, // petugas tujuan  
+    //                 $tanggalFormatted,
+    //                 $shift
+    //             ));
+
+    //             Log::info('Notifikasi email berhasil dikirim ke: ' . $petugasTujuan->email);
+    //         } catch (\Exception $e) {
+    //             Log::error('Gagal mengirim email notifikasi: ' . $e->getMessage());
+    //             // Jangan rollback transaction hanya karena gagal kirim email
+    //         }
+
+    //         DB::commit();
+
+    //         return response()->json([
+    //             'success' => true,
+    //             'message' => $message,
+    //             'data' => [
+    //                 'jadwal_asal' => $jadwalAsal,
+    //                 'petugas_tujuan' => $petugasTujuan
+    //             ]
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
+    //         Log::error('Error submitting swap request: ' . $e->getMessage());
+
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Terjadi kesalahan saat memproses permintaan tukar jadwal.'
+    //         ], 500);
+    //     }
+    // }
     public function submitSwapRequest(Request $request)
     {
         $request->validate([
@@ -181,17 +270,30 @@ class PetugasJadwalController extends Controller
             $jadwalAsal = Jadwal::findOrFail($request->jadwal_asal_id);
             $petugasTujuan = User::findOrFail($request->petugas_tujuan_id);
 
-            // Validasi kepemilikan jadwal
-            if ($jadwalAsal->user_id !== $user->id) {
+            // Debug log untuk cek data
+            Log::info('Swap Request Debug:', [
+                'current_user_id' => $user->id,
+                'jadwal_asal_user_id' => $jadwalAsal->user_id,
+                'jadwal_asal_id' => $jadwalAsal->id,
+                'petugas_tujuan_id' => $petugasTujuan->id,
+                'request_data' => $request->all()
+            ]);
+
+            // Validasi kepemilikan jadwal - PERBAIKAN DI SINI
+            // Konversi ke integer untuk memastikan perbandingan yang benar
+            if ((int)$jadwalAsal->user_id !== (int)$user->id) {
+                Log::error('Access denied - User mismatch:', [
+                    'jadwal_user_id' => $jadwalAsal->user_id,
+                    'jadwal_user_id_type' => gettype($jadwalAsal->user_id),
+                    'current_user_id' => $user->id,
+                    'current_user_id_type' => gettype($user->id)
+                ]);
+
                 return response()->json([
                     'success' => false,
                     'message' => 'Anda tidak memiliki akses untuk menukar jadwal ini.'
                 ], 403);
             }
-
-            // Format tanggal untuk notifikasi
-            $tanggalFormatted = Carbon::parse($jadwalAsal->tanggal)->translatedFormat('l, d F Y');
-            $shift = $jadwalAsal->shift;
 
             // Cari jadwal tujuan yang sudah ada
             $jadwalTujuan = Jadwal::where('user_id', $petugasTujuan->id)
@@ -211,44 +313,38 @@ class PetugasJadwalController extends Controller
                 $jadwalAsal->save();
                 $jadwalTujuan->save();
 
+                Log::info('Jadwal berhasil ditukar:', [
+                    'jadwal_asal_id' => $jadwalAsal->id,
+                    'jadwal_tujuan_id' => $jadwalTujuan->id,
+                    'user_asal' => $tempUserAsal,
+                    'user_tujuan' => $tempUserTujuan
+                ]);
+
                 $message = "Jadwal berhasil ditukar dengan {$petugasTujuan->nama_lengkap}";
             } else {
                 // Jika petugas tujuan belum punya jadwal, assign jadwal baru
                 $jadwalAsal->user_id = $petugasTujuan->id;
                 $jadwalAsal->save();
 
+                Log::info('Jadwal berhasil dialihkan:', [
+                    'jadwal_id' => $jadwalAsal->id,
+                    'dari_user' => $user->id,
+                    'ke_user' => $petugasTujuan->id
+                ]);
+
                 $message = "Jadwal berhasil dialihkan ke {$petugasTujuan->nama_lengkap}";
-            }
-
-            // ✅ KIRIM NOTIFIKASI EMAIL
-            try {
-                $petugasTujuan->notify(new JadwalDitukar(
-                    $jadwalAsal,
-                    $user, // petugas asal
-                    $petugasTujuan, // petugas tujuan  
-                    $tanggalFormatted,
-                    $shift
-                ));
-
-                Log::info('Notifikasi email berhasil dikirim ke: ' . $petugasTujuan->email);
-            } catch (\Exception $e) {
-                Log::error('Gagal mengirim email notifikasi: ' . $e->getMessage());
-                // Jangan rollback transaction hanya karena gagal kirim email
             }
 
             DB::commit();
 
             return response()->json([
                 'success' => true,
-                'message' => $message,
-                'data' => [
-                    'jadwal_asal' => $jadwalAsal,
-                    'petugas_tujuan' => $petugasTujuan
-                ]
+                'message' => $message
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error submitting swap request: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
 
             return response()->json([
                 'success' => false,
