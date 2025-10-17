@@ -211,6 +211,48 @@ class JadwalController extends Controller
         return view('admin.jadwal.edit', compact('jadwal', 'users'));
     }
 
+    // public function update(Request $request, $id)
+    // {
+    //     $jadwal = Jadwal::findOrFail($id);
+
+    //     $request->validate([
+    //         'user_id' => 'required|exists:users,id',
+    //     ]);
+
+    //     $userLama = $jadwal->user; // Petugas lama
+    //     $userBaru = User::findOrFail($request->user_id); // Petugas baru
+
+    //     // Update jadwal
+    //     $jadwal->user_id = $request->user_id;
+    //     $jadwal->save();
+
+    //     // Kirim notifikasi hanya jika ada perubahan petugas
+    //     if ($userLama->id !== $userBaru->id) {
+    //         try {
+    //             // Kirim notifikasi email terlebih dahulu
+    //             $userLama->notify(new JadwalDiubahNotification($jadwal, 'lama'));
+    //             $userBaru->notify(new JadwalDiubahNotification($jadwal, 'baru'));
+    //             Log::info('Email notifications sent successfully');
+
+    //             // Kirim notifikasi WhatsApp
+    //             $whatsappResult = $this->sendWhatsAppNotifications($userLama, $userBaru, $jadwal);
+
+    //             if ($whatsappResult) {
+    //                 $message = 'Jadwal berhasil diperbarui dan semua notifikasi (email + WhatsApp) telah dikirim.';
+    //             } else {
+    //                 $message = 'Jadwal berhasil diperbarui dan email terkirim, tetapi WhatsApp gagal dikirim.';
+    //             }
+    //         } catch (\Exception $e) {
+    //             Log::error('Error sending notifications: ' . $e->getMessage());
+    //             return redirect()->route('admin.jadwal.edit', $jadwal->id)
+    //                 ->with('warning', 'Jadwal berhasil diperbarui, tetapi ada masalah saat mengirim notifikasi: ' . $e->getMessage());
+    //         }
+    //     } else {
+    //         $message = 'Jadwal berhasil diperbarui (tidak ada perubahan petugas).';
+    //     }
+
+    //     return redirect()->route('admin.jadwal.edit', $jadwal->id)->with('success', $message);
+    // }
     public function update(Request $request, $id)
     {
         $jadwal = Jadwal::findOrFail($id);
@@ -219,39 +261,25 @@ class JadwalController extends Controller
             'user_id' => 'required|exists:users,id',
         ]);
 
-        $userLama = $jadwal->user; // Petugas lama
-        $userBaru = User::findOrFail($request->user_id); // Petugas baru
+        $userLama = $jadwal->user;
+        $userBaru = User::findOrFail($request->user_id);
 
-        // Update jadwal
+        // Update jadwal di database
         $jadwal->user_id = $request->user_id;
         $jadwal->save();
 
-        // Kirim notifikasi hanya jika ada perubahan petugas
+        // Cek apakah ada perubahan petugas
         if ($userLama->id !== $userBaru->id) {
-            try {
-                // Kirim notifikasi email terlebih dahulu
-                $userLama->notify(new JadwalDiubahNotification($jadwal, 'lama'));
-                $userBaru->notify(new JadwalDiubahNotification($jadwal, 'baru'));
-                Log::info('Email notifications sent successfully');
-
-                // Kirim notifikasi WhatsApp
-                $whatsappResult = $this->sendWhatsAppNotifications($userLama, $userBaru, $jadwal);
-
-                if ($whatsappResult) {
-                    $message = 'Jadwal berhasil diperbarui dan semua notifikasi (email + WhatsApp) telah dikirim.';
-                } else {
-                    $message = 'Jadwal berhasil diperbarui dan email terkirim, tetapi WhatsApp gagal dikirim.';
-                }
-            } catch (\Exception $e) {
-                Log::error('Error sending notifications: ' . $e->getMessage());
-                return redirect()->route('admin.jadwal.edit', $jadwal->id)
-                    ->with('warning', 'Jadwal berhasil diperbarui, tetapi ada masalah saat mengirim notifikasi: ' . $e->getMessage());
-            }
+            $message = '✅ Jadwal berhasil diperbarui (petugas diganti dari '
+                . $userLama->nama_lengkap . ' ke ' . $userBaru->nama_lengkap . ').';
         } else {
-            $message = 'Jadwal berhasil diperbarui (tidak ada perubahan petugas).';
+            $message = '✅ Jadwal berhasil diperbarui (tidak ada perubahan petugas).';
         }
 
-        return redirect()->route('admin.jadwal.edit', $jadwal->id)->with('success', $message);
+        // Langsung redirect dengan notifikasi sukses
+        return redirect()
+            ->route('admin.jadwal.edit', $jadwal->id)
+            ->with('success', $message);
     }
 
     /**
